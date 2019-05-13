@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func IntSlice(str string) []int {
+func intSlice(str string) []int {
 	splitted := strings.Split(str, " ")
 	ret := make([]int, len(splitted))
 
@@ -29,7 +29,7 @@ func main() {
 	// 一行目
 	stdin.Scan()
 	line1 := stdin.Text()
-	ints1 := IntSlice(line1)
+	ints1 := intSlice(line1)
 	a := ints1[0]
 	b := ints1[1]
 
