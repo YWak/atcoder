@@ -57,7 +57,7 @@ func main() {
 
 	// 初期化
 	for i := 0; i < n; i++ {
-		s := pair{nextString(), nextInt(), i, -1}
+		s := pair{nextString(), nextInt(), i + 1, -1}
 		shops = append(shops, s)
 	}
 
@@ -72,17 +72,8 @@ func main() {
 	for i := 0; i < n; i++ {
 		shops[i].rank2 = i + 1
 	}
-	// fmt.Println(shops)
-	for i := 0; i < n; i++ {
-		for j := i + 1; j < n; j++ {
-			if shops[i].rank1 > shops[j].rank1 {
-				swap(&shops, i, j)
-			}
-		}
-	}
-	// fmt.Println(shops)
 
 	for i := 0; i < n; i++ {
-		fmt.Println(shops[i].rank2)
+		fmt.Println(shops[i].rank1)
 	}
 }
