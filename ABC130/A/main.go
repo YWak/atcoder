@@ -1,12 +1,12 @@
-package utils
+package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strconv"
 )
 
-// io.go ----------------------------------------------------
 var stdin = initStdin()
 
 func initStdin() *bufio.Scanner {
@@ -31,4 +31,18 @@ func nextInt64() int64 {
 	return i
 }
 
-// io.go ----------------------------------------------------
+func main() {
+	times := []int{nextInt(), nextInt(), nextInt()}
+	max := 0
+	sum := 0
+
+	for i := 0; i < 3; i++ {
+		sum += times[i]
+
+		if max < times[i] {
+			max = times[i]
+		}
+	}
+
+	fmt.Println(sum - max)
+}
