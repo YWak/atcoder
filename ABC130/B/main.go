@@ -38,11 +38,17 @@ func main() {
 	D := 0
 
 	for i := 1; i <= N; i++ {
-		D += nextInt()
+		L := nextInt()
 
-		if D >= X {
+		if D+L == X {
 			fmt.Println(i + 1)
 			return
 		}
+		if D+L > X {
+			fmt.Println(i)
+			return
+		}
+		D += L
 	}
+	fmt.Println(N + 1)
 }
