@@ -32,17 +32,12 @@ func nextInt64() int64 {
 }
 
 func main() {
-	times := []int{nextInt(), nextInt(), nextInt()}
-	max := 0
-	sum := 0
+	X := nextInt()
+	A := nextInt()
 
-	for i := 0; i < 3; i++ {
-		sum += times[i]
-
-		if max < times[i] {
-			max = times[i]
-		}
+	if X < A {
+		fmt.Println(0)
+	} else {
+		fmt.Println(10)
 	}
-
-	fmt.Println(sum - max)
 }
