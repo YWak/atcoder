@@ -11,19 +11,27 @@ func main() {
 	S := nextString()
 	c1 := 0
 	c2 := 0
+	found := false
+	var second byte
 
 	for i := 0; i < 4; i++ {
 		if S[i] == S[0] {
 			c1++
 		} else {
-			c2++
+			if !found {
+				second = S[i]
+				found = true
+			}
+			if S[i] == second {
+				c2++
+			}
 		}
 	}
 
-	if c1 == c2 {
-		fmt.Println("YES")
+	if c1 == 2 && c2 == 2 {
+		fmt.Println("Yes")
 	} else {
-		fmt.Println("NO")
+		fmt.Println("No")
 	}
 }
 
