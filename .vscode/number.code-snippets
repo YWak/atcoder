@@ -1,0 +1,181 @@
+{
+    "mod operations": {
+        "scope": "go",
+        "prefix": "modを使用した操作",
+        "body": [
+            "var mod int64 = ${1:1e9 + 7}",
+            "",
+            "// mod を法とする加算",
+            "func addmod(a, b int64) int64 { return (a + b) % mod }",
+            "",
+            "// mod を法とする減算",
+            "func submod(a, b int64) int64 { return (a - b + mod) % mod }",
+            "",
+            "// mod を法とする乗算",
+            "func mulmod(a, b int64) int64 { return (a * b) % mod }",
+            "",
+            "// mod を法とする除算",
+            "func divmod(a, b int64) int64 { return mulmod(a, invmod(b)) }",
+            "",
+            "// mod を法とした逆元",
+            "func invmod(a int64) int64 {",
+        	"    // 拡張ユークリッドの互除法",
+        	"    b := mod",
+    	    "    u := int64(1)",
+	        "    v := int64(0)",
+            "    for b > 0 {",
+		    "        t := a / b",
+		    "        a -= t * b",
+		    "        a, b = b, a",
+		    "        u -= t * v",
+    		"        u, v = v, u",
+	        "    }",
+        	"    return (u + mod) % mod",
+            "}",
+            ""
+        ]
+    },
+    // 64bit integer -------------------------------------------------
+    "max 2 x int64": {
+        "scope": "go",
+        "prefix": "max64",
+        "description": "max(int64, int64)の実装",
+        "body": "func max(a, b int64) int64 { if a > b { return a } return b }\n"
+    },
+    "max n x int64": {
+        "scope": "go",
+        "prefix": "max64n",
+        "description": "max(...int64)の実装",
+        "body": [
+            "func max(a int64, b ...int64) int64 {",
+            "    l := len(b)",
+            "    for i := 0; i < l; i++ {",
+            "        if a > b[i] {",
+            "            a = b[i]",
+            "        }",
+            "    }",
+            "",
+            "    return a",
+            "}",
+            ""
+        ]
+    },
+    "min 2 x int64": {
+        "scope": "go",
+        "prefix": "min64",
+        "description": "min(int64, int64)の実装",
+        "body": "func min(a, b int64) int64 { if a < b { return a } return b }\n"
+    },
+    "min n x int64": {
+        "scope": "go",
+        "prefix": "min64n",
+        "description": "min(...int64)の実装",
+        "body": [
+            "func min(a int64, b ...int64) int64 {",
+            "    l := len(b)",
+            "    for i := 0; i < l; i++ {",
+            "        if a < b[i] {",
+            "            a = b[i]",
+            "        }",
+            "    }",
+            "",
+            "    return a",
+            "}",
+            ""
+        ]
+    },
+    "abs int64": {
+        "scope": "go",
+        "prefix": "abs64",
+        "description": "abs(int64)の実装",
+        "body": "func abs(a int64) int64 { if a > 0 { return a } return -a }\n"
+    },
+    "greatest common divider in int64": {
+        "scope": "go",
+        "prefix": "gcd64",
+        "description": "最大公約数 gcd(int64, int64) の実装",
+        "body": [
+            "func gcd(a, b int64) int64 {",
+            "    if b > a { a, b = b, a }",
+            "    for b != 0 { a, b = b, a%b }",
+            "    return a",
+            "}",
+            ""
+        ]
+    },
+    "least common multiple in int64": {
+        "scope": "go",
+        "prefix": "lcm64",
+        "description": "最小公倍数 lcm(int64, int64)の実装",
+        "body": "func lcm(a, b int64) int64 { return a * b / gcd(a, b) }\n"
+    },
+    // 32bit integer -------------------------------------------------
+    "max 2 x int32": {
+        "scope": "go",
+        "prefix": "max32",
+        "description": "max(int, int)の実装",
+        "body": "func max(a, b int) int { if a > b { return a } return b }\n"
+    },
+    "max n x int32": {
+        "scope": "go",
+        "prefix": "max32n",
+        "description": "max(...int)の実装",
+        "body": [
+            "func max(a int, b ...int) int {",
+            "    l := len(b)",
+            "    for i := 0; i < l; i++ {",
+            "        if a > b[i] {",
+            "            a = b[i]",
+            "        }",
+            "    }",
+            "",
+            "    return a",
+            "}",
+            ""
+        ]
+    },
+    "min 2 x int32": {
+        "scope": "go",
+        "prefix": "min32",
+        "description": "min(int)の実装",
+        "body": "func min(a, b int) int { if a < b { return a } return b }\n"
+    },
+    "min n x int32": {
+        "scope": "go",
+        "prefix": "min32n",
+        "description": "min(int)の実装",
+        "body": [
+            "func min(a int, b ...int) int {",
+            "    l := len(b)",
+            "    for i := 0; i < l; i++ {",
+            "        if a < b[i] {",
+            "            a = b[i]",
+            "        }",
+            "    }",
+            "",
+            "    return a",
+            "}",
+            ""
+        ]
+    },
+    "abs int32": {
+        "scope": "go",
+        "prefix": "abs32",
+        "description": "abs(int)の実装",
+        "body": "func abs(a int) int { if a > 0 { return a } else { return -a } }\n"
+    },
+    // bit 操作 ---------------------------------------------
+    "Nth bit64": {
+        "scope": "go",
+        "prefix": "nthbit64",
+        "description": "n番目のビットの値を取得する実装",
+        "body": "func nthbit(a int64, n int) int { return int((a >> uint(n)) & 1) }\n"
+    },
+    "Nth bit32": {
+        "scope": "go",
+        "prefix": "nthbit32",
+        "description": "n番目のビットの値を取得する実装",
+        "body": "func nthbit(a int, n int) int { return int((a >> uint(n)) & 1) }\n"
+    },
+
+}
