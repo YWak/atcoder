@@ -3,7 +3,7 @@
         "scope": "go",
         "prefix": "modを使用した操作",
         "body": [
-            "var mod int64 = ${1:1e9 + 7}",
+            "var mod int64 = int64(${1:1e9 + 7})",
             "",
             "// mod を法とする加算",
             "func addmod(a, b int64) int64 { return (a + b) % mod }",
