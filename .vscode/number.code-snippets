@@ -40,7 +40,7 @@
         "scope": "go",
         "prefix": "max64",
         "description": "max(int64, int64)の実装",
-        "body": "func max(a, b int64) int64 { if a > b { return a } return b }\n"
+        "body": "func max(a, b int64) int64 { if a > b { return a } \nreturn b }\n"
     },
     "max n x int64": {
         "scope": "go",
@@ -64,7 +64,7 @@
         "scope": "go",
         "prefix": "min64",
         "description": "min(int64, int64)の実装",
-        "body": "func min(a, b int64) int64 { if a < b { return a } return b }\n"
+        "body": "func min(a, b int64) int64 { if a < b { return a } \nreturn b }\n"
     },
     "min n x int64": {
         "scope": "go",
@@ -88,7 +88,7 @@
         "scope": "go",
         "prefix": "abs64",
         "description": "abs(int64)の実装",
-        "body": "func abs(a int64) int64 { if a > 0 { return a } return -a }\n"
+        "body": "func abs(a int64) int64 { if a > 0 { return a } \nreturn -a }\n"
     },
     "greatest common divider in int64": {
         "scope": "go",
@@ -114,7 +114,7 @@
         "scope": "go",
         "prefix": "max32",
         "description": "max(int, int)の実装",
-        "body": "func max(a, b int) int { if a > b { return a } return b }\n"
+        "body": "func max(a, b int) int { if a > b { return a } \nreturn b }\n"
     },
     "max n x int32": {
         "scope": "go",
@@ -138,7 +138,7 @@
         "scope": "go",
         "prefix": "min32",
         "description": "min(int)の実装",
-        "body": "func min(a, b int) int { if a < b { return a } return b }\n"
+        "body": "func min(a, b int) int { if a < b { return a } \nreturn b }\n"
     },
     "min n x int32": {
         "scope": "go",
@@ -162,7 +162,7 @@
         "scope": "go",
         "prefix": "abs32",
         "description": "abs(int)の実装",
-        "body": "func abs(a int) int { if a > 0 { return a } else { return -a } }\n"
+        "body": "func abs(a int) int { if a > 0 { return a } \nreturn -a }\n"
     },
     // bit 操作 ---------------------------------------------
     "Nth bit64": {
