@@ -114,6 +114,12 @@
             ""
         ]
     },
+    "pow int64": {
+        "scope": "go",
+        "prefix": "pow64",
+        "description": "pow(int64, int)の実装",
+        "body": "func pow(a int64, b int) int64 { return int64(math.Pow(float64(a), float64(b))) }\n"
+    },
     "greatest common divider in int64": {
         "scope": "go",
         "prefix": "gcd64",
@@ -274,6 +280,12 @@
             "}",
             ""
         ]
+    },
+    "pow int32": {
+        "scope": "go",
+        "prefix": "pow",
+        "description": "pow(int, int)の実装",
+        "body": "func pow(a, b int) int64 { return int(math.Pow(float64(a), float64(b))) }\n"
     },
     // bit 操作 ---------------------------------------------
     "Nth bit64": {
