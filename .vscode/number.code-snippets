@@ -3,7 +3,7 @@
         "scope": "go",
         "prefix": "modを使用した操作",
         "body": [
-            "var mod int64 = int64(${1:1e9 + 7})",
+            "var mod = int64(${1:1e9 + 7})",
             "",
             "// mod を法とする加算",
             "func addmod(a, b int64) int64 { return (a + b) % mod }",
@@ -40,7 +40,15 @@
         "scope": "go",
         "prefix": "max64",
         "description": "max(int64, int64)の実装",
-        "body": "func max(a, b int64) int64 { if a > b { return a } \nreturn b }\n"
+        "body": [
+            "func max(a, b int64) int64 {",
+            "    if a > b {",
+            "        return a",
+            "    }",
+            "    return b",
+            "}",
+            ""
+        ]
     },
     "max n x int64": {
         "scope": "go",
@@ -64,7 +72,15 @@
         "scope": "go",
         "prefix": "min64",
         "description": "min(int64, int64)の実装",
-        "body": "func min(a, b int64) int64 { if a < b { return a } \nreturn b }\n"
+        "body": [
+            "func min(a, b int64) int64 {",
+            "    if a < b {",
+            "        return a",
+            "    }",
+            "    return b",
+            "}",
+            ""
+        ]
     },
     "min n x int64": {
         "scope": "go",
@@ -88,7 +104,15 @@
         "scope": "go",
         "prefix": "abs64",
         "description": "abs(int64)の実装",
-        "body": "func abs(a int64) int64 { if a > 0 { return a } \nreturn -a }\n"
+        "body": [
+            "func abs(a int64) int64 {",
+            "    if a > 0 {",
+            "        return a",
+            "    }",
+            "    return -a",
+            "}",
+            ""
+        ]
     },
     "greatest common divider in int64": {
         "scope": "go",
@@ -96,8 +120,12 @@
         "description": "最大公約数 gcd(int64, int64) の実装",
         "body": [
             "func gcd(a, b int64) int64 {",
-            "    if b > a { a, b = b, a }",
-            "    for b != 0 { a, b = b, a%b }",
+            "    if b > a {",
+            "        a, b = b, a",
+            "    }",
+            "    for b != 0 {",
+            "        a, b = b, a%b",
+            "    }",
             "    return a",
             "}",
             ""
@@ -107,31 +135,63 @@
         "scope": "go",
         "prefix": "lcm64",
         "description": "最小公倍数 lcm(int64, int64)の実装",
-        "body": "func lcm(a, b int64) int64 { return a * b / gcd(a, b) }\n"
-    },
-    "dividers int64": {
-        "scope": "go",
-        "prefix": "dividers",
-        "description": "nの全約数 dividersOf(int64)の実装",
         "body": [
-            "func dividersOf(n int64) []int64 {",
+            "func lcm(a, b int64) int64 {",
+            "    return a * b / gcd(a, b)",
+            "}",
+            ""
+        ]
+    },
+    "dividers asc int64": {
+        "scope": "go",
+        "prefix": "dividers-asc",
+        "description": "nの全約数(昇順) dividersOf(int64)の実装",
+        "body": [
+            "func dividersOf(n int64, direction int) []int64 {",
             "    div1 := make([]int64, 0)",
             "    div2 := make([]int64, 0)",
             "",
-            "    for i := int64(1); i * i <= n; i++ {",
+            "    for i := int64(1); i*i <= n; i++ {",
             "        if n % i == 0 {",
             "            div1 = append(div1, i)",
             "",
-            "            if i != n / i {",
-            "                div2 = append(div2, n / i)",
+            "            if i != n/i {",
+            "                div2 = append(div2, n/i)",
             "            }",
             "        }",
             "    }",
-            "    l := int64(len(div2))",
+            "    if direction < -1 {",
             "    for i := int64(0); i < l; i++ {",
-            "        div1 = append(div1, div2[l - 1 - i])",
+            "        div1 = append(div1, div2[l-1-i])",
             "    }",
             "    return div1",
+            "}",
+            ""
+        ]
+    },
+    "dividers desc int64": {
+        "scope": "go",
+        "prefix": "dividers-desc",
+        "description": "nの全約数(降順) dividersOf(int64)の実装",
+        "body": [
+            "func dividersOf(n int64, direction int) []int64 {",
+            "    div1 := make([]int64, 0)",
+            "    div2 := make([]int64, 0)",
+            "",
+            "    for i := int64(1); i*i <= n; i++ {",
+            "        if n % i == 0 {",
+            "            div1 = append(div1, i)",
+            "",
+            "            if i != n/i {",
+            "                div2 = append(div2, n/i)",
+            "            }",
+            "        }",
+            "    }",
+            "    if direction < -1 {",
+            "    for i := int64(0); i < l; i++ {",
+            "        div3 = append(div2, div1[l-1-i])",
+            "    }",
+            "    return div2",
             "}",
             ""
         ]
@@ -141,7 +201,15 @@
         "scope": "go",
         "prefix": "max32",
         "description": "max(int, int)の実装",
-        "body": "func max(a, b int) int { if a > b { return a } \nreturn b }\n"
+        "body": [
+            "func max(a, b int) int {",
+            "    if a > b {",
+            "        return a",
+            "    }",
+            "    return b",
+            "}",
+            ""
+        ]
     },
     "max n x int32": {
         "scope": "go",
@@ -165,7 +233,15 @@
         "scope": "go",
         "prefix": "min32",
         "description": "min(int)の実装",
-        "body": "func min(a, b int) int { if a < b { return a } \nreturn b }\n"
+        "body": [
+            "func min(a, b int) int {",
+            "    if a < b {",
+            "        return a",
+            "    }",
+            "    return b",
+            "}",
+            ""
+        ]
     },
     "min n x int32": {
         "scope": "go",
@@ -189,7 +265,15 @@
         "scope": "go",
         "prefix": "abs32",
         "description": "abs(int)の実装",
-        "body": "func abs(a int) int { if a > 0 { return a } \nreturn -a }\n"
+        "body": [
+            "func abs(a int) int {",
+            "    if a > 0 {",
+            "        return a",
+            "    }",
+            "    return -a",
+            "}",
+            ""
+        ]
     },
     // bit 操作 ---------------------------------------------
     "Nth bit64": {
