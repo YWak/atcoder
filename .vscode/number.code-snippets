@@ -285,7 +285,7 @@
         "scope": "go",
         "prefix": "pow",
         "description": "pow(int, int)の実装",
-        "body": "func pow(a, b int) int64 { return int(math.Pow(float64(a), float64(b))) }\n"
+        "body": "func pow(a, b int) int { return int(math.Pow(float64(a), float64(b))) }\n"
     },
     // bit 操作 ---------------------------------------------
     "Nth bit64": {
