@@ -55,7 +55,7 @@
         "description": "Union-Find",
         "prefix": ["uf", "unionfind"],
         "body": [
-            "// UnionFind : 森構造を保持する構造体",
+            "// UnionFind : UnionFind構造を保持する構造体",
             "type UnionFind struct {",
             "    par  []int // i番目のノードに対応する親",
             "    rank []int // i番目のノードの階層",
