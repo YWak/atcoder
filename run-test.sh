@@ -16,7 +16,7 @@ for i in $(seq 5); do
     INPUT="./ex${i}.txt"
     OUTPUT="./ans${i}.txt"
 
-    if [ ! -f "$INPUT" ] || [ ! -f "$OUTPUT" ]; then
+    if [ ! -f "$INPUT" ] || [ ! -f "$OUTPUT" ] || [ ! -s "$INPUT" ]; then
         continue
     fi
 
