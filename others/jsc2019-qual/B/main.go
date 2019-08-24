@@ -12,23 +12,25 @@ func main() {
 	K := nextInt64()
 
 	A := make([]int, N)
-
 	for i := 0; i < N; i++ {
 		A[i] = nextInt()
 	}
 
-	c := int64(0)
+	c1 := int64(0)
+	c2 := int64(0)
 	for i := 0; i < N; i++ {
-		for j := i; j < N; j++ {
+		for j := 0; j < N; j++ {
 			if A[i] > A[j] {
-				c++
+				if i < j {
+					c1++
+				}
+				c2++
 			}
 		}
 	}
 
 	com := mdiv(mmul(K, K-1), 2)
-	fmt.Println(com, c)
-	fmt.Println(mmul(c, madd(int64(K), com)))
+	fmt.Println(madd(mmul(c1, int64(K)), mmul(c2, com)))
 }
 
 var mod = int64(1e9 + 7)
