@@ -41,10 +41,10 @@ func main() {
 			if nexts[j] == M {
 				continue
 			}
-			if i != a[j][nexts[j]] { // 対戦相手の予定と一致していなければ無視
+			if match[i] == 1 || match[j] == 1 { // 試合済みなら無効
 				continue
 			}
-			if match[i] == 1 || match[j] == 1 { // 試合済みなら無効
+			if i != a[j][nexts[j]] { // 対戦相手の予定と一致していなければ無視
 				continue
 			}
 
