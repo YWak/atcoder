@@ -12,21 +12,7 @@ func main() {
 	B := nextInt64()
 
 	N := gcd(A, B)
-	divisors := map[int64]bool{}
-
-	for i := int64(1); i*i <= N; i++ {
-		if N%i != 0 {
-			continue
-		}
-		if isPrime(i) {
-			divisors[i] = true
-		}
-		if isPrime(N/i) && i < N/i {
-			divisors[N/i] = true
-		}
-	}
-	// fmt.Println(N, divisors)
-	fmt.Println(len(divisors))
+	fmt.Println(len(factorize(N)) + 1)
 }
 
 func gcd(a, b int64) int64 {
@@ -39,35 +25,40 @@ func gcd(a, b int64) int64 {
 	return a
 }
 
-func root(a int64) int64 {
-	i := int64(1)
-	for i*i <= a {
-		i++
-	}
-	return i
+// PrimeFactor は素因数と指数
+type PrimeFactor struct {
+	factor int64
+	exp    int
 }
 
-func isPrime(a int64) bool {
-	if a == 2 {
-		return true
-	}
-	if a%2 == 0 {
-		return false
-	}
+func factorize(n int64) []PrimeFactor {
+	factors := make([]PrimeFactor, 0)
+	if n%2 == 0 {
+		f := PrimeFactor{2, 0}
+		factors = append(factors, f)
 
-	for i := int64(3); i*i <= a; i += 2 {
-		if a%i == 0 {
-			return false
+		for n%2 == 0 {
+			n /= 2
+			f.exp++
 		}
 	}
-	return true
-}
+	for i := int64(3); i*i <= n; i++ {
+		if n%i != 0 {
+			continue
+		}
+		f := PrimeFactor{i, 0}
+		factors = append(factors, f)
 
-func min(a, b int64) int64 {
-	if a < b {
-		return a
+		for n%i == 0 {
+			n /= i
+			f.exp++
+		}
 	}
-	return b
+
+	if n != 1 {
+		factors = append(factors, PrimeFactor{n, 1})
+	}
+	return factors
 }
 
 var stdin = initStdin()
