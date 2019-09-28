@@ -95,9 +95,9 @@ func (pq pqueue) Swap(i, j int) {
 // キューへの追加
 func (pq *pqueue) Push(x interface{}) {
 	n := len(*pq)
-	i := x.(*item)
+	i := x.(*node)
 	i.index = n
-	*pq = append(*pq, x.(*item))
+	*pq = append(*pq, x.(*node))
 }
 
 // キューからの取り出し
