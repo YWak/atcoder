@@ -11,28 +11,22 @@ func main() {
 	A := nextInt64()
 	B := nextInt64()
 
-	n := gcd(A, B)
-	c := 1
+	N := gcd(A, B)
+	divisors := map[int64]bool{}
 
-	if n%2 == 0 {
-		c++
-
-		for n%2 == 0 {
-			n >>= 1
-		}
-	}
-	for i := int64(3); n > 1; i += 2 {
-		if n%i != 0 {
+	for i := int64(1); i*i <= N; i++ {
+		if N%i != 0 {
 			continue
 		}
-		c++
-
-		for n%i == 0 {
-			n /= i
+		if isPrime(i) {
+			divisors[i] = true
+		}
+		if isPrime(N/i) && i < N/i {
+			divisors[N/i] = true
 		}
 	}
-
-	fmt.Println(c)
+	// fmt.Println(N, divisors)
+	fmt.Println(len(divisors))
 }
 
 func gcd(a, b int64) int64 {
@@ -50,7 +44,23 @@ func root(a int64) int64 {
 	for i*i <= a {
 		i++
 	}
-	return i + 1
+	return i
+}
+
+func isPrime(a int64) bool {
+	if a == 2 {
+		return true
+	}
+	if a%2 == 0 {
+		return false
+	}
+
+	for i := int64(3); i*i <= a; i += 2 {
+		if a%i == 0 {
+			return false
+		}
+	}
+	return true
 }
 
 func min(a, b int64) int64 {
