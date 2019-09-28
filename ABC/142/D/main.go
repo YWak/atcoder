@@ -11,22 +11,46 @@ func main() {
 	A := nextInt64()
 	B := nextInt64()
 
-	c := 1 // 1の分
+	n := gcd(A, B)
+	c := 1
 
-	for i := int64(2); A != 1 && B != 1 && i <= min(A, B); i++ {
-		if A%i != 0 || B%i != 0 {
+	if n%2 == 0 {
+		c++
+
+		for n%2 == 0 {
+			n >>= 1
+		}
+	}
+	for i := int64(3); n > 1; i += 2 {
+		if n%i != 0 {
 			continue
 		}
 		c++
-		for A%i == 0 {
-			A /= i
-		}
-		for B%i == 0 {
-			B /= i
+
+		for n%i == 0 {
+			n /= i
 		}
 	}
 
 	fmt.Println(c)
+}
+
+func gcd(a, b int64) int64 {
+	if b > a {
+		a, b = b, a
+	}
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
+}
+
+func root(a int64) int64 {
+	i := int64(1)
+	for i*i <= a {
+		i++
+	}
+	return i + 1
 }
 
 func min(a, b int64) int64 {
