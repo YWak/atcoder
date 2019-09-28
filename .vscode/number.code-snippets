@@ -235,6 +235,27 @@
             ""
         ]
     },
+    "isPrime int64": {
+        "scope": "go",
+        "prefix": "isprime",
+        "description": "nが素数であるかどうか",
+        "body": [
+            "func isPrime(n int64) bool {",
+            "    if n == 2 {",
+            "        return true",
+            "    } else if n < 3 {",
+            "        return false",
+            "    }",
+            "    for i := int64(3); i*i <= n; i++ {",
+            "        if n % i == 0 {",
+            "            return false",
+            "        }",
+            "    }",
+            "    return true",
+            "}",
+            ""
+        ]
+    },
     // 32bit integer -------------------------------------------------
     "max 2 x int32": {
         "scope": "go",
