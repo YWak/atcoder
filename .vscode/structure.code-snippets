@@ -14,7 +14,7 @@
             "    return PriorityQueue{queue: make([]${1}, 10), size: 0}",
             "}",
             "func (pq PriorityQueue) less(i, j int) bool {",
-            "    return pq.queue[i] < pq.queue[j]",
+            "    return pq.queue[i] > pq.queue[j] // 大きいもの優先とする",
             "}",
             "",
             "// Push は優先度付きキューに要素を一つ追加します。",
