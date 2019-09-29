@@ -3,22 +3,117 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 )
 
 func main() {
-	mod := int64(math.Pow10(9) + 7)
-	N := nextInt64()
-	K := nextInt64()
-	M := N - K
+	N := nextInt()
+	K := nextInt()
 
-	memo := map[int64]map[int64]int64{}
+	initFact(3000)
 
-	for i := int64(1); i <= K; i++ {
-		fmt.Println(mulm(combi(M+1, i, mod, memo), combi(K-1, i-1, mod, memo), mod))
+	for i := 1; i <= K; i++ {
+		fmt.Println(comb(N-K+1, i).mul(comb(K-1, i-1)))
 	}
+}
+
+var facts []mint  // facts[i] = (i + 1)! mod
+var ifacts []mint // ifacts[i] = (i + 1)! modの逆元
+
+// nの階乗までを初期化します
+func initFact(n int) {
+	facts = make([]mint, n+1)
+	ifacts = make([]mint, n+1)
+	facts[0] = mint(1)
+	ifacts[0] = mint(1)
+	m := mint(n)
+	for i := mint(0); i < m; i++ {
+		facts[i+1] = facts[i].mul(i.add(1))
+		ifacts[i+1] = ifacts[i].mul(i.add(1).pow(mod - 2))
+	}
+}
+
+// perm はnPkを返します
+func perm(n, k int) mint {
+	if n < k {
+		return 0
+	}
+	return ifacts[n-k].mul(facts[n])
+}
+
+// comb はnCkを返します
+func comb(n, k int) mint {
+	if n == 0 && k == 0 {
+		return mint(1)
+	} else if n < k || n < 0 {
+		return mint(0)
+	}
+	return facts[n].mul(ifacts[n-k]).mul(ifacts[k])
+}
+
+// dupcomb はnHkを返します
+func dupcomb(n, k int) mint {
+	if n == 0 && k == 0 {
+		return mint(1)
+	} else if n < 0 || k == 0 {
+		return mint(0)
+	}
+	return facts[n+k-1].mul(ifacts[n-1]).mul(ifacts[k])
+}
+
+type mint int64
+
+var mod = mint(1e9 + 7)
+
+// add は a + bを返します
+func (a mint) add(b mint) mint {
+	return (a + b) % mod
+}
+
+// sub は a - bを返します
+func (a mint) sub(b mint) mint {
+	return (a - b + mod) % mod
+}
+
+// mul は a * bを返します
+func (a mint) mul(b mint) mint {
+	return (a * (b % mod)) % mod
+}
+
+// div は a/bを返します
+func (a mint) div(b mint) mint {
+	return a.mul(b.inv())
+}
+
+// inv は aの逆元を返します
+func (a mint) inv() mint {
+	// 拡張ユークリッドの互除法
+	b := mod
+	u := mint(1)
+	v := mint(0)
+	for b > 0 {
+		t := a / b
+		a -= t * b
+		a, b = b, a
+		u -= t * v
+		u, v = v, u
+	}
+	return (u + mod) % mod
+}
+
+// pow は a ^ bを返します
+func (a mint) pow(b mint) mint {
+	ans := mint(1)
+
+	for b != 0 {
+		if b&1 == 1 {
+			ans = ans.mul(a)
+		}
+		a = a.mul(a)
+		b = b >> 1
+	}
+	return ans
 }
 
 var stdin = initStdin()
@@ -50,81 +145,4 @@ func nextInt64() int64 {
 	i, _ := strconv.ParseInt(nextString(), 10, 64)
 
 	return i
-}
-
-// combi はn個の要素からr個の要素を取得する組み合わせ
-func combi(n, r, mod int64, memo map[int64]map[int64]int64) int64 {
-	if n < r {
-		return 0
-	}
-
-	var m map[int64]int64
-
-	if memo != nil {
-		m, ok1 := memo[n]
-
-		if ok1 {
-			c, ok2 := m[r]
-
-			if ok2 {
-				return c
-			}
-		} else {
-			m = map[int64]int64{}
-			memo[n] = m
-		}
-	}
-
-	var c int64 = 1
-
-	for i := n; i >= (n - r + 1); i-- {
-		c = mulm(c, i, mod)
-	}
-	for i := r; i >= 1; i-- {
-		c = divm(c, i, mod)
-	}
-	if m != nil {
-		m[r] = c
-	}
-	return c
-}
-
-// mod を法とする加算
-func addm(a, b, mod int64) int64 {
-	return (a + b) % mod
-}
-
-// mod を法とする減算
-func subm(a, b, mod int64) int64 {
-	return (a - b + mod) % mod
-}
-
-// mod を法とする乗算
-func mulm(a, b, mod int64) int64 {
-	return (a * b) % mod
-}
-
-// mod を法とする除算
-func divm(a, b, mod int64) int64 {
-	return mulm(a, invm(b, mod), mod)
-}
-
-// mod を法とした逆元
-func invm(a, mod int64) int64 {
-	// 拡張ユークリッドの互除法
-	b := mod
-	u := int64(1)
-	v := int64(0)
-
-	for b > 0 {
-		t := a / b
-
-		a -= t * b
-		a, b = b, a
-
-		u -= t * v
-		u, v = v, u
-	}
-
-	return (u + mod) % mod
 }
