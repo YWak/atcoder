@@ -19,12 +19,27 @@ func main() {
 
 	// 5の指数と対応
 	// 10の倍数 + 50の倍数 + 250の倍数 + 1250の倍数 + ...
-	for n5 <= N {
+	for n5 <= N && n5 > 0 {
 		a5 += N / n5
 		n5 *= 5
 	}
 
-	fmt.Println(a5)
+	a2 := int64(0)
+	n2 := int64(2)
+
+	for n2 <= N && n2 > 0 {
+		a2 += N / n2
+		n2 *= 2
+	}
+
+	fmt.Println(min(a5, a2))
+}
+
+func min(a, b int64) int64 {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 var stdin = initStdin()
