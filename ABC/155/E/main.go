@@ -9,31 +9,32 @@ import (
 
 func main() {
 	N := nextBytes()
-
+	L := len(N)
 	c := 0
-	d := 0
 	k := 0
 
-	for i := 0; i < len(N); i++ {
+	for i := L - 1; i >= 0; i-- {
 		n := int(N[i] - '0')
 
-		// 0,1,2,3,4,5ならそのまま払う
-		// 6,7,8,9なら1枚払って(10-n)枚もらう
 		if n <= 5 {
+			// 0,1,2,3,4,5ならそのまま払う
 			c += n
-			d += k
 			k = 0
 		} else {
-			c += 11 - n
+			// 6,7,8,9なら1枚払って(10-n)枚もらう
+			c += 1 + (10 - n)
+
+			// 直前も繰り上げなら(連続している分)枚減る
+			if k > 0 {
+				c -= k + 1
+			}
 			k++
 		}
 	}
-	d += k - 1
-	if d != 0 {
-		d++
+	if k > 0 {
+		c -= k - 1
 	}
-
-	fmt.Println(c - d)
+	fmt.Println(c)
 }
 
 var stdin = initStdin()
