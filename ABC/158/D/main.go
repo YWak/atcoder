@@ -8,21 +8,26 @@ import (
 )
 
 func main() {
-	S := nextBytes()
+	S1 := nextBytes()
 	Q := nextInt()
+
+	// 逆順の文字列を準備する
+	N := len(S1)
+	S2 := make([]byte, N)
+	for i := 0; i < N; i++ {
+		S2[i] = S1[N-1-i]
+	}
 
 	heads := make([]byte, 0, Q)
 	tails := make([]byte, 0, Q)
-
-	front := true
 
 	for i := 0; i < Q; i++ {
 		T := nextInt()
 
 		if T == 1 {
 			// 反転
-			front = !front
 			heads, tails = tails, heads
+			S1, S2 = S2, S1
 		} else {
 			// 文字追加
 			F := nextInt()
@@ -36,23 +41,18 @@ func main() {
 		}
 	}
 
-	str := make([]byte, 0)
 	for i := len(heads) - 1; i >= 0; i-- {
-		str = append(str, heads[i])
+		// headsは逆順に表示
+		fmt.Printf("%c", heads[i])
 	}
-	if front {
-		for i := 0; i < len(S); i++ {
-			str = append(str, S[i])
-		}
-	} else {
-		for i := len(S) - 1; i >= 0; i-- {
-			str = append(str, S[i])
-		}
+	for i := 0; i < len(S1); i++ {
+		fmt.Printf("%c", S1[i])
 	}
 	for i := 0; i < len(tails); i++ {
-		str = append(str, tails[i])
+		// tailsは正順に表示
+		fmt.Printf("%c", tails[i])
 	}
-	fmt.Println(string(str))
+	fmt.Println()
 }
 
 var stdin = initStdin()
