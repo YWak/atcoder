@@ -11,8 +11,8 @@ func main() {
 	S := nextBytes()
 	Q := nextInt()
 
-	heads := make([]byte, 0)
-	tails := make([]byte, 0)
+	heads := make([]byte, 0, Q)
+	tails := make([]byte, 0, Q)
 
 	front := true
 
@@ -22,12 +22,13 @@ func main() {
 		if T == 1 {
 			// 反転
 			front = !front
+			heads, tails = tails, heads
 		} else {
 			// 文字追加
 			F := nextInt()
 			C := nextBytes()
 
-			if (front && F == 1) || (!front && F == 2) {
+			if F == 1 {
 				heads = append(heads, C[0])
 			} else {
 				tails = append(tails, C[0])
@@ -36,26 +37,20 @@ func main() {
 	}
 
 	str := make([]byte, 0)
+	for i := len(heads) - 1; i >= 0; i-- {
+		str = append(str, heads[i])
+	}
 	if front {
-		for i := len(heads) - 1; i >= 0; i-- {
-			str = append(str, heads[i])
-		}
 		for i := 0; i < len(S); i++ {
 			str = append(str, S[i])
 		}
-		for i := 0; i < len(tails); i++ {
-			str = append(str, tails[i])
-		}
 	} else {
-		for i := len(tails) - 1; i >= 0; i-- {
-			str = append(str, tails[i])
-		}
 		for i := len(S) - 1; i >= 0; i-- {
 			str = append(str, S[i])
 		}
-		for i := 0; i < len(heads); i++ {
-			str = append(str, heads[i])
-		}
+	}
+	for i := 0; i < len(tails); i++ {
+		str = append(str, tails[i])
 	}
 	fmt.Println(string(str))
 }
