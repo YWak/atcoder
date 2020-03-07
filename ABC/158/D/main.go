@@ -9,14 +9,14 @@ import (
 
 func main() {
 	S := nextBytes()
-	N := nextInt()
+	Q := nextInt()
 
 	heads := make([]byte, 0)
 	tails := make([]byte, 0)
 
 	front := true
 
-	for i := 0; i < N; i++ {
+	for i := 0; i < Q; i++ {
 		T := nextInt()
 
 		if T == 1 {
@@ -24,38 +24,40 @@ func main() {
 			front = !front
 		} else {
 			// 文字追加
-			F := nextString()
+			F := nextInt()
+			C := nextBytes()
 
-			if front {
-				heads = append(heads, F[0])
+			if front && F == 1 || !front && F == 2 {
+				heads = append(heads, C[0])
 			} else {
-				tails = append(tails, F[0])
+				tails = append(tails, C[0])
 			}
 		}
 	}
 
+	str := make([]byte, 0)
 	if front {
 		for i := len(heads) - 1; i >= 0; i-- {
-			fmt.Print(heads[i])
+			str = append(str, heads[i])
 		}
 		for i := 0; i < len(S); i++ {
-			fmt.Print(S[i])
+			str = append(str, S[i])
 		}
 		for i := 0; i < len(tails); i++ {
-			fmt.Print(tails[i])
+			str = append(str, tails[i])
 		}
 	} else {
 		for i := len(tails) - 1; i >= 0; i-- {
-			fmt.Print(tails[i])
+			str = append(str, tails[i])
 		}
 		for i := len(S) - 1; i >= 0; i-- {
-			fmt.Print(S[i])
+			str = append(str, S[i])
 		}
 		for i := 0; i < len(heads); i++ {
-			fmt.Print(heads[i])
+			str = append(str, heads[i])
 		}
 	}
-	fmt.Println()
+	fmt.Println(string(str))
 }
 
 var stdin = initStdin()
