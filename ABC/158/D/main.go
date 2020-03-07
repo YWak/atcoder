@@ -27,7 +27,7 @@ func main() {
 			F := nextInt()
 			C := nextBytes()
 
-			if front && F == 1 || !front && F == 2 {
+			if (front && F == 1) || (!front && F == 2) {
 				heads = append(heads, C[0])
 			} else {
 				tails = append(tails, C[0])
