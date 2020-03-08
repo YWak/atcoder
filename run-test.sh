@@ -8,7 +8,7 @@ fi
 cd "$1" || exit 1
 EXE="./main"
 TEMPFILE=$(mktemp)
-go build -o $EXE main.go
+go1.6 build -o $EXE main.go
 
 trap 'rm -rf main $TEMPFILE' 0
 
