@@ -12,10 +12,12 @@ func main() {
 	H := nextInt64()
 	W := nextInt64()
 
-	if W%2 == 0 {
-		fmt.Println(H * W / 2)
+	if H == 1 || W == 1 {
+		fmt.Println(1)
+	} else if H%2 == 1 && W%2 == 1 {
+		fmt.Println(H*W/2 + 1)
 	} else {
-		fmt.Println(H*(W/2) + (H+1)/2)
+		fmt.Println(H * W / 2)
 	}
 }
 
