@@ -32,7 +32,6 @@ func main() {
 		queue = queue[1:]
 
 		if item.balls == 0 && item.lines == 0 {
-			item.arr = append(item.arr, 0)
 			A := make([]int, 0)
 			s := 0
 			for i := 0; i < len(item.arr); i++ {
