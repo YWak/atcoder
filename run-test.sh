@@ -7,10 +7,11 @@ fi
 
 cd "$1" || exit 1
 EXE="./main"
-TEMPFILE=$(mktemp)
+TEMPFILE1=$(mktemp)
+TEMPFILE2=$(mktemp)
 go1.6 build -o $EXE main.go
 
-trap 'rm -rf main $TEMPFILE' 0
+trap 'rm -rf main $TEMPFILE1 $TEMPFILE2 $EXE' 0
 
 for i in $(seq 5); do
     INPUT="./ex${i}.txt"
@@ -20,12 +21,12 @@ for i in $(seq 5); do
         continue
     fi
 
-    $EXE < "$INPUT" | diff --side-by-side - "$OUTPUT" > "$TEMPFILE"
+    time -f '%U' $EXE < "$INPUT" 2> "$TEMPFILE2" | diff --side-by-side - "$OUTPUT" > "$TEMPFILE1"
 
     if [ $? = 0 ]; then
-        echo "$i => OK" >&2
+        echo "$i => OK ($(cat $TEMPFILE2)s)" >&2
     else
-        echo "$i => NG" >&2
-        cat "$TEMPFILE" >&2
+        echo "$i => NG ($(cat $TEMPFILE2)s)" >&2
+        cat "$TEMPFILE1" >&2
     fi
 done
