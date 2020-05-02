@@ -23,40 +23,7 @@ func main() {
 		c[i] = nextInt()
 		d[i] = nextInt()
 	}
-	candidates := make([][]int, 0)
-	queue := make([]q, 0)
-	queue = append(queue, q{M, N, []int{}})
-
-	for len(queue) > 0 {
-		item := queue[0]
-		queue = queue[1:]
-
-		if item.balls == 0 && item.lines == 0 {
-			A := make([]int, 0)
-			s := 0
-			for i := 0; i < len(item.arr); i++ {
-				if item.arr[i] == 1 {
-					s++
-				} else {
-					A = append(A, s)
-				}
-			}
-
-			candidates = append(candidates, A)
-			continue
-		}
-
-		if item.balls > 0 {
-			q1 := q{item.balls - 1, item.lines, copy(item.arr)}
-			q1.arr = append(q1.arr, 1)
-			queue = append(queue, q1)
-		}
-		if item.balls != M && item.lines > 0 {
-			q2 := q{item.balls, item.lines - 1, copy(item.arr)}
-			q2.arr = append(q2.arr, 0)
-			queue = append(queue, q2)
-		}
-	}
+	candidates := increasing(M, N)
 
 	ans := 0
 
@@ -82,27 +49,37 @@ func max(a, b int) int {
 	return b
 }
 
-type q struct {
-	balls int
-	lines int
-	arr   []int
+// 1からnまでのm項からなる単調増加列
+func increasing(n, m int) [][]int {
+	return increasing1(1, 0, n, m, []int{1})
 }
 
-func copy(f []int) []int {
-	t := make([]int, len(f))
-
-	for i := 0; i < len(f); i++ {
-		t[i] = f[i]
+//
+func increasing1(n, m, N, M int, arr []int) [][]int {
+	if n == N && m == M {
+		ret := []int{}
+		s := 0
+		for i := 0; i < len(arr); i++ {
+			if arr[i] == 1 {
+				s++
+			} else {
+				ret = append(ret, s)
+			}
+		}
+		return [][]int{ret}
 	}
-
-	return t
-}
-
-func printarr(arr []int) {
-	for i := 0; i < len(arr); i++ {
-		print(arr[i], ",")
+	ret := [][]int{}
+	if n < N {
+		arr1 := append([]int{}, arr...)
+		arr1 = append(arr1, 1)
+		ret = append(ret, increasing1(n+1, m, N, M, arr1)...)
 	}
-	println()
+	if m < M {
+		arr0 := append([]int{}, arr...)
+		arr0 = append(arr0, 0)
+		ret = append(ret, increasing1(n, m+1, N, M, arr0)...)
+	}
+	return ret
 }
 
 var stdin = initStdin()
