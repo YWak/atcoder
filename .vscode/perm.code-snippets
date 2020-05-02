@@ -37,7 +37,7 @@
             "}",
             "// ",
             "func increasing1(n, m, N, M int, arr []int) [][]int {",
-            "    if n == N && m == M {",
+            "    if m == M {",
             "        ret := []int{}",
             "        s := 0",
             "        for i := 0; i < len(arr); i++ {",

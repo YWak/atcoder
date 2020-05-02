@@ -56,7 +56,7 @@ func increasing(n, m int) [][]int {
 
 //
 func increasing1(n, m, N, M int, arr []int) [][]int {
-	if n == N && m == M {
+	if m == M {
 		ret := []int{}
 		s := 0
 		for i := 0; i < len(arr); i++ {
@@ -66,6 +66,7 @@ func increasing1(n, m, N, M int, arr []int) [][]int {
 				ret = append(ret, s)
 			}
 		}
+		// len(ret) == M
 		return [][]int{ret}
 	}
 	ret := [][]int{}
