@@ -7,14 +7,19 @@ import (
 	"strconv"
 )
 
-var n = 100 // i^5 > math.MaxInt32 となるi
+var n = 1000
 
 func main() {
 	X := nextInt64()
 	f := make([]int64, n)
 
-	for i := 0; i < n; i++ {
+	for i := 0; true; i++ {
 		f[i] = int64(i*i) * int64(i*i*i)
+
+		if i > 0 && f[i]-f[i-1] > int64(10e9) {
+			n = i
+			break
+		}
 	}
 	for j := 0; j < n; j++ {
 		for i := 0; i < n; i++ {
