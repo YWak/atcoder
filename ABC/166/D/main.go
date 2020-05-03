@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-var n = 100
+var n = 100 // i^5 > math.MaxInt32 となるi
 
 func main() {
 	X := nextInt64()
@@ -16,24 +16,20 @@ func main() {
 	for i := 0; i < n; i++ {
 		f[i] = int64(i*i) * int64(i*i*i)
 	}
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
+	for j := 0; j < n; j++ {
+		for i := 0; i < n; i++ {
+			// (+i)^5 - (+j)^5
 			if f[i]-f[j] == X {
-				fmt.Println(i, j)
+				fmt.Printf("%d %d\n", i, j)
 				return
 			}
+			// (+i)^5 - (-j)^5
 			if f[i]+f[j] == X {
-				fmt.Println(i, -j)
-				return
-			}
-			if f[j]+f[i] == X {
-				fmt.Println(-i, j)
+				fmt.Printf("%d %d\n", i, -j)
 				return
 			}
 		}
 	}
-
-	fmt.Println()
 }
 
 var stdin = initStdin()
