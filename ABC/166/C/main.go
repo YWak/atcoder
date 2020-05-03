@@ -11,36 +11,36 @@ func main() {
 	N := nextInt()
 	M := nextInt()
 	H := make([]int, N)
-	root := make([]int, N)
+	graph := make([][]int, N)
 
 	for i := 0; i < N; i++ {
 		H[i] = nextInt()
-		root[i] = i
 	}
 
 	for i := 0; i < M; i++ {
 		a := nextInt() - 1
 		b := nextInt() - 1
 
-		// H[root[a]]とH[root[b]]を比べる
-		if root[a] == root[b] {
-			continue
-		}
-		if H[root[a]] > H[root[b]] {
-			root[b] = root[a]
-		} else {
-			root[a] = root[b]
-		}
+		graph[a] = append(graph[a], b)
+		graph[b] = append(graph[b], a)
 	}
+
 	c := 0
-	hist := make([]bool, N)
 
 	for i := 0; i < N; i++ {
-		if !hist[root[i]] {
+		ok := true
+		for j := 0; j < len(graph[i]); j++ {
+			k := graph[i][j]
+			if H[i] <= H[k] {
+				ok = false
+				break
+			}
+		}
+		if ok {
 			c++
-			hist[root[i]] = true
 		}
 	}
+
 	fmt.Println(c)
 }
 
