@@ -25,7 +25,7 @@ func main() {
 
 	for i := 0; i < N; i++ {
 		ma := m * A[i]
-		if ma < 0 || ma > max {
+		if ma < m || ma > max {
 			fmt.Println(-1)
 			return
 		}
