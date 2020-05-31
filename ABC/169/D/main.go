@@ -10,30 +10,34 @@ import (
 func main() {
 	N := nextInt64()
 	n := N
+
+	if N == 1 {
+		fmt.Println(0)
+		return
+	}
+
 	c := 0
+	primes := make(map[int64]int, 0)
 
 	for i := int64(2); i*i <= N; i++ {
 		c1 := 0
 		for n%i == 0 {
 			c1++
-			n = n / i
+			n /= i
 		}
-		for j := 1; j <= c1; j++ {
+		primes[i] = c1
+	}
+	if n != 1 {
+		primes[N] = 1
+	}
+
+	for _, e := range primes {
+		for x := 1; x <= e; x++ {
 			c++
-			c1 -= j
-		}
-
-		if n < i {
-			break
+			e -= x
 		}
 	}
-
-	if n == N && n != 1 {
-		// 素数
-		fmt.Println(1)
-	} else {
-		fmt.Println(c)
-	}
+	fmt.Println(c)
 }
 
 var stdin = initStdin()
