@@ -8,10 +8,50 @@ import (
 )
 
 func main() {
-	A, _ := strconv.ParseFloat(nextString(), 64)
-	B, _ := strconv.ParseFloat(nextString(), 64)
+	A := nextBytes()
+	B := nextBytes()
 
-	fmt.Println(int64(A*B*100) / 100)
+	a := make([]int, len(A))
+	ans := make([]int, len(A)+10)
+
+	for i := 0; i < len(A); i++ {
+		a[len(A)-1-i] = int(A[i] - '0')
+	}
+
+	for i := 0; i < len(a); i++ {
+		s := a[i] * int(B[3]-'0')
+		ans[i+0] += s
+	}
+	for i := 0; i < len(a); i++ {
+		s := a[i] * int(B[2]-'0')
+		ans[i+1] += s
+	}
+	for i := 0; i < len(a); i++ {
+		s := a[i] * int(B[0]-'0')
+		ans[i+2] += s
+	}
+
+	// 繰り上がり
+	for i := 0; i < len(ans); i++ {
+		if ans[i] >= 10 {
+			ans[i+1] += ans[i] / 10
+			ans[i] = ans[i] % 10
+		}
+	}
+
+	first := false
+
+	for i := len(ans) - 1; i >= 2; i-- {
+		if ans[i] == 0 && !first {
+			continue
+		}
+		first = true
+		fmt.Print(ans[i])
+	}
+	if !first {
+		fmt.Print(0)
+	}
+	fmt.Println()
 }
 
 var stdin = initStdin()
