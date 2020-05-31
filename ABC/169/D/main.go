@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 )
@@ -13,51 +12,28 @@ func main() {
 	n := N
 	c := 0
 
-	c1 := 0
-	for N%2 == 0 {
-		c1++
-		N = N / 2
-	}
-	c += count(c1)
-
-	for i := int64(3); i*i <= n; i += 2 {
-		c1 = 0
-		for N%i == 0 {
+	for i := int64(2); i*i <= N; i++ {
+		c1 := 0
+		for n%i == 0 {
 			c1++
-			N = N / i
+			n = n / i
 		}
-		c += count(c1)
+		for j := 1; j <= c1; j++ {
+			c++
+			c1 -= j
+		}
+
+		if n < i {
+			break
+		}
 	}
-	if N == n && N != 1 {
+
+	if n == N && n != 1 {
 		// 素数
-		c++
+		fmt.Println(1)
+	} else {
+		fmt.Println(c)
 	}
-
-	fmt.Println(c)
-}
-
-func count(c int) int {
-	ok := 0
-	ng := math.MaxInt32
-
-	for abs(ok-ng) != 1 {
-		mid := (ng + ok) / 2
-
-		if c >= mid*(mid+1)/2 {
-			ok = mid
-		} else {
-			ng = mid
-		}
-	}
-
-	return ok
-}
-
-func abs(a int) int {
-	if a > 0 {
-		return a
-	}
-	return -a
 }
 
 var stdin = initStdin()
@@ -73,16 +49,6 @@ func initStdin() *bufio.Scanner {
 func nextString() string {
 	stdin.Scan()
 	return stdin.Text()
-}
-
-func nextBytes() []byte {
-	stdin.Scan()
-	return stdin.Bytes()
-}
-
-func nextInt() int {
-	i, _ := strconv.Atoi(nextString())
-	return i
 }
 
 func nextInt64() int64 {
