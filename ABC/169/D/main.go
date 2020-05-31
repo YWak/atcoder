@@ -17,25 +17,20 @@ func main() {
 	}
 
 	c := 0
-	primes := make(map[int64]int, 0)
 
 	for i := int64(2); i*i <= N; i++ {
-		c1 := 0
+		e := 0
 		for n%i == 0 {
-			c1++
+			e++
 			n /= i
 		}
-		primes[i] = c1
-	}
-	if n != 1 {
-		primes[N] = 1
-	}
-
-	for _, e := range primes {
 		for x := 1; x <= e; x++ {
 			c++
 			e -= x
 		}
+	}
+	if n != 1 {
+		c++
 	}
 	fmt.Println(c)
 }
