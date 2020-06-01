@@ -275,7 +275,7 @@
     },
     "factorize int64": {
         "scope": "go",
-        "prefix": "factorize",
+        "prefix": ["factorize", "primefactorize"],
         "description": "nの素因数分解",
         "body": [
             "// PrimeFactor は素因数と指数",
