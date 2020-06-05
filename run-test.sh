@@ -21,12 +21,12 @@ for i in $(seq 5); do
         continue
     fi
 
-    time -f '%U' $EXE < "$INPUT" 2> "$TEMPFILE2" | diff --side-by-side - "$OUTPUT" > "$TEMPFILE1"
+    time -f '(%Us %MKB)' $EXE < "$INPUT" 2> "$TEMPFILE2" | diff --side-by-side - "$OUTPUT" > "$TEMPFILE1"
 
     if [ $? = 0 ]; then
-        echo "$i => OK ($(cat $TEMPFILE2)s)" >&2
+        echo "$i => OK $(cat $TEMPFILE2)" >&2
     else
-        echo "$i => NG ($(cat $TEMPFILE2)s)" >&2
+        echo "$i => NG $(cat $TEMPFILE2)" >&2
         cat "$TEMPFILE1" >&2
     fi
 done
