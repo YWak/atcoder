@@ -249,7 +249,10 @@
 	        "    i, _ := strconv.ParseInt(nextString(), 10, 64)",
             "    return i",
             "}",
-            ""
+            "",
+            "func debug(args ...interface{}) {",
+            "    fmt.Fprintln(os.Stderr, args)",
+            "}"
         ]
     }
 }
