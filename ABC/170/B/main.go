@@ -11,7 +11,7 @@ func main() {
 	X := nextInt()
 	Y := nextInt()
 
-	for x := 0; x < 100; x++ {
+	for x := 0; x <= X; x++ {
 		y := X - x
 		if x*2+y*4 == Y {
 			fmt.Println("Yes")
