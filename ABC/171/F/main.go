@@ -11,34 +11,35 @@ func main() {
 	K := nextInt()
 	L := len(nextString())
 
-	initFact(200000)
+	initFact(K + L)
 	n := mint(0)
-
+	p1 := mint(1)
+	p2 := mint(25).pow(mint(K))
 	// iはS[N]以降の文字数
 	for i := 0; i <= K; i++ {
 		a := L - 1 + K - i
 		b := L - 1
 		c := facts[a].div(facts[b]).div(facts[a-b])
-		p1 := mint(26).pow(mint(i))
-		p2 := mint(25).pow(mint(K - i))
 		m := p1.mul(p2).mul(c)
 		n = n.add(m)
+		p1 = p1.mul(26)
+		p2 = p2.div(25)
 	}
 
 	fmt.Println(n)
 }
 
 var facts []mint // facts[i] = i!
+
 //var ifacts []mint // ifacts[i] = i!の逆元
 
 // nの階乗までを初期化します
 func initFact(n int) {
-	if len(facts) == 0 {
-		facts = []mint{mint(1)}
-	}
-	m := mint(n)
-	for i := mint(len(facts)); i <= m; i++ {
-		facts = append(facts, facts[i-1].mul(i))
+	facts = make([]mint, n+1)
+	facts[0] = mint(1)
+
+	for i := mint(1); i <= mint(n); i++ {
+		facts[i] = facts[i-1].mul(i)
 	}
 }
 
