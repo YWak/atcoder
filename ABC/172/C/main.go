@@ -11,32 +11,23 @@ func main() {
 	N := nextInt()
 	M := nextInt()
 	K := nextInt64()
-
-	sa := make([]int64, N)
-	sb := make([]int64, M)
+	sa := make([]int64, N+1)
+	sb := make([]int64, M+1)
 
 	for i := 0; i < N; i++ {
 		a := nextInt64()
-		if i == 0 {
-			sa[i] = a
-		} else {
-			sa[i] = sa[i-1] + a
-		}
+		sa[i+1] = sa[i] + a
 	}
 	for i := 0; i < M; i++ {
 		b := nextInt64()
-		if i == 0 {
-			sb[i] = b
-		} else {
-			sb[i] = sb[i-1] + b
-		}
+		sb[i+1] = sb[i] + b
 	}
 
 	maxk := 0
 
-	for i := 0; i < N; i++ {
+	for i := 0; i < len(sa); i++ {
 		ok := -1
-		ng := M
+		ng := len(sb)
 
 		for abs(ok-ng) > 1 {
 			mid := (ok + ng) / 2
@@ -48,7 +39,9 @@ func main() {
 			}
 		}
 
-		maxk = max(maxk, i+ok+2) // どっちも0-origin
+		if ok >= 0 && sa[i]+sb[ok] <= K {
+			maxk = max(maxk, i+ok)
+		}
 	}
 
 	fmt.Println(maxk)
