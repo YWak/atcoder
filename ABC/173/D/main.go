@@ -20,7 +20,7 @@ func main() {
 	ans := int64(0)
 
 	for i := 0; i < N-1; i++ {
-		ans += A[i]
+		ans += A[(i+1)/2]
 	}
 
 	fmt.Println(ans)
