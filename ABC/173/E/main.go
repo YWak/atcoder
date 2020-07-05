@@ -69,24 +69,6 @@ func mul(a, b int64) int64 {
 	return n
 }
 
-func even(n int) int {
-	return n - n%2
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func abs(a int64) int64 {
-	if a > 0 {
-		return a
-	}
-	return -a
-}
-
 type ints []int64
 
 func (a ints) Len() int           { return len(a) }
