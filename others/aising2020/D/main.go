@@ -29,12 +29,6 @@ func main() {
 			c++
 		}
 	}
-	if c == 0 {
-		for i := 0; i < N; i++ {
-			fmt.Println(1) // % 1
-		}
-		return
-	}
 	if c == 1 {
 		for i := 0; i < N; i++ {
 			if X[i] == '1' {
@@ -59,8 +53,8 @@ func main() {
 	c1 := c - 1
 	for i := 0; i < N; i++ {
 		x := int(X[i] - '0')
-		rem1 = (rem1*2 + x) % c1
 		rem0 = (rem0*2 + x) % c0
+		rem1 = (rem1*2 + x) % c1
 
 		if i == 0 {
 			rem02[i] = 1
