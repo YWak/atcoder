@@ -39,8 +39,9 @@ func main() {
 	}
 	m[Ch][Cw] = 0
 
-	queue := make(PriorityQueue, 0)
-	queue = append(queue, &P{Ch, Cw, 0})
+	queue := pqNew()
+	queue.push(P{Ch, Cw, 0})
+
 	dir := []P{
 		P{-1, 0, 0},
 		P{+1, 0, 0},
@@ -48,11 +49,11 @@ func main() {
 		P{0, +1, 0},
 	}
 
-	for queue.Len() > 0 {
-		p := heap.Pop(&queue).(*P)
-
+	for !queue.Empty() {
+		p := queue.pop()
 		if p.h == Dh && p.w == Dw {
-			break
+			fmt.Println(p.c)
+			return
 		}
 		// A type
 		for i := 0; i < len(dir); i++ {
@@ -65,7 +66,7 @@ func main() {
 				continue
 			}
 			m[n.h][n.w] = n.c
-			heap.Push(&queue, &n)
+			queue.push(n)
 		}
 
 		// B type
@@ -83,16 +84,12 @@ func main() {
 					continue
 				}
 				m[n.h][n.w] = n.c
-				heap.Push(&queue, &n)
+				queue.push(n)
 			}
 		}
 	}
 
-	if m[Dh][Dw] == max {
-		fmt.Println(-1)
-	} else {
-		fmt.Println(m[Dh][Dw])
-	}
+	fmt.Println(-1)
 }
 
 func out(p P) bool {
@@ -106,10 +103,63 @@ func abs(a int) int {
 	return -a
 }
 
-type PriorityQueue []*P
+type PQList []P
 
-func (pq PriorityQueue) Len() int { return len(pq) }
-func (pq PriorityQueue) Less(i, j int) bool {
+// PriorityQueue は優先度付きキューを表す
+type PriorityQueue struct {
+	queue *PQList
+	size  int
+}
+
+func pqNew() PriorityQueue {
+	l := make(PQList, 0, 100)
+	pq := PriorityQueue{
+		queue: &l,
+		size:  0,
+	}
+	return pq
+}
+
+// Push は優先度付きキューに要素を一つ追加します。
+func (pq PriorityQueue) push(value P) {
+	heap.Push(pq.queue, value)
+}
+
+// Pop は優先度付きキューから要素を一つ取り出します。
+func (pq PriorityQueue) pop() P {
+	return heap.Pop(pq.queue).(P)
+}
+
+// Empty は優先度付きキューが空かどうかを判断します。
+func (pq PriorityQueue) Empty() bool {
+	return len(*pq.queue) == 0
+}
+
+func (pq PQList) Len() int {
+	return len(pq)
+}
+
+func (pq PQList) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+
+func (pq PQList) Less(i, j int) bool {
+	return pq.prior(i, j)
+}
+
+func (pq *PQList) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[:n-1]
+	return item
+}
+
+func (pq *PQList) Push(item interface{}) {
+	*pq = append(*pq, item.(P))
+}
+
+func (pq PQList) prior(i, j int) bool {
 	pi := pq[i]
 	pj := pq[j]
 
@@ -119,24 +169,6 @@ func (pq PriorityQueue) Less(i, j int) bool {
 	di := abs(pi.h-Dh) + abs(pi.w-Dw)
 	dj := abs(pj.h-Dh) + abs(pj.w-Dw)
 	return di < dj
-}
-
-func (pq PriorityQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-}
-
-func (pq *PriorityQueue) Push(x interface{}) {
-	item := x.(*P)
-	*pq = append(*pq, item)
-}
-
-func (pq *PriorityQueue) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	old[n-1] = nil // メモリリークを避ける
-	*pq = old[0 : n-1]
-	return item
 }
 
 type P struct {
