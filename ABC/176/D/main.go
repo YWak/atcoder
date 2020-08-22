@@ -26,12 +26,14 @@ func main() {
 
 	S = make([][]byte, H)
 	m = make([][]int, H)
+
+	max := H*W + 1
 	for i := 0; i < H; i++ {
 		S[i] = nextBytes()
 		m[i] = make([]int, W)
 
 		for j := 0; j < W; j++ {
-			m[i][j] = H * W
+			m[i][j] = max
 		}
 	}
 	m[Ch][Cw] = 0
@@ -48,42 +50,40 @@ func main() {
 
 	for !queue.Empty() {
 		p := queue.Pop()
+
 		if p.h == Dh && p.w == Dw {
 			fmt.Println(p.c)
 			return
 		}
-		nexts := make([]P, 0)
 		// A type
 		for i := 0; i < len(dir); i++ {
 			d := dir[i]
-			nexts = append(nexts, P{p.h + d.h, p.w + d.w, p.c})
+			p := P{p.h + d.h, p.w + d.w, p.c}
+			if out(p) {
+				continue
+			}
+			m[p.h][p.w] = p.c
+			queue.Push(p)
 		}
 
 		// B type
 		for h := -2; h <= +2; h++ {
 			for w := -2; w <= +2; w++ {
-				nexts = append(nexts, P{p.h + h, p.w + w, p.c + 1})
+				p := P{p.h + h, p.w + w, p.c + 1}
+				if out(p) {
+					continue
+				}
+				m[p.h][p.w] = p.c
+				queue.Push(p)
 			}
-		}
-
-		for i := 0; i < len(nexts); i++ {
-			n := nexts[i]
-			if out(n.h, n.w) {
-				continue
-			}
-			if m[n.h][n.w] <= n.c {
-				continue
-			}
-			m[n.h][n.w] = n.c
-			queue.Push(n)
 		}
 	}
 
 	fmt.Println(-1)
 }
 
-func out(h, w int) bool {
-	return h < 0 || w < 0 || h >= H || w >= W || S[h][w] == '#'
+func out(p P) bool {
+	return p.h < 0 || p.w < 0 || p.h >= H || p.w >= W || S[p.h][p.w] == '#' || m[p.h][p.w] <= p.c
 }
 
 // PriorityQueue は優先度付きキューを表す
