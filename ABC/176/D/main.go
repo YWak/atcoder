@@ -40,17 +40,17 @@ func main() {
 	m[Ch][Cw] = 0
 
 	queue := pqNew()
-	queue.push(P{Ch, Cw, 0})
+	queue.Push(PQItem{Ch, Cw, 0})
 
-	dir := []P{
-		P{-1, 0, 0},
-		P{+1, 0, 0},
-		P{0, -1, 0},
-		P{0, +1, 0},
+	dir := []PQItem{
+		PQItem{-1, 0, 0},
+		PQItem{+1, 0, 0},
+		PQItem{0, -1, 0},
+		PQItem{0, +1, 0},
 	}
 
 	for !queue.Empty() {
-		p := queue.pop()
+		p := queue.Pop()
 		if p.h == Dh && p.w == Dw {
 			fmt.Println(p.c)
 			return
@@ -58,7 +58,7 @@ func main() {
 		// A type
 		for i := 0; i < len(dir); i++ {
 			d := dir[i]
-			n := P{p.h + d.h, p.w + d.w, p.c}
+			n := PQItem{p.h + d.h, p.w + d.w, p.c}
 			if out(n) {
 				continue
 			}
@@ -66,7 +66,7 @@ func main() {
 				continue
 			}
 			m[n.h][n.w] = n.c
-			queue.push(n)
+			queue.Push(n)
 		}
 
 		// B type
@@ -76,7 +76,7 @@ func main() {
 					continue
 				}
 
-				n := P{p.h + h, p.w + w, p.c + 1}
+				n := PQItem{p.h + h, p.w + w, p.c + 1}
 				if out(n) {
 					continue
 				}
@@ -84,7 +84,7 @@ func main() {
 					continue
 				}
 				m[n.h][n.w] = n.c
-				queue.push(n)
+				queue.Push(n)
 			}
 		}
 	}
@@ -92,7 +92,7 @@ func main() {
 	fmt.Println(-1)
 }
 
-func out(p P) bool {
+func out(p PQItem) bool {
 	return p.h < 0 || p.w < 0 || p.h >= H || p.w >= W || S[p.h][p.w] == '#'
 }
 
@@ -103,31 +103,40 @@ func abs(a int) int {
 	return -a
 }
 
-type PQList []P
+type PQItem struct {
+	h int
+	w int
+	c int
+}
+
+type PQList []PQItem
+
+// prior は pq[i]の方が優先度が高いかどうかを判断します。
+func (pq PQList) prior(i, j int) bool {
+	if pq[i].c != pq[j].c {
+		return pq[i].c < pq[j].c
+	}
+	return abs(pq[i].h-Dh)+abs(pq[i].w-Dw) < abs(pq[j].h-Dh)+abs(pq[j].w-Dw)
+}
 
 // PriorityQueue は優先度付きキューを表す
 type PriorityQueue struct {
 	queue *PQList
-	size  int
 }
 
 func pqNew() PriorityQueue {
 	l := make(PQList, 0, 100)
-	pq := PriorityQueue{
-		queue: &l,
-		size:  0,
-	}
-	return pq
+	return PriorityQueue{queue: &l}
 }
 
 // Push は優先度付きキューに要素を一つ追加します。
-func (pq PriorityQueue) push(value P) {
+func (pq PriorityQueue) Push(value PQItem) {
 	heap.Push(pq.queue, value)
 }
 
 // Pop は優先度付きキューから要素を一つ取り出します。
-func (pq PriorityQueue) pop() P {
-	return heap.Pop(pq.queue).(P)
+func (pq PriorityQueue) Pop() PQItem {
+	return heap.Pop(pq.queue).(PQItem)
 }
 
 // Empty は優先度付きキューが空かどうかを判断します。
@@ -135,18 +144,22 @@ func (pq PriorityQueue) Empty() bool {
 	return len(*pq.queue) == 0
 }
 
-func (pq PQList) Len() int {
-	return len(pq)
-}
-
+// Swap は要素を交換します。
 func (pq PQList) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 }
 
+// Less は要素を比較し、pq[i] < pq[j]かどうかを判断します
 func (pq PQList) Less(i, j int) bool {
 	return pq.prior(i, j)
 }
 
+// Len は要素の数を返します。
+func (pq PQList) Len() int {
+	return len(pq)
+}
+
+// Pop は要素を取り出して返します。
 func (pq *PQList) Pop() interface{} {
 	old := *pq
 	n := len(old)
@@ -155,26 +168,9 @@ func (pq *PQList) Pop() interface{} {
 	return item
 }
 
+// Push は要素を追加します。
 func (pq *PQList) Push(item interface{}) {
-	*pq = append(*pq, item.(P))
-}
-
-func (pq PQList) prior(i, j int) bool {
-	pi := pq[i]
-	pj := pq[j]
-
-	if pi.c != pj.c {
-		return pi.c < pj.c
-	}
-	di := abs(pi.h-Dh) + abs(pi.w-Dw)
-	dj := abs(pj.h-Dh) + abs(pj.w-Dw)
-	return di < dj
-}
-
-type P struct {
-	h int
-	w int
-	c int
+	*pq = append(*pq, item.(PQItem))
 }
 
 var stdin = initStdin()
