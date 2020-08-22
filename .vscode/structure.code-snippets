@@ -4,7 +4,9 @@
         "description": "優先度付きキューの実装",
         "prefix": ["priorityqueue"],
         "body": [
+            "PQItem は優先度付きキューに保存される要素",
             "type PQItem ${1:int}",
+            "// PQList は 優先度付きキューの本体",
             "type PQList []PQItem",
             "// prior は pq[i]の方が優先度が高いかどうかを判断します。",
             "func (pq PQList) prior(i, j int) bool {",
