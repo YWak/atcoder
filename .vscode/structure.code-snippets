@@ -227,7 +227,7 @@
             "}",
             "",
             "func debug(args ...interface{}) {",
-            "    fmt.Fprintln(os.Stderr, args)",
+            "    fmt.Fprintln(os.Stderr, args...)",
             "}"
         ]
     }
