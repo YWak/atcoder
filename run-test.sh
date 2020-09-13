@@ -9,7 +9,7 @@ cd "$1" || exit 1
 EXE="./main"
 TEMPFILE1=$(mktemp)
 TEMPFILE2=$(mktemp)
-go1.6 build -o $EXE main.go
+go1.14 build -o $EXE main.go
 
 trap 'rm -rf main $TEMPFILE1 $TEMPFILE2 $EXE' 0
 
