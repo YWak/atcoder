@@ -3,34 +3,33 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
 func main() {
 	N := nextInt()
 
-	points := make([]point, N)
+	x0 := math.MaxInt32
+	x1 := math.MinInt32
+	y0 := math.MaxInt32
+	y1 := math.MinInt32
 
 	for i := 0; i < N; i++ {
 		x := nextInt()
 		y := nextInt()
-		p := point{x - y, x + y}
-		points[i] = p
+
+		xx := x - y
+		yy := x + y
+
+		x0 = min(x0, xx)
+		x1 = max(x1, xx)
+		y0 = min(y0, yy)
+		y1 = max(y1, yy)
 	}
 
-	d := 0
-	sort.Slice(points, func(i, j int) bool {
-		return points[i].x < points[j].x
-	})
-	d = max(d, abs(points[0].x-points[N-1].x))
-	sort.Slice(points, func(i, j int) bool {
-		return points[i].y < points[j].y
-	})
-	d = max(d, abs(points[0].y-points[N-1].y))
-
-	fmt.Println(d)
+	fmt.Println(max(abs(x0-x1), abs(y0-y1)))
 }
 
 func max(a, b int) int {
@@ -52,11 +51,6 @@ func abs(a int) int {
 		return a
 	}
 	return -a
-}
-
-type point struct {
-	x int
-	y int
 }
 
 var stdin = initStdin()
