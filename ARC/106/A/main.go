@@ -32,6 +32,9 @@ loop:
 			b++
 		}
 
+		if b == 0 {
+			continue
+		}
 		fmt.Printf("%d %d\n", a, b)
 		return
 	}
