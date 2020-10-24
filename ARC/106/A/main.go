@@ -11,23 +11,25 @@ func main() {
 	N := nextInt64()
 
 	c := int64(1)
+	MAX := int64(1e18)
+
 loop:
-	for a := 1; a < 42; a++ {
+	for a := 1; a < 39; a++ {
 		c *= 3
 
-		if c < 0 || c > N {
+		if c >= MAX || c >= N {
 			break
 		}
 
 		n := N - c
 		b := 0
 		for n > 1 {
-			if n%5 == 0 {
-				n = n / 5
-				b++
-			} else {
+			if n%5 != 0 {
 				continue loop
 			}
+
+			n = n / 5
+			b++
 		}
 
 		fmt.Printf("%d %d\n", a, b)
