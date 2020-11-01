@@ -124,56 +124,14 @@
             ""
         ]
     },
-    "graph32": {
+    "point": {
         "scope": "go",
-        "description": "グラフ - int32",
-        "prefix": "graph-list32",
+        "description": "点を表す構造体",
+        "prefix": "point",
         "body": [
-            "type Edge struct {",
-            "    left int",
-            "    right int",
-            "    weight int",
-            "}",
-            "func generate () Edge {",
-            "    left := nextInt()",
-            "    right := nextInt()",
-            "    weight := 0",
-            "    return Edge{ left, right, weight }",
-            "}",
-            "",
-            "func newAdjacencyList(N int, generate func() Edge) [][]*Edge {",
-            "    graph := make([][]*Edge, N)",
-            "    for i := 0; i < N; i++ {",
-            "        e := generate()",
-            "        graph[e.left] = append(graph[e.left], &e)",
-            "        graph[e.right] = append(graph[e.right], &e)",
-            "    }",
-            "    return graph",
-            "}"
-        ]
-    },
-    "graph64": {
-        "scope": "go",
-        "description": "グラフ - int32 - 根付き木",
-        "prefix": "graph-rooted-tree32",
-        "body": [
-            "parents := make([]int, ${1:N})",
-            "parents[${2:0}] = -1 // 根を設定",
-            "parent := ${2}",
-            "for i := 0; i < "
-        ]
-    },
-    "graph - int64 - adjacency list": {
-        "scope": "go",
-        "description": "グラフ - int64 - 隣接リスト",
-        "prefix": "graph-list64",
-        "body": [
-            "graph := make([][]int64, ${1:N})",
-            "for i := 0; i < ${1}; i++ {",
-            "    ${2:X} := nextInt64()",
-            "    ${3:Y} := nextInt64()",
-            "    graph[$2] = append(graph[$2], $3)",
-            "    graph[$3] = append(graph[$3], $2)",
+            "type point struct {",
+            "    x int",
+            "    y int",
             "}",
         ]
     },
@@ -221,9 +179,12 @@
 	        "    return i",
             "}",
             "",
-            "func nextInt64() int64 {",
-	        "    i, _ := strconv.ParseInt(nextString(), 10, 64)",
-            "    return i",
+            "func nextInts(n int) []int {",
+	        "    a := make([]int, n)",
+            "    for i := 0; i < n; i++ {",
+            "        a[i] = nextInt()",
+            "    }",
+            "    return a",
             "}",
             "",
             "func debug(args ...interface{}) {",
