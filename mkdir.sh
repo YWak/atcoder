@@ -16,3 +16,8 @@ touch "$1/ans2.txt"
 touch "$1/ans3.txt"
 touch "$1/ans4.txt"
 touch "$1/ans5.txt"
+
+node <<EOF > "$1/main.go"
+const fs = require('fs');
+const json = JSON.parse(fs.readFileSync('./'))
+EOF
