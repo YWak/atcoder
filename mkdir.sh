@@ -20,4 +20,5 @@ touch "$1/ans5.txt"
 node <<EOF > "$1/main.go"
 const fs = require('fs');
 eval('var v =' + fs.readFileSync('./.vscode/structure.code-snippets'))
+console.log(v.main.body.join('\n'))
 EOF
