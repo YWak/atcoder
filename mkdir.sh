@@ -19,5 +19,5 @@ touch "$1/ans5.txt"
 
 node <<EOF > "$1/main.go"
 const fs = require('fs');
-const json = JSON.parse(fs.readFileSync('./'))
+eval('var v =' + fs.readFileSync('./.vscode/structure.code-snippets'))
 EOF
