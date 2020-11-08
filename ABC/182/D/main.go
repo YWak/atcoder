@@ -22,7 +22,7 @@ func main() {
 		v += A[i]
 		x += v
 		vmax = max(vmax, v)
-		ans = max(ans, prev+x)
+		ans = max(ans, x)
 		ans = max(ans, prev+vmax)
 	}
 
