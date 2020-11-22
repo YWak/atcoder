@@ -23,8 +23,7 @@ func nextString() string {
 }
 
 func nextBytes() []byte {
-	stdin.Scan()
-	return stdin.Bytes()
+	return []byte(nextString())
 }
 
 func nextInt() int {
