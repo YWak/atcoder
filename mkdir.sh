@@ -5,11 +5,7 @@ if [ "$1" = "" ]; then
 fi
 
 mkdir -p "$1"
-! [ -f "$1/main.go" ] && node <<EOF > "$1/main.go"
-const fs = require('fs');
-eval('var v =' + fs.readFileSync('./.vscode/structure.code-snippets'))
-console.log(v.main.body.join('\n'))
-EOF
+! [ -f "$1/main.go" ] && cat ./.vscode/template.go > "$1/main.go"
 
 touch "$1/ex1.txt"
 touch "$1/ex2.txt"

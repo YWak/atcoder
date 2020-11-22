@@ -108,27 +108,6 @@
             ""
         ]
     },
-    // 64bit integer -------------------------------------------------
-    "max 2 x int": {
-        "scope": "go",
-        "prefix": "max64",
-        "description": "max(int, int)の実装",
-        "body": [
-            "func max(a, b int) int {",
-            "    if a > b {",
-            "        return a",
-            "    }",
-            "    return b",
-            "}",
-            ""
-        ]
-    },
-    "pow int": {
-        "scope": "go",
-        "prefix": "pow",
-        "description": "pow(int, int)の実装",
-        "body": "func pow(a int, b int) int { return int(math.Pow(float64(a), float64(b))) }\n"
-    },
     "greatest common divider in int": {
         "scope": "go",
         "prefix": "gcd",
@@ -272,91 +251,6 @@
             "}",
             ""
         ]
-    },
-    // 32bit integer -------------------------------------------------
-    "max 2 x int32": {
-        "scope": "go",
-        "prefix": "max32",
-        "description": "max(int, int)の実装",
-        "body": [
-            "func max(a, b int) int {",
-            "    if a > b {",
-            "        return a",
-            "    }",
-            "    return b",
-            "}",
-            ""
-        ]
-    },
-    "max n x int32": {
-        "scope": "go",
-        "prefix": "max32n",
-        "description": "max(...int)の実装",
-        "body": [
-            "func max(a int, b ...int) int {",
-            "    l := len(b)",
-            "    for i := 0; i < l; i++ {",
-            "        if a < b[i] {",
-            "            a = b[i]",
-            "        }",
-            "    }",
-            "",
-            "    return a",
-            "}",
-            ""
-        ]
-    },
-    "min 2 x int32": {
-        "scope": "go",
-        "prefix": "min32",
-        "description": "min(int)の実装",
-        "body": [
-            "func min(a, b int) int {",
-            "    if a < b {",
-            "        return a",
-            "    }",
-            "    return b",
-            "}",
-            ""
-        ]
-    },
-    "min n x int32": {
-        "scope": "go",
-        "prefix": "min32n",
-        "description": "min(int)の実装",
-        "body": [
-            "func min(a int, b ...int) int {",
-            "    l := len(b)",
-            "    for i := 0; i < l; i++ {",
-            "        if a > b[i] {",
-            "            a = b[i]",
-            "        }",
-            "    }",
-            "",
-            "    return a",
-            "}",
-            ""
-        ]
-    },
-    "abs int32": {
-        "scope": "go",
-        "prefix": "abs32",
-        "description": "abs(int)の実装",
-        "body": [
-            "func abs(a int) int {",
-            "    if a > 0 {",
-            "        return a",
-            "    }",
-            "    return -a",
-            "}",
-            ""
-        ]
-    },
-    "pow int32": {
-        "scope": "go",
-        "prefix": "pow",
-        "description": "pow(int, int)の実装",
-        "body": "func pow(a, b int) int { return int(math.Pow(float64(a), float64(b))) }\n"
     },
     // bit 操作 ---------------------------------------------
     "Nth bit64": {
