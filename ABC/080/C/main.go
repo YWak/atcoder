@@ -12,13 +12,13 @@ import (
 
 func main() {
 	N := nextInt()
-	F := make([][]int, N)
+	F := make([]int, N)
 	P := make([][]int, N)
 
 	for i := 0; i < N; i++ {
-		F[i] = make([]int, 10)
 		for j := 0; j < 10; j++ {
-			F[i][j] = nextInt()
+			F[i] += nextInt() << (9 - j)
+			// F[i] &= (1 << 10) - 1
 		}
 	}
 	for i := 0; i < N; i++ {
@@ -29,13 +29,7 @@ func main() {
 	for k := 1; k < (1 << 10); k++ {
 		p := 0
 		for i := 0; i < N; i++ {
-			c := 0
-			for j := 0; j < 10; j++ {
-				if F[i][j] == 1 && nthbit(k, j) == 1 {
-					c++
-				}
-			}
-			p += P[i][c]
+			p += P[i][popcount(k&F[i])]
 		}
 		ans = max(ans, p)
 	}
