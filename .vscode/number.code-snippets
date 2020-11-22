@@ -252,18 +252,4 @@
             ""
         ]
     },
-    // bit 操作 ---------------------------------------------
-    "Nth bit64": {
-        "scope": "go",
-        "prefix": "nthbit64",
-        "description": "n番目のビットの値を取得する実装",
-        "body": "func nthbit(a int, n int) int { return int((a >> uint(n)) & 1) }\n"
-    },
-    "Nth bit32": {
-        "scope": "go",
-        "prefix": "nthbit32",
-        "description": "n番目のビットの値を取得する実装",
-        "body": "func nthbit(a int, n int) int { return int((a >> uint(n)) & 1) }\n"
-    },
-
 }

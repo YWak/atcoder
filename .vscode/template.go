@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"math"
+	"math/bits"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -13,6 +15,9 @@ func main() {
 	fmt.Println()
 }
 
+// ==================================================
+// 入力操作
+// ==================================================
 var stdin = initStdin()
 
 func initStdin() *bufio.Scanner {
@@ -61,6 +66,9 @@ func nextLongIntAsArray() []int {
 	return arr
 }
 
+// ==================================================
+// 数値操作
+// ==================================================
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -84,6 +92,41 @@ func abs(a int) int {
 
 func pow(a, b int) int {
 	return int(math.Pow(float64(a), float64(b)))
+}
+
+// binarysearch は judgeがtrueを返す最小の数値を返します。
+func binarysearch(ok, ng int, judge func(int) bool) int {
+	for abs(ok-ng) > 1 {
+		mid := (ok + ng) / 2
+
+		if judge(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
+}
+
+// ==================================================
+// ビット操作
+// ==================================================
+func nthbit(a int, n int) int { return int((a >> uint(n)) & 1) }
+
+func popcount(a int) int {
+	return bits.OnesCount(uint(a))
+}
+
+// ==================================================
+// 文字列操作
+// ==================================================
+func toLowerCase(s string) string {
+	return strings.ToLower(s)
+}
+
+func toUpperCase(s string) string {
+	return strings.ToUpper(s)
 }
 
 func debug(args ...interface{}) {
