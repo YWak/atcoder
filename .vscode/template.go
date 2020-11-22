@@ -72,8 +72,8 @@ func nextLongIntAsArray() []int {
 }
 
 func nextFloat() float64 {
-    f, _ strconv.ParseFloat(nextString(), 64)
-    return f
+	f, _ := strconv.ParseFloat(nextString(), 64)
+	return f
 }
 
 // ==================================================
@@ -154,14 +154,14 @@ func toUpperCase(s string) string {
 // 構造体
 // ==================================================
 
-// point は 座標を表す構造体です。
-type point struct {
+// Point は 座標を表す構造体です。
+type Point struct {
 	x int
 	y int
 }
 
-// pointf は座標を表す構造体です。
-type pointf struct {
+// Pointf は座標を表す構造体です。
+type Pointf struct {
 	x float64
 	y float64
 }
