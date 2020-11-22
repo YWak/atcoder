@@ -13,7 +13,7 @@ go build -o $EXE main.go
 
 trap 'rm -rf main $TEMPFILE1 $TEMPFILE2 $EXE' 0
 
-for i in $(seq 5); do
+for i in $(seq 10); do
     INPUT="./ex${i}.txt"
     OUTPUT="./ans${i}.txt"
 

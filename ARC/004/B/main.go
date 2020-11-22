@@ -11,8 +11,49 @@ import (
 )
 
 func main() {
+	N := nextInt()
+	A := nextInts(N)
 
-	fmt.Println()
+	sum := 0
+	heads := make([]int, N)
+	tails := make([]int, N+1)
+
+	for i := 0; i < N; i++ {
+		sum += A[i]
+	}
+	fmt.Println(sum)
+
+	heads[0] = A[0]
+	for i := 1; i < N; i++ {
+		heads[i] = heads[i-1] + A[i]
+	}
+
+	for i := N - 1; i >= 0; i-- {
+		tails[i] = tails[i+1] + A[i]
+	}
+
+	if N == 2 {
+		fmt.Println(abs(A[0] - A[1]))
+		return
+	}
+	ans := sum
+	for i := 1; i < N-1; i++ {
+		a := heads[i-1]
+		b := A[i]
+		c := tails[i+1]
+
+		if b < a+c && a < b+c && c < a+b {
+			// 三角になる
+			ans = 0
+		} else {
+			n := 0
+			n = max(n, b-a-c)
+			n = max(n, a-b-c)
+			n = max(n, c-a-b)
+			ans = min(ans, n)
+		}
+	}
+	fmt.Println(ans)
 }
 
 // ==================================================
