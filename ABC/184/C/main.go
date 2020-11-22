@@ -11,8 +11,56 @@ import (
 )
 
 func main() {
+	s := point{nextInt(), nextInt()}
+	g := point{nextInt(), nextInt()}
 
-	fmt.Println()
+	c := 3
+
+	if s == g {
+		c = 0
+	} else if canMove(s, g) {
+		c = 1
+	} else if canMove2(s, g) {
+		c = 2
+	} else {
+		for i := -3; i <= 3; i++ {
+			for j := -3; j <= 3; j++ {
+				if abs(i)+abs(j) > 3 {
+					continue
+				}
+
+				g1 := point{g.x + i, g.y + j}
+				if abs(s.x-g1.x) == abs(s.y-g1.y) {
+					c = 2
+				}
+			}
+		}
+	}
+
+	fmt.Println(c)
+}
+
+func canMove(p1, p2 point) bool {
+	if p1.x+p1.y == p2.x+p2.y {
+		return true
+	}
+	if p1.x-p1.y == p2.x-p2.y {
+		return true
+	}
+	if abs(p1.x-p2.x)+abs(p1.y-p2.y) <= 3 {
+		return true
+	}
+	return false
+}
+
+func canMove2(p1, p2 point) bool {
+	if (p2.x+p2.y-p1.x-p1.y)%2 != 0 {
+		return false
+	}
+	if (p2.x-p1.x-p2.y+p1.y)%2 != 0 {
+		return false
+	}
+	return true
 }
 
 // ==================================================
