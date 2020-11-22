@@ -112,8 +112,11 @@ func binarysearch(ok, ng int, judge func(int) bool) int {
 // ==================================================
 // ビット操作
 // ==================================================
+
+// nthbit はaのn番目のビットを返します。
 func nthbit(a int, n int) int { return int((a >> uint(n)) & 1) }
 
+// popcount はaのうち立っているビットを数えて返します。
 func popcount(a int) int {
 	return bits.OnesCount(uint(a))
 }
