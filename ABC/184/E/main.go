@@ -14,33 +14,47 @@ import (
 var H int
 var W int
 var A []string
-var c [][]int
 
 func main() {
-	H = nextInt()
-	W = nextInt()
+	// H = nextInt()
+	// W = nextInt()
 
+	H = 2000
+	W = 2000
 	A = make([]string, H)
-	c = make([][]int, H)
+	c := make([][]int, H)
+	for i := 0; i < H; i++ {
+		l := make([]byte, W)
+		for j := 0; j < W; j++ {
+			if i == 0 && j == 0 {
+				l[j] = 'S'
+			} else if i == H-1 && j == W-1 {
+				l[j] = 'G'
+			} else {
+				l[j] = '.'
+			}
+		}
+		A[i] = string(l)
+	}
 	var s point
 	var g point
 	telepo := map[byte][]point{}
 	MAX := H*W + 1
 
 	for i := 0; i < H; i++ {
-		A[i] = nextString()
+		// A[i] = nextString()
 		c[i] = make([]int, W)
 
 		for j := 0; j < W; j++ {
 			c[i][j] = MAX
 			if A[i][j] == 'S' {
-				s = point{i, j}
+				s = point{i, j, 0}
 			} else if A[i][j] == 'G' {
-				g = point{i, j}
+				g = point{i, j, 0}
 			} else if A[i][j] == '.' || A[i][j] == '#' {
 				// NOP
 			} else {
-				telepo[A[i][j]] = append(telepo[A[i][j]], point{i, j})
+				telepo[A[i][j]] = append(telepo[A[i][j]], point{i, j, 0})
 			}
 		}
 	}
@@ -49,15 +63,18 @@ func main() {
 	queue.Push(&s)
 	c[s.x][s.y] = 0
 	dir := []point{
-		{-1, +0},
-		{+1, +0},
-		{+0, -1},
-		{+0, +1},
+		{-1, +0, 0},
+		{+1, +0, 0},
+		{+0, -1, 0},
+		{+0, +1, 0},
 	}
 
 	for !queue.Empty() {
 		p := queue.Pop()
 		cost := c[p.x][p.y]
+		if cost < p.c {
+			continue
+		}
 
 		for i := 0; i < len(dir); i++ {
 			x := p.x + dir[i].x
@@ -70,15 +87,16 @@ func main() {
 				continue
 			}
 			c[x][y] = cost + 1
-			queue.Push(&point{x, y})
+			queue.Push(&point{x, y, cost + 1})
 		}
+
 		l, exists := telepo[A[p.x][p.y]]
 		if exists {
 			for i := 0; i < len(l); i++ {
 				n := l[i]
 				if c[n.x][n.y] > cost+1 {
 					c[n.x][n.y] = cost + 1
-					queue.Push(&point{n.x, n.y})
+					queue.Push(&point{n.x, n.y, cost + 1})
 				}
 			}
 		}
@@ -103,7 +121,7 @@ type PQList []PQItem
 func (pq PQList) prior(i, j int) bool {
 	p1 := pq[i]
 	p2 := pq[j]
-	return c[p1.x][p1.y] < c[p2.x][p2.y] // 大きいもの優先とする
+	return p1.c < p2.c
 }
 
 // PriorityQueue は優先度付きキューを表す
@@ -283,6 +301,7 @@ func toUpperCase(s string) string {
 type point struct {
 	x int
 	y int
+	c int
 }
 
 func debug(args ...interface{}) {
