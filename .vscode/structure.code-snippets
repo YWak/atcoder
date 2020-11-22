@@ -123,16 +123,5 @@
             "}",
             ""
         ]
-    },
-    "point": {
-        "scope": "go",
-        "description": "点を表す構造体",
-        "prefix": "point",
-        "body": [
-            "type point struct {",
-            "    x int",
-            "    y int",
-            "}",
-        ]
     }
 }

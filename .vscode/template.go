@@ -129,6 +129,14 @@ func toUpperCase(s string) string {
 	return strings.ToUpper(s)
 }
 
+// ==================================================
+// 構造体
+// ==================================================
+type point struct {
+	x int
+	y int
+}
+
 func debug(args ...interface{}) {
 	fmt.Fprintln(os.Stderr, args...)
 }
