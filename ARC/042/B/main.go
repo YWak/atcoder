@@ -11,8 +11,51 @@ import (
 )
 
 func main() {
+	s := point{float64(nextInt()), float64(nextInt())}
 
-	fmt.Println()
+	N := nextInt()
+	p := make([]point, N)
+	ans := float64(1000 * 1000)
+
+	dist := func(x1, y1 float64) float64 {
+		x, y := x1-s.x, y1-s.y
+		return math.Sqrt(x*x + y*y)
+	}
+	distl := func(x1, y1, x2, y2 float64) float64 {
+		if x1 == x2 {
+			return math.Abs(x1 - s.x)
+		}
+		if y1 == y2 {
+			return math.Abs(y1 - s.y)
+		}
+
+		// 直線
+		x := x1 - x2
+		y := y1 - y2
+
+		a := y / x
+		b := -1.0
+		c := y1 - y/x*x1
+		return math.Abs(a*s.x+b*s.y+c) / math.Sqrt(a*a+b*b)
+	}
+
+	for i := 0; i < N; i++ {
+		x := float64(nextInt())
+		y := float64(nextInt())
+		p[i] = point{x, y}
+		// 頂点までの距離
+		ans = math.Min(dist(x, y), ans)
+	}
+
+	// 直線までの距離
+	for i := 0; i < N; i++ {
+		j := (i + 1) % N
+		p1, p2 := p[i], p[j]
+		d := distl(p1.x, p1.y, p2.x, p2.y)
+		ans = math.Min(d, ans)
+	}
+
+	fmt.Printf("%.10f\n", ans)
 }
 
 func debug(args ...interface{}) {
@@ -69,11 +112,6 @@ func nextLongIntAsArray() []int {
 	}
 
 	return arr
-}
-
-func nextFloat() float64 {
-    f, _ strconv.ParseFloat(nextString(), 64)
-    return f
 }
 
 // ==================================================
@@ -156,12 +194,6 @@ func toUpperCase(s string) string {
 
 // point は 座標を表す構造体です。
 type point struct {
-	x int
-	y int
-}
-
-// pointf は座標を表す構造体です。
-type pointf struct {
 	x float64
 	y float64
 }
