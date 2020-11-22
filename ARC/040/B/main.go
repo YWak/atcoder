@@ -11,12 +11,38 @@ import (
 )
 
 func main() {
+	N := nextInt()
+	R := nextInt()
+	S := nextString()
 
-	fmt.Println()
-}
+	painted := make([]bool, N)
+	for i := 0; i < N; i++ {
+		painted[i] = S[i] == 'o'
+	}
 
-func debug(args ...interface{}) {
-	fmt.Fprintln(os.Stderr, args...)
+	c := 0
+	// walk
+	for i := N - 1; i >= 0; i-- {
+		if !painted[i] {
+			c += max(0, i-R+1)
+			break
+		}
+	}
+
+	// paint
+	for i := 0; i < N; i++ {
+		if painted[i] {
+			continue
+		}
+		c++
+		for r := 0; r < R; r++ {
+			if i+r < N {
+				painted[i+r] = true
+			}
+		}
+	}
+
+	fmt.Println(c)
 }
 
 // ==================================================
@@ -153,4 +179,8 @@ func toUpperCase(s string) string {
 type point struct {
 	x int
 	y int
+}
+
+func debug(args ...interface{}) {
+	fmt.Fprintln(os.Stderr, args...)
 }
