@@ -16,33 +16,19 @@ var W int
 var A []string
 
 func main() {
-	// H = nextInt()
-	// W = nextInt()
+	H = nextInt()
+	W = nextInt()
 
-	H = 2000
-	W = 2000
 	A = make([]string, H)
 	c := make([][]int, H)
-	for i := 0; i < H; i++ {
-		l := make([]byte, W)
-		for j := 0; j < W; j++ {
-			if i == 0 && j == 0 {
-				l[j] = 'S'
-			} else if i == H-1 && j == W-1 {
-				l[j] = 'G'
-			} else {
-				l[j] = '.'
-			}
-		}
-		A[i] = string(l)
-	}
+
 	var s point
 	var g point
 	telepo := map[byte][]point{}
 	MAX := H*W + 1
 
 	for i := 0; i < H; i++ {
-		// A[i] = nextString()
+		A[i] = nextString()
 		c[i] = make([]int, W)
 
 		for j := 0; j < W; j++ {
@@ -69,6 +55,8 @@ func main() {
 		{+0, +1, 0},
 	}
 
+	first := map[byte]bool{}
+
 	for !queue.Empty() {
 		p := queue.Pop()
 		cost := c[p.x][p.y]
@@ -90,8 +78,10 @@ func main() {
 			queue.Push(&point{x, y, cost + 1})
 		}
 
-		l, exists := telepo[A[p.x][p.y]]
-		if exists {
+		l, ok1 := telepo[A[p.x][p.y]]
+		_, ok2 := first[A[p.x][p.y]]
+		if ok1 && !ok2 {
+			first[A[p.x][p.y]] = true
 			for i := 0; i < len(l); i++ {
 				n := l[i]
 				if c[n.x][n.y] > cost+1 {
