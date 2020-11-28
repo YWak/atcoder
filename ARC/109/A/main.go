@@ -11,8 +11,23 @@ import (
 )
 
 func main() {
+	a := nextInt()
+	b := nextInt()
+	x := nextInt()
+	y := nextInt()
 
-	fmt.Println()
+	var ans int
+	if a == b {
+		ans = x
+	} else if a > b {
+		// 下がる
+		ans = x + (a-b-1)*min(2*x, y)
+	} else {
+		// 上がる
+		ans = x + (b-a)*min(2*x, y)
+	}
+
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
@@ -148,16 +163,6 @@ func toLowerCase(s string) string {
 // toUpperCase は sをすべて大文字にした文字列を返します。
 func toUpperCase(s string) string {
 	return strings.ToUpper(s)
-}
-
-// isLower はbが小文字かどうかを判定します
-func isLower(b byte) bool {
-	return 'a' <= b && b <= 'z'
-}
-
-// isUpper はbが大文字かどうかを判定します
-func isUpper(b byte) bool {
-	return 'A' <= b && b <= 'Z'
 }
 
 // ==================================================
