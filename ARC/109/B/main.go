@@ -15,11 +15,11 @@ func main() {
 
 	// n+1を分割できる最大数にする
 	ok := uint(0)
-	ng := uint(math.Sqrt(float64(n+10))) * 2
+	ng := uint(float64(math.MaxInt32))*2 + 1
 
 	for ng-ok > 1 {
 		mid := (ok + ng) / 2
-		if sum(mid) < n+1 {
+		if sum(mid) <= n+1 {
 			ok = mid
 		} else {
 			ng = mid
