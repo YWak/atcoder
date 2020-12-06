@@ -27,7 +27,6 @@ func main() {
 		} else {
 			s = 1
 		}
-		debug(s)
 		if s >= K {
 			ans++
 		}
