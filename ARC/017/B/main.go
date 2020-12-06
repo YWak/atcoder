@@ -16,6 +16,9 @@ func main() {
 	A := nextInts(N)
 
 	ans := 0
+	if K == 1 {
+		ans++
+	}
 	s := 1
 
 	for i := 1; i < N; i++ {
@@ -24,6 +27,7 @@ func main() {
 		} else {
 			s = 1
 		}
+		debug(s)
 		if s >= K {
 			ans++
 		}
