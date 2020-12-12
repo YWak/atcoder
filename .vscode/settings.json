@@ -1,4 +1,18 @@
 {
+    "go.useLanguageServer": true,
+    "go.alternateTools": {
+        "gopls": "gopls"
+    },
+    "go.languageServerExperimentalFeatures": {
+        "diagnostics": true,
+        "documentLink": true
+    },
     "go.autocompleteUnimportedPackages": true,
-    // "go.useLanguageServer": true
+    "[go]": {
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    }
 }
