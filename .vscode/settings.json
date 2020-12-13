@@ -10,6 +10,7 @@
     "go.autocompleteUnimportedPackages": true,
     "[go]": {
         "editor.insertSpaces": true,
+        "editor.formatOnPaste": true,
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
