@@ -89,7 +89,6 @@
             "",
             "// WarshallFloyd は全点対の最短ルートを返します。",
             "func (g *Graph) WarshallFloyd() [][]int {",
-            "    INF := math.MaxInt64",
             "    n := len(g.list)",
             "    d := make([][]int, n)",
             "    for i := 0; i < n; i++ {",
