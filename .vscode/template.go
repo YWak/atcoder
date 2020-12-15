@@ -10,6 +10,9 @@ import (
 	"strings"
 )
 
+// INF は最大値を表す数
+const INF = math.MaxInt64
+
 func main() {
 
 	fmt.Println()
