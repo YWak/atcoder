@@ -34,8 +34,8 @@ func main() {
 		graph.AddWeightedEdge(B(i+1), B(i), y)
 	}
 
-	ans, _ := graph.Dijkstra(A(a), B(b))
-	fmt.Println(ans)
+	ans := graph.WarshallFloyd()
+	fmt.Println(ans[A(a)][B(b)])
 }
 
 // INF は最大値を表す数
@@ -95,7 +95,7 @@ func (pq *DijkstraPriorityQueue) Pop() interface{} {
 
 // Dijkstra はsからtへの最短距離と最短ルートを返します。
 // 重みが負の辺があるときには使用できません。
-// 計算量: (|V| + |E|)log|V|
+// 計算量: |V| + |E|log|V|
 func (g *Graph) Dijkstra(s, t int) (int, []int) {
 	n := len(g.list)
 	pq := make(DijkstraPriorityQueue, 0)
@@ -140,12 +140,12 @@ func (g *Graph) WarshallFloyd() [][]int {
 			if i == j {
 				d[i][j] = 0
 			} else {
-				d[i][j] = INF
+				d[i][j] = int(1e9)
 			}
 		}
 		for j := 0; j < len(g.list[i]); j++ {
-			e := g.list[i][j]
-			d[i][e.to] = e.weight
+			k := g.list[i][j]
+			d[i][k.to] = k.weight
 		}
 	}
 

@@ -11,7 +11,7 @@ import (
 )
 
 // INF は最大値を表す数
-const INF = math.MaxInt64
+const INF = int(1e9)
 
 func main() {
 
