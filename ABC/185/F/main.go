@@ -37,6 +37,7 @@ func main() {
 
 type SegmentTree []int
 
+// Init は セグメントツリーの初期化を行います。
 func (st *SegmentTree) Init() {
 	n := len(*st)
 	x := 1
@@ -55,13 +56,17 @@ func (st *SegmentTree) Init() {
 	*st = arr
 }
 
+// E は セグメントツリーの単位元を返します。
 func (st SegmentTree) E() int {
 	return 0
 }
+
+// Operate は セグメントツリーで適用する演算を定義します。
 func (st SegmentTree) Operate(a, b int) int {
 	return a ^ b
 }
 
+// Update は セグメントツリーの i 番目の値を value に設定します。
 func (st SegmentTree) Update(i int, value int) {
 	i += len(st)/2 - 1
 	st[i] ^= value
@@ -71,6 +76,7 @@ func (st SegmentTree) Update(i int, value int) {
 	}
 }
 
+// Query は セグメントツリーの from から to までの値を取得します。
 func (st SegmentTree) Query(from, to int) int {
 	return st.query1(from, to, 0, 0, len(st)/2)
 }
