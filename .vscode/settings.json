@@ -1,19 +1,18 @@
 {
     "go.useLanguageServer": false,
-    "go.alternateTools": {
-        "gopls": "gopls"
+    "gopls": {
+        "completeUnimported": true,
+        "deepCompletion": true,
     },
-    "go.languageServerExperimentalFeatures": {
-        "diagnostics": true,
-        "documentLink": true
-    },
+    // "go.gocodeAutoBuild": true,
+    // "go.buildOnSave": "package",
+    // "go.vetOnSave": "package",
     "go.autocompleteUnimportedPackages": true,
     "[go]": {
-        "editor.insertSpaces": true,
-        "editor.formatOnPaste": true,
+        "editor.snippetSuggestions": "none",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-            "source.organizeImports": true
+            "source.organizeImports": true,
         }
     }
 }
