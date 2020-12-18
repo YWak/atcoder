@@ -17,10 +17,11 @@ func main() {
 	N := nextInt()
 	Q := nextInt()
 	A := make(SegmentTree, N)
-	for i := 0; i < N; i++ {
-		A[i] = nextInt()
-	}
 	A.Init()
+
+	for i := 0; i < N; i++ {
+		A.Update(i, nextInt())
+	}
 
 	for i := 0; i < Q; i++ {
 		t := nextInt()
@@ -48,9 +49,6 @@ func (st *SegmentTree) Init() {
 	arr := make(SegmentTree, x*2)
 	for i := 0; i < x*2-1; i++ {
 		arr[i] = st.E()
-	}
-	for i := 0; i < n; i++ {
-		arr.Update(i, (*st)[i])
 	}
 
 	*st = arr
