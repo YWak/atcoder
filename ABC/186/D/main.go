@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/bits"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -14,8 +15,20 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	A := nextInts(N)
+	// A := make([]Point, N)
+	// for i := 0; i < N; i++ {
+	// 	A[i] = Point{nextInt(), i}
+	// }
+	// 何回引かれるかを知る
+	sort.Slice(A, func(i, j int) bool { return A[i] < A[j] })
+	ans := 0
+	for i := 0; i < N; i++ {
+		ans += (A[i] * i) - (A[i] * (N - 1 - i))
+	}
 
-	fmt.Println()
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
