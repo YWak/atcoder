@@ -14,8 +14,10 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	W := nextInt()
 
-	fmt.Println()
+	fmt.Println(N / W)
 }
 
 func debug(args ...interface{}) {
