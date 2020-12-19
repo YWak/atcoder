@@ -14,8 +14,21 @@ import (
 const INF = int(1e9)
 
 func main() {
+	H := nextInt()
+	W := nextInt()
+	A := make([]int, H*W)
+	m := INF
+	for i := 0; i < H*W; i++ {
+		a := nextInt()
+		A[i] = a
+		m = min(m, a)
+	}
+	ans := 0
+	for i := 0; i < H*W; i++ {
+		ans += A[i] - m
+	}
 
-	fmt.Println()
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
