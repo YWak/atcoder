@@ -252,4 +252,31 @@
             ""
         ]
     },
+    "Next Permutation": {
+        "scope": "go",
+        "prefix": "permutation",
+        "body": [
+            "type Permutation []int",
+            "",
+            "func (p *Permutation) nextPermutation() bool {",
+            "    for i := len(*p) - 2; i >= 0; i-- {",
+            "        if (*p)[i] > (*p)[i+1] {",
+            "            continue",
+            "        }",
+            "        j := len(*p)",
+            "        for {",
+            "             j--",
+            "             if (*p)[i] >= (*p)[j] {",
+            "                 break",
+            "             }",
+            "        }",
+            "        (*p)[i], (*p)[j] = (*p)[j], (*p)[i]",
+            "        sort.Slice((*p)[i+1:], func (a, b int) bool { return (*p)[a] < (*p)[b] } )",
+            "        return true",
+            "",
+            "    }",
+            "    return false",
+            "}",
+        ]
+    }
 }
