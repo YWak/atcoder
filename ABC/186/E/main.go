@@ -22,15 +22,13 @@ func main() {
 
 		// 周回してもたどり着けない
 		g := gcd(N, K)
-		if g == 1 {
-			fmt.Println(((N - S) * inv(K, N)) % N)
-		} else if (N-S)%g == 0 {
+		if g != 1 && (N-S)%g != 0 {
+			fmt.Println(-1)
+		} else {
 			n := N / g
 			k := K / g
 			ns := (N - S) / g
 			fmt.Println((ns * inv(k, n)) % n)
-		} else {
-			fmt.Println(-1)
 		}
 	}
 }
