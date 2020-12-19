@@ -14,8 +14,25 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
 
-	fmt.Println()
+	ok := func(n, b int) bool {
+		for n > 0 {
+			if n%b == 7 {
+				return false
+			}
+			n /= b
+		}
+		return true
+	}
+	ans := 0
+	for i := 1; i <= N; i++ {
+		if ok(i, 10) && ok(i, 8) {
+			ans++
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
