@@ -14,8 +14,53 @@ import (
 const INF = int(1e9)
 
 func main() {
+	T := nextInt()
+	for i := 0; i < T; i++ {
+		N := nextInt()
+		S := nextInt()
+		K := nextInt()
 
-	fmt.Println()
+		// 周回してもたどり着けない
+		g := gcd(N, K)
+		if g == 1 {
+			fmt.Println(((N - S) * inv(K, N)) % N)
+		} else if (N-S)%g == 0 {
+			n := N / g
+			k := K / g
+			ns := (N - S) / g
+			fmt.Println((ns * inv(k, n)) % n)
+		} else {
+			fmt.Println(-1)
+		}
+	}
+}
+
+func inv(a, m int) int {
+	b := m
+	u := 1
+	v := 0
+	for b > 0 {
+		t := a / b
+		a -= t * b
+		a, b = b, a
+		u -= t * v
+		u, v = v, u
+	}
+	u %= m
+	if u < 0 {
+		u += m
+	}
+	return u
+}
+
+func gcd(a, b int) int {
+	if b > a {
+		a, b = b, a
+	}
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
 }
 
 func debug(args ...interface{}) {
