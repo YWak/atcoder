@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/bits"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -13,9 +14,36 @@ import (
 // INF は最大値を表す数
 const INF = int(1e9)
 
-func main() {
+type town struct {
+	a int
+	b int
+	s int
+}
 
-	fmt.Println()
+func main() {
+	N := nextInt()
+	towns := make([]town, N)
+	for i := 0; i < N; i++ {
+		a := nextInt()
+		b := nextInt()
+		towns[i] = town{a, b, a + b}
+	}
+	sort.Slice(towns, func(i, j int) bool {
+		return towns[i].s > towns[j].s || (towns[i].s == towns[j].s && towns[i].a > towns[j].a)
+	})
+	aoki := make([]int, N+1) // 逆順の累積和
+	for i := N - 1; i >= 0; i-- {
+		aoki[i] = aoki[i+1] + towns[i].a
+	}
+	// debug(towns)
+	takahashi := 0
+	for i := 0; i < N; i++ {
+		takahashi += towns[i].s
+		if takahashi > aoki[i+1] {
+			fmt.Println(i + 1)
+			return
+		}
+	}
 }
 
 func debug(args ...interface{}) {
