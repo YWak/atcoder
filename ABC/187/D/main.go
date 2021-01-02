@@ -29,21 +29,35 @@ func main() {
 		towns[i] = town{a, b, a + b}
 	}
 	sort.Slice(towns, func(i, j int) bool {
-		return towns[i].s > towns[j].s || (towns[i].s == towns[j].s && towns[i].a > towns[j].a)
+		ia, ja := towns[i].a, towns[j].a
+		// ib, jb := towns[i].b, towns[j].b
+		is, js := towns[i].s, towns[j].s
+		return is+ia > js+ja
+		// if is != js {
+		// 	return is > js
+		// }
+		// if ia != ja {
+		// 	return ia > ja
+		// }
+		// return ib > jb
+		// return is > js || is == js && ia > ja
 	})
 	aoki := make([]int, N+1) // 逆順の累積和
 	for i := N - 1; i >= 0; i-- {
 		aoki[i] = aoki[i+1] + towns[i].a
 	}
-	// debug(towns)
+	debug(towns)
 	takahashi := 0
+	ans := N
 	for i := 0; i < N; i++ {
 		takahashi += towns[i].s
+		debug(takahashi, aoki[i+1])
 		if takahashi > aoki[i+1] {
-			fmt.Println(i + 1)
-			return
+			ans = i + 1
+			break
 		}
 	}
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
