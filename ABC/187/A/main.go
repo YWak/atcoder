@@ -14,8 +14,17 @@ import (
 const INF = int(1e9)
 
 func main() {
+	A := nextLongIntAsArray()
+	B := nextLongIntAsArray()
 
-	fmt.Println()
+	a := 0
+	b := 0
+	for i := 0; i < 3; i++ {
+		a += A[i]
+		b += B[i]
+	}
+
+	fmt.Println(max(a, b))
 }
 
 func debug(args ...interface{}) {
