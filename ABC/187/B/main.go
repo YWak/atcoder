@@ -14,8 +14,24 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	x := make([]int, N)
+	y := make([]int, N)
 
-	fmt.Println()
+	for i := 0; i < N; i++ {
+		x[i] = nextInt()
+		y[i] = nextInt()
+	}
+
+	c := 0
+	for i := 0; i < N; i++ {
+		for j := i + 1; j < N; j++ {
+			if abs(y[i]-y[j]) <= abs(x[i]-x[j]) {
+				c++
+			}
+		}
+	}
+	fmt.Println(c)
 }
 
 func debug(args ...interface{}) {
