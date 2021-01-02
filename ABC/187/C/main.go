@@ -14,8 +14,36 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	keys := make([]string, N)
+	ok := map[string]bool{}
+	ng := map[string]bool{}
 
-	fmt.Println()
+	exists := func(m map[string]bool, s string) bool {
+		_, e := m[s]
+		return e
+	}
+
+	for i := 0; i < N; i++ {
+		s := nextString()
+		var key string
+		if s[0] == '!' {
+			key = s[1:]
+			ok[key] = true
+		} else {
+			key = s
+			ng[key] = true
+		}
+		keys[i] = key
+	}
+	for i := 0; i < N; i++ {
+		s := keys[i]
+		if exists(ok, s) && exists(ng, s) {
+			fmt.Println(s)
+			return
+		}
+	}
+	fmt.Println("satisfiable")
 }
 
 func debug(args ...interface{}) {
