@@ -14,8 +14,14 @@ import (
 const INF = int(1e9)
 
 func main() {
+	X := nextInt()
+	Y := nextInt()
 
-	fmt.Println()
+	if abs(X - Y) <= 2 {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }
 
 func debug(args ...interface{}) {
