@@ -14,8 +14,19 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	A := nextInts(N)
+	B := nextInts(N)
 
-	fmt.Println()
+	c := 0
+	for i := 0; i < N; i++ {
+		c += A[i] * B[i]
+	}
+	if c == 0 {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }
 
 func debug(args ...interface{}) {
