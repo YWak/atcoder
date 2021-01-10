@@ -33,8 +33,16 @@ func win(i, j int) int {
 func main() {
 	N := nextInt()
 	A = nextInts(pow(2, N))
-	a := win(0, pow(2, N-1)-1)
-	b := win(pow(2, N-1), pow(2, N)-1)
+
+	var a int
+	var b int
+	if N == 1 {
+		a = 0
+		b = 1
+	} else {
+		a = win(0, pow(2, N-1)-1)
+		b = win(pow(2, N-1), pow(2, N)-1)
+	}
 
 	if A[a] < A[b] {
 		fmt.Println(a + 1)
