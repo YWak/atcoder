@@ -11,11 +11,50 @@ import (
 )
 
 // INF は最大値を表す数
-const INF = int(1e9)
+const INF = int(1e10)
+
+var graph [][]int
+var used []bool
+var A []int
 
 func main() {
+	N := nextInt()
+	M := nextInt()
+	A = nextInts(N)
+	graph = make([][]int, N)
+	for i := 0; i < M; i++ {
+		x := nextInt() - 1
+		y := nextInt() - 1
+		graph[x] = append(graph[x], y)
+	}
+	used = make([]bool, N)
 
-	fmt.Println()
+	ans := -INF
+	// ルートから順にたどっていって、最高価格を取得する
+	for i := 0; i < N; i++ {
+		if !used[i] {
+			ans = max(ans, dfs(i, i))
+		}
+	}
+	fmt.Println(ans)
+}
+
+func dfs(curr, minNode int) int {
+	used[curr] = true
+	r := A[curr] - A[minNode]
+	if minNode == curr {
+		r = -INF
+	}
+	for i := 0; i < len(graph[curr]); i++ {
+		n := graph[curr][i]
+		m := minNode
+		if A[m] > A[curr] {
+			m = curr
+		}
+		r = max(r, dfs(n, m))
+	}
+
+	return r
 }
 
 func debug(args ...interface{}) {
