@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/bits"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -13,9 +14,48 @@ import (
 // INF は最大値を表す数
 const INF = int(1e9)
 
-func main() {
+type pair struct {
+	day  int
+	cost int
+}
 
-	fmt.Println()
+func main() {
+	N := nextInt()
+	C := nextInt()
+	costs := map[int]int{}
+	add := func(i, c int) {
+		v, e := costs[i]
+		if e {
+			costs[i] = v + c
+		} else {
+			costs[i] = c
+		}
+	}
+	add(0, 0)
+	for i := 0; i < N; i++ {
+		a := nextInt()
+		b := nextInt()
+		c := nextInt()
+		add(a, c)
+		add(b+1, -c)
+	}
+	days := make([]int, len(costs))
+	i := 0
+	for k := range costs {
+		days[i] = k
+		i++
+	}
+	sort.Slice(days, func(i, j int) bool { return days[i] < days[j] })
+
+	ans := 0
+	c := 0
+	for i := 0; i < len(days)-1; i++ {
+		c += costs[days[i]]
+		j := i + 1
+		ans += min(c, C) * (days[j] - days[i])
+	}
+
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
