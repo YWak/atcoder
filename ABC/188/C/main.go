@@ -13,9 +13,34 @@ import (
 // INF は最大値を表す数
 const INF = int(1e9)
 
-func main() {
+var A []int
 
-	fmt.Println()
+func win(i, j int) int {
+	if j-i == 1 {
+		if A[i] < A[j] {
+			return j
+		}
+		return i
+	}
+	a := win(i, (i+j)/2)
+	b := win((i+j)/2, j)
+	if A[a] < A[b] {
+		return b
+	}
+	return a
+}
+
+func main() {
+	N := nextInt()
+	A = nextInts(pow(2, N))
+	a := win(0, pow(2, N-1)-1)
+	b := win(pow(2, N-1), pow(2, N)-1)
+
+	if A[a] < A[b] {
+		fmt.Println(a + 1)
+	} else {
+		fmt.Println(b + 1)
+	}
 }
 
 func debug(args ...interface{}) {
