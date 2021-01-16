@@ -14,8 +14,20 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	A := nextInts(N)
+	B := nextInts(N)
+	ma := 0
+	mb := 0
+	c := 0
 
-	fmt.Println()
+	for i := 0; i < N; i++ {
+		ma = max(ma, A[i])
+		mb = max(mb, B[i])
+		c = max(c, A[i]*B[i])
+		c = max(c, ma*B[i])
+		fmt.Println(c)
+	}
 }
 
 func debug(args ...interface{}) {
