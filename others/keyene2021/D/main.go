@@ -14,8 +14,22 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	n := 2 << (N - 1)
+	K := (2 << (N - 1)) - 1
+	fmt.Println(K)
+	buf := make([]byte, n)
+	for i := 1; i <= K; i++ {
+		for j := 0; j < n; j++ {
+			if popcount(i&j)%2 == 0 {
+				buf[j] = 'A'
+			} else {
+				buf[j] = 'B'
+			}
 
-	fmt.Println()
+		}
+		fmt.Printf("%s\n", buf)
+	}
 }
 
 func debug(args ...interface{}) {
