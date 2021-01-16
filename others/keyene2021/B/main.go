@@ -14,8 +14,20 @@ import (
 const INF = int(1e9)
 
 func main() {
-
-	fmt.Println()
+	N := nextInt()
+	K := nextInt()
+	bucket := make([]int, 300001)
+	for i := 0; i < N; i++ {
+		a := nextInt()
+		bucket[a]++
+	}
+	ans := 0
+	k := K
+	for i := 0; i < len(bucket); i++ {
+		k = min(k, bucket[i])
+		ans += k
+	}
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
