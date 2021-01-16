@@ -16,6 +16,8 @@ const INF = int(1e10)
 var graph [][]int
 var used []bool
 var A []int
+var maxA []int
+var ansA []int
 
 func main() {
 	N := nextInt()
@@ -27,34 +29,39 @@ func main() {
 		y := nextInt() - 1
 		graph[x] = append(graph[x], y)
 	}
-	used = make([]bool, N)
-
-	ans := -INF
-	// ルートから順にたどっていって、最高価格を取得する
+	// ノードi以下で最も大きいA[j]を求める
+	maxA = make([]int, N)
 	for i := 0; i < N; i++ {
-		if !used[i] {
-			ans = max(ans, dfs(i, i))
+		dfs1(i)
+	}
+
+	// ノードi以下で全パターンを探す
+	ans := -INF
+	for i := 0; i < N; i++ {
+		for j := 0; j < len(graph[i]); j++ {
+			n := graph[i][j]
+			if maxA[n] == -1 {
+				continue
+			}
+			ans = max(ans, maxA[n]-A[n])
 		}
 	}
+
 	fmt.Println(ans)
 }
 
-func dfs(curr, minNode int) int {
-	used[curr] = true
-	r := A[curr] - A[minNode]
-	if minNode == curr {
-		r = -INF
-	}
-	for i := 0; i < len(graph[curr]); i++ {
-		n := graph[curr][i]
-		m := minNode
-		if A[m] > A[curr] {
-			m = curr
-		}
-		r = max(r, dfs(n, m))
+func dfs1(curr int) {
+	if maxA[curr] != 0 {
+		return
 	}
 
-	return r
+	maxA[curr] = -1
+	// currを除き最大のA[i]を返す
+	for i := 0; i < len(graph[curr]); i++ {
+		n := graph[curr][i]
+		dfs1(n)
+		maxA[curr] = max(maxA[n], maxA[curr])
+	}
 }
 
 func debug(args ...interface{}) {

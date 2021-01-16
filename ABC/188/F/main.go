@@ -14,6 +14,13 @@ import (
 const INF = int(1e9)
 
 func main() {
+	X := nextInt()
+	Y := nextInt()
+
+	if X >= Y {
+		fmt.Println(Y - X)
+		return
+	}
 
 	fmt.Println()
 }
