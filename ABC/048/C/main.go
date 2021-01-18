@@ -20,12 +20,13 @@ func main() {
 
 	ans := 0
 	for i := 0; i < N-1; i++ {
-		if a[i]+a[i+1] <= x {
+		j := i + 1
+		if a[i]+a[j] <= x {
 			continue
 		}
-		d := a[i+1] - (x - a[i])
+		d := a[j] - (x - a[i])
 		ans += d
-		a[i+1] -= d
+		a[j] = max(0, a[j]-d)
 	}
 
 	fmt.Println(ans)
