@@ -14,8 +14,21 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	X := nextInt() * 100
+	x := 0
+	for i := 0; i < N; i++ {
+		v := nextInt()
+		p := nextInt()
 
-	fmt.Println()
+		x += v * p
+		if x > X {
+			fmt.Println(i + 1)
+			return
+		}
+	}
+
+	fmt.Println(-1)
 }
 
 func debug(args ...interface{}) {
