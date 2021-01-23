@@ -14,8 +14,19 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	A := nextInts(N)
+	ans := 0
 
-	fmt.Println()
+	for i := 0; i < N; i++ {
+		// これまで最小の高さ
+		a := INF
+		for j := i; j < N; j++ {
+			a = min(a, A[j])
+			ans = max(ans, a*(j-i+1))
+		}
+	}
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
