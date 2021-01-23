@@ -14,8 +14,14 @@ import (
 const INF = int(1e9)
 
 func main() {
+	S := nextString()
+	ok := S[0] == S[1] && S[1] == S[2]
 
-	fmt.Println()
+	if ok {
+		fmt.Println("Won")
+	} else {
+		fmt.Println("Lost")
+	}
 }
 
 func debug(args ...interface{}) {
