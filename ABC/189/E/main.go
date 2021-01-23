@@ -13,9 +13,59 @@ import (
 // INF は最大値を表す数
 const INF = int(1e9)
 
+type rot struct {
+	sx, sy int
+	px, py int
+	x, y   byte
+}
+
 func main() {
 
-	fmt.Println()
+	N := nextInt()
+	points := make([]Point, N)
+	for i := 0; i < N; i++ {
+		points[i] = Point{nextInt(), nextInt()}
+	}
+	M := nextInt()
+	// 回転回数
+	r := make([]rot, M+1)
+	r[0] = rot{+1, +1, 0, 0, 'x', 'y'}
+	for i := 0; i < M; i++ {
+		op := nextInt()
+		p := r[i]
+
+		if op == 1 {
+			r[i+1] = rot{+p.sy, -p.sx, +p.py, -p.px, p.y, p.x}
+		} else if op == 2 {
+			r[i+1] = rot{-p.sy, +p.sx, -p.py, +p.px, p.y, p.x}
+		} else if op == 3 {
+			q := nextInt()
+			r[i+1] = rot{-p.sx, +p.sy, 2*q - p.px, p.py, p.x, p.y}
+		} else {
+			q := nextInt()
+			r[i+1] = rot{+p.sx, -p.sy, p.px, 2*q - p.py, p.x, p.y}
+		}
+	}
+
+	Q := nextInt()
+	for i := 0; i < Q; i++ {
+		a := nextInt()
+		b := nextInt() - 1
+
+		rr := r[a]
+		p := points[b]
+
+		var x int
+		var y int
+		if rr.x == 'x' {
+			x, y = p.x, p.y
+		} else {
+			x, y = p.y, p.x
+		}
+		x, y = x*rr.sx+rr.px, y*rr.sy+rr.py
+
+		fmt.Println(x, y)
+	}
 }
 
 func debug(args ...interface{}) {
