@@ -15,26 +15,19 @@ const INF = int(1e9)
 
 func main() {
 	N := nextInt()
-	ors := make([]int, 1)
-	ors[0] = 1
-	k := 0
+	f := 1
+	t := 1
 	for i := 0; i < N; i++ {
 		s := nextString()
 
 		if s == "OR" {
-			ors = append(ors, 0)
-			k++
+			t = t*2 + f
+		} else {
+			f = f*2 + t
 		}
-		ors[k]++
-	}
-	ok := 1 << (N + 1)
-	ng := 1
-	// 全部Falseのパターンを引く
-	for i := 0; i < len(ors); i++ {
-		ng *= (1 << ors[i]) - 1
 	}
 
-	fmt.Println(ok - ng)
+	fmt.Println(t)
 }
 
 func debug(args ...interface{}) {
