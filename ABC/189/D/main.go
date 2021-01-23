@@ -14,8 +14,27 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	ors := make([]int, 1)
+	ors[0] = 1
+	k := 0
+	for i := 0; i < N; i++ {
+		s := nextString()
 
-	fmt.Println()
+		if s == "OR" {
+			ors = append(ors, 0)
+			k++
+		}
+		ors[k]++
+	}
+	ok := 1 << (N + 1)
+	ng := 1
+	// 全部Falseのパターンを引く
+	for i := 0; i < len(ors); i++ {
+		ng *= (1 << ors[i]) - 1
+	}
+
+	fmt.Println(ok - ng)
 }
 
 func debug(args ...interface{}) {
