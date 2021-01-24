@@ -14,8 +14,61 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	M := nextInt()
+	K := nextInt()
+	A := make([]int, K)
+	for i := 0; i < K; i++ {
+		A[i] = nextInt() - 1
+	}
 
-	fmt.Println()
+	seq := 1
+	for i := 0; i < K-1; i++ {
+		if A[i]+1 == A[i+1] {
+			seq++
+		} else {
+			seq = 1
+		}
+		if seq >= M {
+			fmt.Println(-1)
+			return
+		}
+	}
+	debug(N)
+	// 振り出しに戻るを踏まずにゴールする期待値
+	p := make([]float64, N+1)
+	ex := make([]int, N+1)
+	p[0] = 0.0
+	ex[0] = 1
+	sp := float64(0)
+	se := 1
+	si := 0
+	for i := 1; i < N; i++ {
+		// 振り出し？
+		back := false
+		for k := 0; k < K; k++ {
+			if i == A[k] {
+				back = true
+				break
+			}
+		}
+		if back {
+			p[i] = 0.0
+		} else {
+			p[i] = sp / float64(M)
+		}
+
+		if i-si > M {
+			sp -= p[si]
+			se -= ex[si]
+			si++
+		}
+		sp += p[i]
+		se += ex[i]
+	}
+	// i回目まで振り出しに戻ってi+1回目にゴールする確率
+	ans := 1
+	fmt.Printf("%.4f\n", float64(ans)/1.0)
 }
 
 func debug(args ...interface{}) {
