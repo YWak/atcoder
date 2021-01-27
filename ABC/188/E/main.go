@@ -13,55 +13,40 @@ import (
 // INF は最大値を表す数
 const INF = int(1e10)
 
-var graph [][]int
-var used []bool
-var A []int
-var maxA []int
-var ansA []int
-
 func main() {
 	N := nextInt()
 	M := nextInt()
-	A = nextInts(N)
-	graph = make([][]int, N)
+
+	dp := make([]int, N)
+	A := make([]int, N)
+	for i := 0; i < N; i++ {
+		A[i] = nextInt()
+		dp[i] = INF
+	}
+
+	graph := make([][]int, N)
 	for i := 0; i < M; i++ {
 		x := nextInt() - 1
 		y := nextInt() - 1
 		graph[x] = append(graph[x], y)
 	}
-	// ノードi以下で最も大きいA[j]を求める
-	maxA = make([]int, N)
-	for i := 0; i < N; i++ {
-		dfs1(i)
-	}
 
-	// ノードi以下で全パターンを探す
-	ans := -INF
+	// dp[i]はiより前のフィールドで一番安価な街
 	for i := 0; i < N; i++ {
 		for j := 0; j < len(graph[i]); j++ {
 			n := graph[i][j]
-			if maxA[n] == -1 {
-				continue
-			}
-			ans = max(ans, maxA[n]-A[n])
+			dp[n] = min(dp[n], dp[i])
+			dp[n] = min(dp[n], A[i])
 		}
 	}
-
+	ans := -INF
+	for i := 0; i < N; i++ {
+		if dp[i] == INF {
+			continue
+		}
+		ans = max(ans, A[i]-dp[i])
+	}
 	fmt.Println(ans)
-}
-
-func dfs1(curr int) {
-	if maxA[curr] != 0 {
-		return
-	}
-
-	maxA[curr] = -1
-	// currを除き最大のA[i]を返す
-	for i := 0; i < len(graph[curr]); i++ {
-		n := graph[curr][i]
-		dfs1(n)
-		maxA[curr] = max(maxA[n], maxA[curr])
-	}
 }
 
 func debug(args ...interface{}) {
