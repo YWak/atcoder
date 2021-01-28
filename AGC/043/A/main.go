@@ -14,8 +14,35 @@ import (
 const INF = int(1e9)
 
 func main() {
+	H := nextInt()
+	W := nextInt()
 
-	fmt.Println()
+	s := make([]string, H)
+	dp := make([][]int, H)
+	for i := 0; i < H; i++ {
+		s[i] = nextString()
+		dp[i] = make([]int, W)
+		for j := 0; j < W; j++ {
+			dp[i][j] = INF
+		}
+	}
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if i == 0 && j == 0 {
+				dp[0][0] = ch(s[0][0] == '#', 1, 0)
+				continue
+			}
+			// 上から
+			if i > 0 {
+				dp[i][j] = min(dp[i][j], dp[i-1][j]+ch(s[i-1][j] == '.' && s[i][j] == '#', 1, 0))
+			}
+			// 左から
+			if j > 0 {
+				dp[i][j] = min(dp[i][j], dp[i][j-1]+ch(s[i][j-1] == '.' && s[i][j] == '#', 1, 0))
+			}
+		}
+	}
+	fmt.Println(dp[H-1][W-1])
 }
 
 func debug(args ...interface{}) {
