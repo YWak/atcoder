@@ -14,8 +14,41 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	M := nextInt()
+	A := make([]int, M)
+	B := make([]int, M)
+	for i := 0; i < M; i++ {
+		A[i] = nextInt() - 1
+		B[i] = nextInt() - 1
+	}
+	K := nextInt()
+	C := make([]int, K)
+	D := make([]int, K)
+	for i := 0; i < K; i++ {
+		C[i] = nextInt() - 1
+		D[i] = nextInt() - 1
+	}
+	ans := 0
+	for c := 0; c < (1 << (K - 1)); c++ {
+		dishes := make([]int, N)
+		for i := 0; i < K; i++ {
+			if nthbit(c, i) == 1 {
+				dishes[C[i]]++
+			} else {
+				dishes[D[i]]++
+			}
+		}
+		a := 0
+		for i := 0; i < M; i++ {
+			if dishes[A[i]] > 0 && dishes[B[i]] > 0 {
+				a++
+			}
+		}
+		ans = max(ans, a)
+	}
 
-	fmt.Println()
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
