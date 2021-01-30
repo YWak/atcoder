@@ -14,8 +14,18 @@ import (
 const INF = int(1e9)
 
 func main() {
-
-	fmt.Println()
+	N := nextInt()
+	S := nextInt()
+	D := nextInt()
+	for i := 0; i < N; i++ {
+		x := nextInt()
+		y := nextInt()
+		if (x < S) && (y > D) {
+			fmt.Println("Yes")
+			return
+		}
+	}
+	fmt.Println("No")
 }
 
 func debug(args ...interface{}) {
