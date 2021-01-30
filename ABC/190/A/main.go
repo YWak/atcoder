@@ -14,8 +14,15 @@ import (
 const INF = int(1e9)
 
 func main() {
+	A := nextInt()
+	B := nextInt()
+	C := nextInt()
 
-	fmt.Println()
+	if A > B-C {
+		fmt.Println("Takahashi")
+	} else {
+		fmt.Println("Aoki")
+	}
 }
 
 func debug(args ...interface{}) {
