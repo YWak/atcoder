@@ -30,7 +30,7 @@ func main() {
 		D[i] = nextInt() - 1
 	}
 	ans := 0
-	for c := 0; c < (1 << (K - 1)); c++ {
+	for c := 0; c < (1 << K); c++ {
 		dishes := make([]int, N)
 		for i := 0; i < K; i++ {
 			if nthbit(c, i) == 1 {
