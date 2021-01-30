@@ -14,8 +14,20 @@ import (
 const INF = int(1e9)
 
 func main() {
-
-	fmt.Println()
+	N := nextInt()
+	ans := 0
+	for i := 1; i <= N; i++ {
+		// 前に i / 2 個、後ろに (i-1)/2個連続する
+		if N/i-(i-1)/2 <= 0 {
+			break
+		}
+		a := N/i - (i-1)/2
+		b := N/i + i/2
+		if i*(a+b)/2 == N {
+			ans++
+		}
+	}
+	fmt.Println(ans * 2)
 }
 
 func debug(args ...interface{}) {
