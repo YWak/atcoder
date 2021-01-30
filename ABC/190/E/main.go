@@ -14,8 +14,86 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	M := nextInt()
+
+	// AB
+	uf := ufNew(N)
+	for i := 0; i < M; i++ {
+		a := nextInt() - 1
+		b := nextInt() - 1
+		uf.Unite(a, b)
+	}
+
+	K := nextInt()
+	C := make([]int, K)
+	for i := 0; i < K; i++ {
+		C[i] = nextInt() - 1
+	}
+
+	// ok ?
+	for i := 0; i < K; i++ {
+		for j := i + 1; j < K; j++ {
+			if !uf.Same(C[i], C[j]) {
+				fmt.Println(-1)
+				return
+			}
+		}
+	}
 
 	fmt.Println()
+}
+
+// UnionFind : UnionFind構造を保持する構造体
+type UnionFind struct {
+	par  []int // i番目のノードに対応する親
+	rank []int // i番目のノードの階層
+}
+
+// [0, n)のノードを持つUnion-Findを作る
+func ufNew(n int) UnionFind {
+	uf := UnionFind{par: make([]int, n), rank: make([]int, n)}
+
+	for i := 0; i < n; i++ {
+		uf.par[i] = i
+	}
+
+	return uf
+}
+
+// Root はxのルートを得る
+func (uf *UnionFind) Root(x int) int {
+	p := x
+	for p != uf.par[p] {
+		p = uf.par[p]
+	}
+	uf.par[x] = p
+	return p
+}
+
+// Unite はxとyを併合する。集合の構造が変更された(== 呼び出し前は異なる集合だった)かどうかを返す
+func (uf *UnionFind) Unite(x, y int) bool {
+	rx := uf.Root(x)
+	ry := uf.Root(y)
+
+	if rx == ry {
+		return false
+	}
+	if uf.rank[rx] < uf.rank[ry] {
+		rx, ry = ry, rx
+	}
+	if uf.rank[rx] == uf.rank[ry] {
+		uf.rank[rx]++
+	}
+	uf.par[ry] = rx
+	return true
+}
+
+// Same はxとyが同じノードにいるかを判断する
+func (uf *UnionFind) Same(x, y int) bool {
+	rx := uf.Root(x)
+	ry := uf.Root(y)
+	return rx == ry
 }
 
 func debug(args ...interface{}) {
