@@ -14,8 +14,37 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	a := nextInts(N)
+	bit := make(BinaryIndexTree, N+1)
+	s := 0
+	for i := 0; i < N; i++ {
+		s += i - bit.calc(a[i])
+		bit.update(a[i], 1)
+	}
+	fmt.Println(s)
+	for i := N - 1; i > 0; i-- {
+		inc := a[i]
+		dec := (N - 1 - a[i])
+		s += inc - dec
+		fmt.Println(s)
+	}
+}
 
-	fmt.Println()
+type BinaryIndexTree []int
+
+func (bit BinaryIndexTree) update(index, x int) {
+	for i := index + 1; i < len(bit); i += (i & -i) {
+		bit[i] += x
+	}
+}
+
+func (bit BinaryIndexTree) calc(index int) int {
+	s := 0
+	for i := index; i > 0; i -= (i & -i) {
+		s += bit[i]
+	}
+	return s
 }
 
 func debug(args ...interface{}) {
