@@ -22,13 +22,23 @@ func main() {
 		s += i - bit.calc(a[i])
 		bit.update(a[i], 1)
 	}
-	fmt.Println(s)
-	for i := N - 1; i > 0; i-- {
-		inc := a[i]
-		dec := (N - 1 - a[i])
-		s += inc - dec
+	for i := 0; i < N; i++ {
 		fmt.Println(s)
+		dec := a[i]
+		inc := (N - 1 - a[i])
+		s += inc - dec
 	}
+}
+
+func check(a []int, start int) int {
+	bit := make(BinaryIndexTree, len(a)+1)
+	s := 0
+	for i := 0; i < len(a); i++ {
+		s += i - bit.calc(a[(i+start)%len(a)])
+		bit.update(a[(i+start)%len(a)], 1)
+	}
+
+	return s
 }
 
 type BinaryIndexTree []int
