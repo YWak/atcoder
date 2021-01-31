@@ -10,18 +10,25 @@ import (
 	"strings"
 )
 
+// INF は最大値を表す数
+const INF = int(1e9)
+
 func main() {
 	N := nextInt()
-
 	ans := 0
-	for a := 1; a*a <= N; a++ {
-		m := (N - a) / a
-		if m == 0 {
-			break
+	check := func(k int) bool {
+		return k != 0 && N%k == N/k
+	}
+	for i := 1; i*i <= N; i++ {
+		if N%i != 0 {
+			continue
 		}
-
-		if N%m == N/m {
-			ans += m
+		if check(i - 1) {
+			ans += i - 1
+		}
+		j := N / i
+		if i != j && check(j-1) {
+			ans += j - 1
 		}
 	}
 
@@ -137,6 +144,14 @@ func binarysearch(ok, ng int, judge func(int) bool) int {
 	return ok
 }
 
+// ch は condがtrueのときok, falseのときngを返します。
+func ch(cond bool, ok, ng int) int {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
 // ==================================================
 // ビット操作
 // ==================================================
@@ -161,6 +176,16 @@ func toLowerCase(s string) string {
 // toUpperCase は sをすべて大文字にした文字列を返します。
 func toUpperCase(s string) string {
 	return strings.ToUpper(s)
+}
+
+// isLower はbが小文字かどうかを判定します
+func isLower(b byte) bool {
+	return 'a' <= b && b <= 'z'
+}
+
+// isUpper はbが大文字かどうかを判定します
+func isUpper(b byte) bool {
+	return 'A' <= b && b <= 'Z'
 }
 
 // ==================================================
