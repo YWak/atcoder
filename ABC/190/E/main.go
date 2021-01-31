@@ -13,35 +13,97 @@ import (
 // INF は最大値を表す数
 const INF = int(1e9)
 
+var graph [][]int
+
 func main() {
 	N := nextInt()
 	M := nextInt()
-
+	graph = make([][]int, N)
 	// AB
-	uf := ufNew(N)
 	for i := 0; i < M; i++ {
 		a := nextInt() - 1
 		b := nextInt() - 1
-		uf.Unite(a, b)
+		graph[a] = append(graph[a], b)
+		graph[b] = append(graph[b], a)
 	}
 
 	K := nextInt()
 	C := make([]int, K)
+	dist := make([][]int, K)
 	for i := 0; i < K; i++ {
 		C[i] = nextInt() - 1
 	}
-
-	// ok ?
 	for i := 0; i < K; i++ {
-		for j := i + 1; j < K; j++ {
-			if !uf.Same(C[i], C[j]) {
+		dist[i] = bfs(C[i], C)
+		for j := 0; j < K; j++ {
+			if dist[i][j] == -1 {
 				fmt.Println(-1)
 				return
 			}
 		}
 	}
 
-	fmt.Println()
+	dp := make([][]int, K)
+	for i := 0; i < K; i++ {
+		dp[i] = make([]int, 1<<K)
+		for j := 0; j < (1 << K); j++ {
+			dp[i][j] = INF
+		}
+		dp[i][1<<i] = 1
+	}
+	for c := 1; c < (1 << K); c++ {
+		for i := 0; i < K; i++ {
+			if (c & (1 << i)) == 0 {
+				continue
+			}
+			bit := c ^ (1 << i)
+			for j := 0; j < K; j++ {
+				if (bit & (1 << j)) == 0 {
+					continue
+				}
+				dp[i][c] = min(dp[i][c], dp[j][bit]+dist[i][j])
+			}
+		}
+	}
+	ans := INF
+	for i := 0; i < K; i++ {
+		ans = min(ans, dp[i][(1<<K)-1])
+	}
+	fmt.Println(ans)
+}
+
+type pair struct{ a, b int }
+
+func bfs(s int, c []int) []int {
+	used := map[int]bool{s: true}
+	queue := []pair{pair{s, 0}}
+	dist := make([]int, len(graph))
+	for i := 0; i < len(dist); i++ {
+		dist[i] = -1
+	}
+	dist[s] = 0
+
+	for len(queue) > 0 {
+		p := queue[0]
+		d := p.b + 1
+		queue = queue[1:]
+
+		for i := 0; i < len(graph[p.a]); i++ {
+			j := graph[p.a][i]
+			_, ok := used[j]
+			if ok {
+				continue
+			}
+			dist[j] = d
+			queue = append(queue, pair{j, d})
+			used[j] = true
+		}
+	}
+	ret := make([]int, len(c))
+	for i := 0; i < len(c); i++ {
+		ret[i] = dist[c[i]]
+	}
+	return ret
 }
 
 // UnionFind : UnionFind構造を保持する構造体
