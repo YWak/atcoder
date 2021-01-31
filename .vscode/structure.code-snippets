@@ -187,5 +187,28 @@
             "}",
             ""
         ]
+    },
+    "binary indexed tree": {
+        "scope": "go",
+        "prefix": "binaryindexedtree",
+        "description": "Binary Indexed Treeの実装",
+        "body": [
+            "// BinaryIndexedTree は 1点加算とa1 + a2 + ... + aiを求める",
+            "type BinaryIndexedTree []int",
+            "",
+            "func (bit BinaryIndexedTree) add(index, x int) {",
+            "    for i := index + 1; i < len(bit); i += (i & -i) {",
+            "        bit[i] += x",
+            "    }",
+            "}",
+            "",
+            "func (bit BinaryIndexedTree) sum(index int) int {",
+            "    s := 0",
+            "    for i := index; i > 0; i -= (i & -i) {",
+            "        s += bit[i]",
+            "    }",
+            "    return s",
+            "}"
+        ]
     }
 }
