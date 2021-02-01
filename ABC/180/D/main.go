@@ -20,7 +20,7 @@ func main() {
 	B := nextInt()
 
 	ans := 0
-	for X*A > 0 && X*A < Y && X*A < X+B {
+	for A < Y/X && X*A < X+B {
 		ans++
 		X *= A
 	}
