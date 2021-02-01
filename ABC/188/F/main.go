@@ -13,16 +13,37 @@ import (
 // INF は最大値を表す数
 const INF = int(1e9)
 
+var memo map[int]int
+
 func main() {
 	X := nextInt()
 	Y := nextInt()
 
-	if X >= Y {
-		fmt.Println(Y - X)
-		return
+	memo = map[int]int{}
+
+	fmt.Println(solve(X, Y))
+}
+
+func solve(x, y int) int {
+	if x == y {
+		return 0
 	}
 
-	fmt.Println()
+	v, ok := memo[y]
+	if ok {
+		return v
+	}
+	ans := abs(x - y)
+	if y == 1 {
+		// NOP
+	} else if y%2 == 1 {
+		ans = min(ans, solve(x, (y+1)/2)+2)
+		ans = min(ans, solve(x, (y-1)/2)+2)
+	} else {
+		ans = min(ans, solve(x, y/2)+1)
+	}
+	memo[y] = ans
+	return ans
 }
 
 func debug(args ...interface{}) {
