@@ -14,8 +14,16 @@ import (
 const INF = int(1e9)
 
 func main() {
+	V := nextInt()
+	T := nextInt()
+	S := nextInt()
+	D := nextInt()
 
-	fmt.Println()
+	if V*T > D || V*S < D {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }
 
 func debug(args ...interface{}) {
