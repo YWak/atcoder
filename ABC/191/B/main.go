@@ -14,7 +14,15 @@ import (
 const INF = int(1e9)
 
 func main() {
-
+	N := nextInt()
+	X := nextInt()
+	for i := 0; i < N; i++ {
+		a := nextInt()
+		if a != X {
+			fmt.Print(a)
+			fmt.Print(" ")
+		}
+	}
 	fmt.Println()
 }
 
