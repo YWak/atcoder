@@ -14,8 +14,37 @@ import (
 const INF = int(1e9)
 
 func main() {
+	N := nextInt()
+	p := make([]float64, N)
+	for i := 0; i < N; i++ {
+		p[i] = nextFloat()
+	}
+	// i枚のコインを投げてj枚表になる確率
+	dp := make([][]float64, N+1)
+	for i := 0; i <= N; i++ {
+		dp[i] = make([]float64, N+1)
+	}
+	dp[0][0] = 1
+	dp[0][1] = 0
 
-	fmt.Println()
+	for i := 0; i < N; i++ {
+		for j := 0; j <= i+1; j++ {
+			if j == 0 {
+				dp[i+1][j] += dp[i][0] * (1 - p[i])
+			} else {
+				dp[i+1][j] += dp[i][j]*(1-p[i]) + dp[i][j-1]*p[i]
+			}
+		}
+	}
+
+	ans := float64(0)
+	for i := 0; i <= N; i++ {
+		if i > N/2 {
+			ans += dp[N][i]
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
@@ -48,18 +77,6 @@ func nextBytes() []byte {
 func nextInt() int {
 	i, _ := strconv.Atoi(nextString())
 	return i
-}
-
-func nextInt2() (int, int) {
-	return nextInt(), nextInt()
-}
-
-func nextInt3() (int, int, int) {
-	return nextInt(), nextInt(), nextInt()
-}
-
-func nextInt4() (int, int, int, int) {
-	return nextInt(), nextInt(), nextInt(), nextInt()
 }
 
 func nextInts(n int) []int {
