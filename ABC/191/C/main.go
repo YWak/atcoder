@@ -14,8 +14,63 @@ import (
 const INF = int(1e9)
 
 func main() {
+	H := nextInt()
+	W := nextInt()
 
-	fmt.Println()
+	S := make([]string, H)
+	n := 0
+	for i := 0; i < H; i++ {
+		S[i] = nextString()
+	}
+	dir := [][][]int{
+		{
+			{-1, -1},
+			{-1, 0},
+			{0, -1},
+		},
+		{
+			{-1, 0},
+			{-1, +1},
+			{0, +1},
+		},
+		{
+			{0, -1},
+			{+1, -1},
+			{+1, 0},
+		},
+		{
+			{0, +1},
+			{+1, 0},
+			{+1, +1},
+		},
+	}
+	d3 := 0
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			if S[i][j] == '#' {
+				for x := 0; x < len(dir); x++ {
+					dd := 1
+					for y := 0; y < len(dir[x]); y++ {
+						a, b := dir[x][y][0], dir[x][y][1]
+						// debug(i, j, i+a, i+b)
+						if S[i+a][j+b] == '#' {
+							dd++
+						}
+					}
+					// debug("dd=", dd)
+					if dd == 1 {
+						n++
+					} else if dd == 3 {
+						n++
+						d3++
+					}
+				}
+			}
+		}
+	}
+
+	// debug(n)
+	fmt.Println(n - d3*2/3)
 }
 
 func debug(args ...interface{}) {
