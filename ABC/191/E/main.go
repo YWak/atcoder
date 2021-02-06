@@ -18,7 +18,6 @@ func main() {
 	N := nextInt()
 	M := nextInt()
 	graph1 := NewGraph(N)
-	graph2 := NewGraph(N)
 	dist := make([]int, N)
 	for i := 0; i < N; i++ {
 		dist[i] = INF
@@ -32,15 +31,16 @@ func main() {
 			dist[a] = min(dist[a], c)
 		} else {
 			graph1.AddWeightedEdge(a, b, c)
-			graph2.AddWeightedEdge(b, a, c)
 		}
 	}
+	a := make([][]int, N)
 	for i := 0; i < N; i++ {
-		a := graph1.Dijkstra(i, -1)
-		b := graph2.Dijkstra(i, -1)
+		a[i] = graph1.Dijkstra(i, -1)
+	}
+	for i := 0; i < N; i++ {
 		for j := 0; j < N; j++ {
 			if i != j {
-				dist[i] = min(dist[i], a[j]+b[j])
+				dist[i] = min(dist[i], a[i][j]+a[j][i])
 			}
 		}
 	}
