@@ -11,11 +11,39 @@ import (
 )
 
 // INF は最大値を表す数
-const INF = int(1e9)
+const INF = int(1e18)
 
 func main() {
+	N := nextInt()
+	A := nextInts(N)
+	m := map[int]bool{}
+	mi := INF
+	for i := 0; i < N; i++ {
+		mi = min(mi, A[i])
+	}
+	for i := 0; i < N; i++ {
+		if A[i] <= mi {
+			m[A[i]] = true
+		}
+		for j := i + 1; j < N; j++ {
+			g := gcd(A[i], A[j])
+			if g <= mi {
+				m[g] = true
+			}
+		}
+	}
 
-	fmt.Println()
+	fmt.Println(len(m))
+}
+
+func gcd(a, b int) int {
+	if b > a {
+		a, b = b, a
+	}
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
 }
 
 func debug(args ...interface{}) {

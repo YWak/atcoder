@@ -14,8 +14,39 @@ import (
 const INF = int(1e9)
 
 func main() {
+	nx := func() int {
+		f := nextString()
 
-	fmt.Println()
+		index := strings.IndexByte(f, '.')
+		var a int
+		b := 10000
+		if index == -1 {
+			a, _ = strconv.Atoi(f)
+		} else {
+			n := strings.Replace(f, ".", "", -1)
+			a, _ = strconv.Atoi(n)
+			for i := 0; i < len(f)-index-1; i++ {
+				b /= 10
+			}
+		}
+		return a * b
+	}
+
+	X := nx()
+	Y := nx()
+	R := nx()
+
+	c := 0
+	for x := (X - R + 10000 - 1) / 10000; x <= X+R; x += 10000 {
+		y := int(math.Sqrt(float64(R*R - x*x)))
+		y0 := Y + y
+		y1 := Y - y
+
+		c += (y0 - y1) / 10000
+		debug((y1-y0)/10000, x)
+	}
+
+	fmt.Println(c)
 }
 
 func debug(args ...interface{}) {
