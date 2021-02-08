@@ -14,5 +14,6 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": true,
         }
-    }
+    },
+    "editor.snippetSuggestions": "bottom"
 }
