@@ -35,7 +35,7 @@ func main() {
 	}
 	a := make([][]int, N)
 	for i := 0; i < N; i++ {
-		a[i] = graph1.Dijkstra(i, -1)
+		a[i] = graph1.DijkstraAll(i)
 	}
 	for i := 0; i < N; i++ {
 		for j := 0; j < N; j++ {
@@ -106,10 +106,46 @@ func (pq *DijkstraPriorityQueue) Pop() interface{} {
 	return item
 }
 
-// Dijkstra はsからtへの最短距離と最短ルートを返します。
+// Dijkstra はsからtへの最短距離を返します。
 // 重みが負の辺があるときには使用できません。
 // 計算量: |V| + |E|log|V|
-func (g *Graph) Dijkstra(s, t int) []int {
+func (g *Graph) Dijkstra(s, t int) int {
+	n := len(g.list)
+	pq := make(DijkstraPriorityQueue, 0)
+	cost := make([]int, n)
+	for i := 0; i < n; i++ {
+		var c int
+		if i == s {
+			c = 0
+		} else {
+			c = INF
+		}
+		cost[i] = c
+		heap.Push(&pq, &DijkstraNode{i, c})
+	}
+
+	for pq.Len() > 0 {
+		u := heap.Pop(&pq).(*DijkstraNode)
+		if u.node == t {
+			break
+		}
+		for i := 0; i < len(g.list[u.node]); i++ {
+			v := g.list[u.node][i]
+			c := cost[u.node] + v.weight
+			if cost[v.to] > c {
+				cost[v.to] = c
+				heap.Push(&pq, &DijkstraNode{v.to, c})
+			}
+		}
+	}
+
+	return cost[t]
+}
+
+// DijkstraAll はsから全点への最短距離を返します。
+// 重みが負の辺があるときには使用できません。
+// 計算量: |V| + |E|log|V|
+func (g *Graph) DijkstraAll(s int) []int {
 	n := len(g.list)
 	pq := make(DijkstraPriorityQueue, 0)
 	cost := make([]int, n)
@@ -171,12 +207,6 @@ func (g *Graph) WarshallFloyd() [][]int {
 	}
 
 	return d
-}
-
-// Dinic はsからtへの最小費用流を返します。
-
-func debug(args ...interface{}) {
-	fmt.Fprintln(os.Stderr, args...)
 }
 
 // ==================================================
