@@ -24,7 +24,12 @@ func main() {
 	}
 	graph.AddEdge(X-1, Y-1)
 	graph.AddEdge(Y-1, X-1)
-	dist := graph.WarshallFloyd()
+
+	dist := make([][]int, N)
+	for i := 0; i < N; i++ {
+		dist[i] = graph.DijkstraAll(i)
+	}
+
 	ans := make([]int, N)
 	for i := 0; i < N; i++ {
 		for j := i + 1; j < N; j++ {
