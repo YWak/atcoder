@@ -6,16 +6,38 @@ import (
 	"math"
 	"math/bits"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 // INF は最大値を表す数
-const INF = int(1e9)
+const INF = int(1e18)
+
+type pair struct {
+	l, r int
+}
 
 func main() {
+	N := nextInt()
+	arms := make([]pair, N)
+	for i := 0; i < N; i++ {
+		x, l := nextInt2()
+		arms[i].l, arms[i].r = x-l+1, x+l
+	}
+	sort.Slice(arms, func(i, j int) bool {
+		return arms[i].r < arms[j].r || (arms[i].r == arms[j].r && arms[i].l < arms[j].l)
+	})
+	ans := 0
+	x := -INF
+	for i := 0; i < N; i++ {
+		if arms[i].l > x {
+			ans++
+			x = arms[i].r
+		}
+	}
 
-	fmt.Println()
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
