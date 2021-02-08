@@ -91,6 +91,23 @@ func nextFloat() float64 {
 	return f
 }
 
+// nextFloatAsInt は 数を 10^base 倍した整数値を取得します。
+func nextFloatAsInt(base int) int {
+	s := nextString()
+	index := strings.IndexByte(s, '.')
+	if index == -1 {
+		n, _ := strconv.Atoi(s)
+		return n * pow(10, base)
+	}
+	for s[len(s)-1] == '0' {
+		s = s[:len(s)-1]
+	}
+	s1, s2 := s[:index], s[index+1:]
+	n, _ := strconv.Atoi(s1)
+	m, _ := strconv.Atoi(s2)
+	return n*pow(10, base) + m*pow(10, base-len(s2))
+}
+
 // ==================================================
 // 数値操作
 // ==================================================
