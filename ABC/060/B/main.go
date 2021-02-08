@@ -16,12 +16,13 @@ const INF = int(1e9)
 func main() {
 	A, B, C := nextInt3()
 
-	g := gcd(A, B)
-	if C%(B/g) != 0 {
-		fmt.Println("YES")
-	} else {
-		fmt.Println("NO")
+	for i := 1; i < 10000; i++ {
+		if (A*i)%B == C {
+			fmt.Println("YES")
+			return
+		}
 	}
+	fmt.Println("NO")
 }
 
 func gcd(a, b int) int {
