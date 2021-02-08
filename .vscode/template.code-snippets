@@ -1,0 +1,13 @@
+{
+    "field read": {
+        "scope": "go",
+        "prefix": "fieldreading",
+        "description": "フィールドを読み込みます",
+        "body": [
+            "field := make([]string, ${1:H})",
+            "for i := 0; i < ${1}; i++ {",
+            "    field[i] = nextString()",
+            "}",
+        ]
+    }
+}
