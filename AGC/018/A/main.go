@@ -19,13 +19,12 @@ func main() {
 	a := nextInts(n)
 
 	solve := func(a []int, n, k int) bool {
+		a = uniqueInt(a)
+		n = len(a)
 		sort.Ints(a)
 
 		d := INF
 		for i := 0; i < n-1; i++ {
-			if a[i+1] == a[i] {
-				continue
-			}
 			d = min(d, a[i+1]-a[i])
 		}
 		for i := n - 1; i >= 0; i-- {
@@ -245,6 +244,22 @@ func reverseInt(arr *[]int) {
 	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
 		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
 	}
+}
+
+func uniqueInt(arr []int) []int {
+	hist := map[int]bool{}
+	j := 0
+	for i := 0; i < len(arr); i++ {
+		if hist[arr[i]] {
+			continue
+		}
+
+		a := arr[i]
+		arr[j] = a
+		hist[a] = true
+		j++
+	}
+	return arr[:j]
 }
 
 // ==================================================

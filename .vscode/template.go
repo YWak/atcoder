@@ -215,6 +215,22 @@ func reverseInt(arr *[]int) {
 	}
 }
 
+func uniqueInt(arr []int) []int {
+	hist := map[int]bool{}
+	j := 0
+	for i := 0; i < len(arr); i++ {
+		if hist[arr[i]] {
+			continue
+		}
+
+		a := arr[i]
+		arr[j] = a
+		hist[a] = true
+		j++
+	}
+	return arr[:j]
+}
+
 // ==================================================
 // 構造体
 // ==================================================
