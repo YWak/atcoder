@@ -29,9 +29,7 @@ func main() {
 		}
 	}
 	ne = append(ne, 0)
-	for i, j := 0, len(ne)-1; i < j; i, j = i+1, j-1 {
-		ne[i], ne[j] = ne[j], ne[i]
-	}
+	reverse(&ne)
 
 	ans := INF
 	for i := 0; i <= k; i++ {
@@ -228,6 +226,15 @@ func isLower(b byte) bool {
 // isUpper はbが大文字かどうかを判定します
 func isUpper(b byte) bool {
 	return 'A' <= b && b <= 'Z'
+}
+
+// ==================================================
+// 配列
+// ==================================================
+func reverse(arr *[]int) {
+	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
+		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
+	}
 }
 
 // ==================================================
