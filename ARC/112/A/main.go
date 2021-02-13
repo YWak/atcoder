@@ -14,8 +14,23 @@ import (
 const INF = int(1e9)
 
 func main() {
+	T := nextInt()
 
-	fmt.Println()
+	for i := 0; i < T; i++ {
+		l, r := nextInt2()
+		fmt.Println(solve(l, r))
+	}
+}
+
+func solve(l, r int) int {
+	if 2*l > r {
+		return 0
+	}
+	return max(0, sum(r+1-2*l))
+}
+
+func sum(n int) int {
+	return n * (n + 1) / 2
 }
 
 func debug(args ...interface{}) {
