@@ -6,6 +6,7 @@ if [ $# = 0 ] || [ ! -d "$1" ] || [ ! -f "$1/main.go" ]; then
 fi
 
 cd "$1" || exit 1
+TIMEOUT="${2:-3}s"
 EXE="./main"
 TEMPFILE1=$(mktemp)
 TEMPFILE2=$(mktemp)
@@ -21,7 +22,7 @@ for i in $(seq 10); do
         continue
     fi
 
-    time -f '(%Us %MKB)' $EXE < "$INPUT" 2> "$TEMPFILE2" | diff --side-by-side - "$OUTPUT" > "$TEMPFILE1"
+    time -f '(%Us %MKB)' timeout "$TIMEOUT" $EXE < "$INPUT" 2> "$TEMPFILE2" | diff --side-by-side - "$OUTPUT" > "$TEMPFILE1"
 
     if [ $? = 0 ]; then
         echo "$i => OK $(cat $TEMPFILE2)" >&2
