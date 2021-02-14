@@ -6,16 +6,50 @@ import (
 	"math"
 	"math/bits"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 // INF は最大値を表す数
-const INF = int(1e9)
+const INF = int(1e18) + 100
+
+type pair struct{ a, b int }
 
 func main() {
+	b, c := nextInt2()
+	pairs := []pair{
+		pair{b - c/2, b},
+		pair{-b - (c-1)/2, -b},
+		pair{b, b + max(0, c-2)/2},
+		pair{-b, -b + max(0, c-1)/2},
+	}
 
-	fmt.Println()
+	fmt.Println(countRange(pairs))
+}
+
+func countRange(pairs []pair) int {
+	events := make([]pair, len(pairs)*2)
+	for i := 0; i < len(pairs); i++ {
+		a, b := pairs[i].a, pairs[i].b
+		if a > b {
+			a, b = b, a
+		}
+		events[i*2].a, events[i*2].b = a, 1
+		events[i*2+1].a, events[i*2+1].b = b+1, -1
+	}
+
+	sort.Slice(events, func(i, j int) bool { return events[i].a < events[j].a })
+	c := 0
+	ans := 0
+	for i := 0; i < len(events); i++ {
+		if i > 0 && c > 0 {
+			ans += events[i].a - events[i-1].a
+		}
+		c += events[i].b
+	}
+
+	return ans
 }
 
 func debug(args ...interface{}) {
