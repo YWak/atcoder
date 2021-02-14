@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/bits"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -13,9 +14,72 @@ import (
 // INF は最大値を表す数
 const INF = int(1e9)
 
-func main() {
+// depth は 頂点iの手番変化
+var tree [][]int
 
-	fmt.Println()
+func main() {
+	n := nextInt()
+	tree = make([][]int, n)
+	for i := 0; i < n-1; i++ {
+		p := nextInt() - 1
+		tree[p] = append(tree[p], i+1)
+	}
+	s, _ := solve(0)
+	fmt.Println(s)
+}
+
+type pair struct{ a, b int }
+
+func solve(v int) (int, int) {
+	s := 1
+	g := 0
+	p2 := []pair{}
+	p3 := []pair{}
+
+	// 後手の有利な手をその順に実行される
+	for i := 0; i < len(tree[v]); i++ {
+		u := tree[v][i]
+		a, b := solve(u)
+		if (a+b)%2 == 0 {
+			if a < b {
+				// 後手無条件に有利
+				s += a
+				g += b
+			} else {
+				// 先手無条件に有利
+				p3 = append(p3, pair{a, b})
+			}
+		} else {
+			p2 = append(p2, pair{a, b})
+		}
+	}
+
+	// 交互に取る分
+	sort.Slice(p2, func(i, j int) bool {
+		return p2[i].a-p2[i].b < p2[j].a-p2[j].b
+	})
+
+	for i := 0; i < len(p2); i++ {
+		if i%2 == 0 {
+			s += p2[i].a
+			g += p2[i].b
+		} else {
+			s += p2[i].b
+			g += p2[i].a
+		}
+	}
+	// 手番を渡されたほうが取る
+	for i := 0; i < len(p3); i++ {
+		if len(p2)%2 == 0 {
+			s += p3[i].a
+			g += p3[i].b
+		} else {
+			s += p3[i].b
+			g += p3[i].a
+		}
+	}
+
+	return s, g
 }
 
 func debug(args ...interface{}) {
