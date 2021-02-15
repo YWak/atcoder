@@ -17,3 +17,5 @@ touch "$1/ans2.txt"
 touch "$1/ans3.txt"
 touch "$1/ans4.txt"
 touch "$1/ans5.txt"
+
+code -r $1/main.go
