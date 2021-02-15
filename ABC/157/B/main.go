@@ -22,7 +22,7 @@ func main() {
 	}
 	ok := false
 	for i := 0; i < 3; i++ {
-		if B[A[i]] && B[A[i+1]] && B[A[i+2]] {
+		if B[A[i*3]] && B[A[i*3+1]] && B[A[i*3+2]] {
 			ok = true
 		}
 		if B[A[0+i]] && B[A[3+i]] && B[A[6+i]] {
