@@ -4,178 +4,27 @@ import (
 	"bufio"
 	"fmt"
 	"math"
+	"math/bits"
 	"os"
 	"strconv"
+	"strings"
 )
 
+// INF は最大値を表す数
+const INF = int(1e9)
+
 func main() {
-	N := nextInt()
-	K := nextInt()
-	P := make([]int, N)
-	C := make([]int64, N)
 
-	hasPositive := false
-	uf := ufNew(N)
-
-	for i := 0; i < N; i++ {
-		p := nextInt() - 1
-		P[i] = p
-		uf.Unite(i, p)
-	}
-	for i := 0; i < N; i++ {
-		C[i] = nextInt64()
-		if C[i] > 0 {
-			hasPositive = true
-		}
-	}
-	// 全部0以下なら一番マシなものだけ採用する
-	if !hasPositive {
-		m := int64(math.MinInt64)
-		for i := 0; i < N; i++ {
-			m = max(m, C[i])
-		}
-		fmt.Println(m)
-		return
-	}
-
-	// ループごとに分割して考える
-	added := make([]bool, N)
-	trees := make([][]int, 0)
-
-	for i := 0; i < N; i++ {
-		if added[i] {
-			continue
-		}
-		tree := []int{i}
-		added[i] = true
-
-		for j := i + 1; j < N; j++ {
-			if added[j] {
-				continue
-			}
-			if uf.Same(i, j) {
-				tree = append(tree, j)
-				added[j] = true
-			}
-		}
-
-		trees = append(trees, tree)
-	}
-
-	// treesでそれぞれ最大値とそのときの長さを求める
-	m := int64(0)
-
-	for i := 0; i < len(trees); i++ {
-		tree := trees[i]
-		L := len(tree)
-
-		// treeを順に辿ったときの経路を求める。2周分。
-		per := make([]int, L)
-		per[0] = tree[0]
-		for j := 1; j < L; j++ {
-			per[j] = P[per[j-1]]
-		}
-		per = append(per, per...)
-
-		// 1周したときの合計を求める。
-		loop := int64(0)
-		for j := 0; j < L; j++ {
-			t := per[j]
-			loop += C[t]
-		}
-		loop = max(loop, 0) * int64(K/L)
-
-		// あまりの分を求める
-		var R int
-		if L == K {
-			R = L - 1
-		} else {
-			R = K % L
-		}
-
-		rest := int64(0)
-
-		// 1からR個までで最大の部分列を求める
-		for j := 0; j < L; j++ {
-			s := int64(0)
-			for r := 0; r < R; r++ {
-				p := per[j+r]
-				s += C[p]
-				rest = max(rest, s)
-			}
-		}
-		m = max(m, loop+rest)
-	}
-
-	fmt.Println(m)
+	fmt.Println()
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+func debug(args ...interface{}) {
+	fmt.Fprintln(os.Stderr, args...)
 }
 
-func max(a, b int64) int64 {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-// UnionFind : UnionFind構造を保持する構造体
-type UnionFind struct {
-	par  []int // i番目のノードに対応する親
-	rank []int // i番目のノードの階層
-}
-
-// [0, n)のノードを持つUnion-Findを作る
-func ufNew(n int) UnionFind {
-	uf := UnionFind{par: make([]int, n), rank: make([]int, n)}
-
-	for i := 0; i < n; i++ {
-		uf.par[i] = i
-	}
-
-	return uf
-}
-
-// Root はxのルートを得る
-func (uf *UnionFind) Root(x int) int {
-	p := x
-	for p != uf.par[p] {
-		p = uf.par[p]
-	}
-	uf.par[x] = p
-	return p
-}
-
-// Unite はxとyを併合する。集合の構造が変更された(== 呼び出し前は異なる集合だった)かどうかを返す
-func (uf *UnionFind) Unite(x, y int) bool {
-	rx := uf.Root(x)
-	ry := uf.Root(y)
-
-	if rx == ry {
-		return false
-	}
-	if uf.rank[rx] < uf.rank[ry] {
-		rx, ry = ry, rx
-	}
-	if uf.rank[rx] == uf.rank[ry] {
-		uf.rank[rx]++
-	}
-	uf.par[ry] = rx
-	return true
-}
-
-// Same はxとyが同じノードにいるかを判断する
-func (uf *UnionFind) Same(x, y int) bool {
-	rx := uf.Root(x)
-	ry := uf.Root(y)
-	return rx == ry
-}
-
+// ==================================================
+// 入力操作
+// ==================================================
 var stdin = initStdin()
 
 func initStdin() *bufio.Scanner {
@@ -191,9 +40,9 @@ func nextString() string {
 	return stdin.Text()
 }
 
+// 遅いから極力使わない。
 func nextBytes() []byte {
-	stdin.Scan()
-	return stdin.Bytes()
+	return []byte(nextString())
 }
 
 func nextInt() int {
@@ -201,11 +50,199 @@ func nextInt() int {
 	return i
 }
 
-func nextInt64() int64 {
-	i, _ := strconv.ParseInt(nextString(), 10, 64)
-	return i
+func nextInt2() (int, int) {
+	return nextInt(), nextInt()
 }
 
-func debug(args ...interface{}) {
-	fmt.Fprintln(os.Stderr, args)
+func nextInt3() (int, int, int) {
+	return nextInt(), nextInt(), nextInt()
+}
+
+func nextInt4() (int, int, int, int) {
+	return nextInt(), nextInt(), nextInt(), nextInt()
+}
+
+func nextInts(n int) []int {
+	a := make([]int, n)
+	for i := 0; i < n; i++ {
+		a[i] = nextInt()
+	}
+	return a
+}
+
+// toi は byteの数値をintに変換します。
+func toi(b byte) int {
+	return int(b - '0')
+}
+
+func nextLongIntAsArray() []int {
+	s := nextString()
+	l := len(s)
+	arr := make([]int, l)
+	for i := 0; i < l; i++ {
+		arr[i] = toi(s[i])
+	}
+
+	return arr
+}
+
+func nextFloat() float64 {
+	f, _ := strconv.ParseFloat(nextString(), 64)
+	return f
+}
+
+// nextFloatAsInt は 数を 10^base 倍した整数値を取得します。
+func nextFloatAsInt(base int) int {
+	s := nextString()
+	index := strings.IndexByte(s, '.')
+	if index == -1 {
+		n, _ := strconv.Atoi(s)
+		return n * pow(10, base)
+	}
+	for s[len(s)-1] == '0' {
+		s = s[:len(s)-1]
+	}
+	s1, s2 := s[:index], s[index+1:]
+	n, _ := strconv.Atoi(s1)
+	m, _ := strconv.Atoi(s2)
+	return n*pow(10, base) + m*pow(10, base-len(s2))
+}
+
+// ==================================================
+// 数値操作
+// ==================================================
+
+// max は aとbのうち大きい方を返します。
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+// min は aとbのうち小さい方を返します。
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// abs は aの絶対値を返します。
+func abs(a int) int {
+	if a > 0 {
+		return a
+	}
+	return -a
+}
+
+// pow は aのb乗を返します。
+func pow(a, b int) int {
+	return int(math.Pow(float64(a), float64(b)))
+}
+
+// binarysearch は judgeがtrueを返す最小の数値を返します。
+func binarysearch(ok, ng int, judge func(int) bool) int {
+	for abs(ok-ng) > 1 {
+		mid := (ok + ng) / 2
+
+		if judge(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
+}
+
+// ch は condがtrueのときok, falseのときngを返します。
+func ch(cond bool, ok, ng int) int {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// ==================================================
+// ビット操作
+// ==================================================
+
+// nthbit はaのn番目のビットを返します。
+func nthbit(a int, n int) int { return int((a >> uint(n)) & 1) }
+
+// popcount はaのうち立っているビットを数えて返します。
+func popcount(a int) int {
+	return bits.OnesCount(uint(a))
+}
+
+// ==================================================
+// 文字列操作
+// ==================================================
+
+// toLowerCase は sをすべて小文字にした文字列を返します。
+func toLowerCase(s string) string {
+	return strings.ToLower(s)
+}
+
+// toUpperCase は sをすべて大文字にした文字列を返します。
+func toUpperCase(s string) string {
+	return strings.ToUpper(s)
+}
+
+// isLower はbが小文字かどうかを判定します
+func isLower(b byte) bool {
+	return 'a' <= b && b <= 'z'
+}
+
+// isUpper はbが大文字かどうかを判定します
+func isUpper(b byte) bool {
+	return 'A' <= b && b <= 'Z'
+}
+
+// ==================================================
+// 配列
+// ==================================================0
+func reverse(arr *[]interface{}) {
+	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
+		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
+	}
+}
+
+func reverseInt(arr *[]int) {
+	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
+		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
+	}
+}
+
+func uniqueInt(arr []int) []int {
+	hist := map[int]bool{}
+	j := 0
+	for i := 0; i < len(arr); i++ {
+		if hist[arr[i]] {
+			continue
+		}
+
+		a := arr[i]
+		arr[j] = a
+		hist[a] = true
+		j++
+	}
+	return arr[:j]
+}
+
+// ==================================================
+// 構造体
+// ==================================================
+
+// Point は 座標を表す構造体です。
+type Point struct {
+	x int
+	y int
+}
+
+// Pointf は座標を表す構造体です。
+type Pointf struct {
+	x float64
+	y float64
 }
