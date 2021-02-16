@@ -11,11 +11,70 @@ import (
 )
 
 // INF は最大値を表す数
-const INF = int(1e9)
+const INF = int(1e18)
 
 func main() {
+	N, K := nextInt2()
+	p := make([]int, N)
+	c := make([]int, N)
 
-	fmt.Println()
+	for i := 0; i < N; i++ {
+		p[i] = nextInt() - 1
+	}
+	for i := 0; i < N; i++ {
+		c[i] = nextInt()
+	}
+
+	ans := -INF
+	used := make([]bool, N)
+	for i := 0; i < N; i++ {
+		if used[i] {
+			continue
+		}
+		// ループ検出
+		loop := make([]int, 0, N-i)
+		s := 0
+
+		n := i
+		for !used[n] {
+			loop = append(loop, n)
+			s += c[n]
+			used[n] = true
+			n = p[n]
+		}
+
+		// 累積和を取っておく
+		loop2 := append(loop, loop...)
+		ss := make([]int, len(loop2)+1)
+		for l := 1; l <= len(loop2); l++ {
+			ss[l] = ss[l-1] + c[loop2[l-1]]
+		}
+
+		// ループについて最高得点を考える
+		search := func(a, r int) int {
+			ans := -INF
+			for k := 1; k <= r; k++ {
+				for l := 0; l < len(loop); l++ {
+					ans = max(ans, a+ss[l+k]-ss[l])
+				}
+			}
+			return ans
+		}
+
+		if s <= 0 {
+			// 負なら部分的な最高得点
+			ans = max(ans, search(0, min(len(loop), K)))
+		} else {
+			// 正ならループした上で残りで最高点を目指す
+			count := K / len(loop)
+			// できるだけ周回した上で残りを探索する
+			ans = max(ans, search(s*count, K%len(loop)))
+			// 1周無駄にする代わりにいいところを探す
+			ans = max(ans, search(s*(count-1), len(loop)))
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
