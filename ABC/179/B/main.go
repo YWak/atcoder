@@ -20,6 +20,8 @@ func main() {
 		d1, d2 := nextInt2()
 		if d1 == d2 {
 			c++
+		} else {
+			c = 0
 		}
 		if c == 3 {
 			fmt.Println("Yes")
