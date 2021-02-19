@@ -17,14 +17,14 @@ func main() {
 	H, W := nextInt2()
 	s := make([]string, H)
 	dist := make([][]int, H)
-	pre := make([][]Point, H)
+	pre := make([][]int, H)
 	root := make([][]bool, H)
 
 	for i := 0; i < H; i++ {
 		s[i] = nextString()
 
 		dist[i] = make([]int, W)
-		pre[i] = make([]Point, W)
+		pre[i] = make([]int, W)
 		root[i] = make([]bool, W)
 
 		for j := 0; j < W; j++ {
@@ -32,7 +32,7 @@ func main() {
 		}
 	}
 
-	queue := make([]Point, 0, H*W)
+	queue := make([]Point, 0)
 	dir := []Point{
 		Point{+1, +0},
 		Point{-1, +0},
@@ -45,35 +45,36 @@ func main() {
 
 	queue = append(queue, Point{0, 0})
 	dist[0][0] = 0
-	pre[0][0] = Point{-1, -1}
 	for len(queue) > 0 {
 		p := queue[0]
 		queue = queue[1:]
 
-		for _, d := range dir {
+		for i, d := range dir {
 			n := Point{p.x + d.x, p.y + d.y}
 			if out(n) {
 				continue
 			}
-			if dist[n.x][n.y] <= dist[p.x][p.y] {
+			if dist[n.x][n.y] <= dist[p.x][p.y]+1 {
 				continue
 			}
 			dist[n.x][n.y] = dist[p.x][p.y] + 1
-			pre[n.x][n.y] = p
+			pre[n.x][n.y] = i
 			queue = append(queue, n)
 		}
 	}
 
 	if dist[H-1][W-1] == INF {
 		fmt.Println(-1)
+		return
 	}
 	p := Point{H - 1, W - 1}
-	for p.x != -1 || p.y != -1 {
+	root[0][0] = true
+	for p.x != 0 || p.y != 0 {
 		root[p.x][p.y] = true
-		p = pre[p.x][p.y]
+		d := dir[pre[p.x][p.y]]
+		p.x -= d.x
+		p.y -= d.y
 	}
-	// debug(pre)
-	// debug(root)
 	ans := 0
 	for i := 0; i < H; i++ {
 		for j := 0; j < W; j++ {
