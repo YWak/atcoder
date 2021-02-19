@@ -191,6 +191,8 @@ func popcount(a int) int {
 	return bits.OnesCount(uint(a))
 }
 
+func xor(a, b bool) bool { return (a || b) && !(a && b) }
+
 // ==================================================
 // 文字列操作
 // ==================================================
