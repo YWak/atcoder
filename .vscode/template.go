@@ -164,6 +164,20 @@ func ch(cond bool, ok, ng int) int {
 	return ng
 }
 
+func mul(a, b int) (int, int) {
+	if a < 0 {
+		a, b = -a, -b
+	}
+	if a == 0 || b == 0 {
+		return 0, 0
+	} else if a > 0 && b > 0 && a > math.MaxInt64/b {
+		return 0, +1
+	} else if a > math.MinInt64/b {
+		return 0, -1
+	}
+	return a * b, 0
+}
+
 // ==================================================
 // ビット操作
 // ==================================================
