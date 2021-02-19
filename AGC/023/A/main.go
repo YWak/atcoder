@@ -17,23 +17,16 @@ const INF = int(1e18)
 func main() {
 	n := nextInt()
 	a := nextInts(n)
-	sa := sort.IntSlice(make([]int, n+2))
+	sa := 0
+	m := map[int]int{0: 1}
+
 	for i := 0; i < n; i++ {
-		sa[i+1] = sa[i] + a[i]
+		sa += a[i]
+		m[sa]++
 	}
-	sa[n+1] = INF
-	sort.Sort(sa)
 	ans := 0
-	c := 1
-	b := sa[0]
-	for i := 1; i < len(sa); i++ {
-		if b != sa[i] {
-			ans += (c - 1) * c / 2
-			c = 1
-			b = sa[i]
-		} else {
-			c++
-		}
+	for _, v := range m {
+		ans += v * (v - 1) / 2
 	}
 
 	fmt.Println(ans)
