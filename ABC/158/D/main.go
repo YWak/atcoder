@@ -36,13 +36,11 @@ func main() {
 		}
 	}
 
-	for i := len(head) - 1; i >= 0; i-- {
-		fmt.Printf("%c", head[i])
+	for i, j := 0, len(head)-1; i < j; i, j = i+1, j-1 {
+		head[i], head[j] = head[j], head[i]
 	}
-	for i := 0; i < len(tail); i++ {
-		fmt.Printf("%c", tail[i])
-	}
-	fmt.Println()
+	fmt.Print(string(head))
+	fmt.Println(string(tail))
 }
 
 func debug(args ...interface{}) {
