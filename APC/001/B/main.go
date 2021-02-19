@@ -15,8 +15,33 @@ import (
 const INF = int(1e9)
 
 func main() {
+	n := nextInt()
+	a := nextInts(n)
+	b := nextInts(n)
 
-	fmt.Println()
+	if solve(n, a, b) {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
+}
+
+func solve(n int, a, b sort.IntSlice) bool {
+	sa, sb := 0, 0
+
+	for i := 0; i < n; i++ {
+		sa += a[i]
+		sb += b[i]
+	}
+	d := sb - sa
+	c := 0
+
+	for i := 0; i < n; i++ {
+		if a[i] < b[i] {
+			c += (b[i] - a[i] + 1) / 2
+		}
+	}
+	return d >= c
 }
 
 func debug(args ...interface{}) {
