@@ -22,26 +22,27 @@ func main() {
 	for i := 0; i < len(x); i++ {
 		d = max(d, x[i])
 	}
-	dm := d + 1
-	for {
-		if pow(dm, len(x)-1) < 0 || x[0]*pow(dm, len(x)-1) > m {
-			break
-		}
-		dm++
-	}
-
-	ans := 0
-	for b := d + 1; b <= dm; b++ {
+	check := func(b int) bool {
 		c := 0
 		for i := 0; i < len(x); i++ {
 			c = c*b + x[i]
+			if c < 0 || c > m {
+				return false
+			}
 		}
-		if c >= 0 && c <= m {
-			ans++
+		return true
+	}
+	ok, ng := d+1, INF
+	for abs(ok-ng) > 1 {
+		mid := (ok + ng) / 2
+		if check(mid) {
+			ok = mid
+		} else {
+			ng = mid
 		}
 	}
 
-	fmt.Println(ans)
+	fmt.Println(ok - d)
 }
 
 func debug(args ...interface{}) {
