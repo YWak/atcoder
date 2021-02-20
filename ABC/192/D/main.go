@@ -12,11 +12,20 @@ import (
 )
 
 // INF は最大値を表す数
-const INF = int(1e9)
+const INF = int(1e18) + 10
 
 func main() {
 	x := nextLongIntAsArray()
 	m := nextInt()
+
+	if len(x) == 1 {
+		if x[0] <= m {
+			fmt.Println(1)
+		} else {
+			fmt.Println(0)
+		}
+		return
+	}
 
 	d := 0
 	for i := 0; i < len(x); i++ {
@@ -25,14 +34,22 @@ func main() {
 	check := func(b int) bool {
 		c := 0
 		for i := 0; i < len(x); i++ {
-			c = c*b + x[i]
-			if c < 0 || c > m {
+			if c > INF/b {
+				return false
+			}
+			c1 := c * b
+			if c1 > INF-x[i] {
+				return false
+			}
+
+			c = c1 + x[i]
+			if c > m {
 				return false
 			}
 		}
 		return true
 	}
-	ok, ng := d+1, INF
+	ok, ng := 1, INF
 	for abs(ok-ng) > 1 {
 		mid := (ok + ng) / 2
 		if check(mid) {
@@ -41,8 +58,7 @@ func main() {
 			ng = mid
 		}
 	}
-
-	fmt.Println(ok - d)
+	fmt.Println(max(0, ok-d))
 }
 
 func debug(args ...interface{}) {
@@ -199,7 +215,7 @@ func mul(a, b int) (int, int) {
 		return 0, 0
 	} else if a > 0 && b > 0 && a > math.MaxInt64/b {
 		return 0, +1
-	} else if a > math.MinInt64/b {
+	} else if a < math.MinInt64/b {
 		return 0, -1
 	}
 	return a * b, 0
