@@ -11,8 +11,11 @@ import (
 	"strings"
 )
 
-// INF は最大値を表す数
-const INF = int(1e10)
+// INF18 は最大値を表す数
+const INF18 = int(1e18)
+
+// INF9 は最大値を表す数
+const INF9 = int(1e9)
 
 func main() {
 
