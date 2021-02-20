@@ -12,7 +12,7 @@ import (
 )
 
 // INF は最大値を表す数
-const INF = int(1e9)
+const INF = int(1e10)
 
 func main() {
 
