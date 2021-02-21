@@ -18,28 +18,28 @@ const INF18 = int(1e18)
 const INF9 = int(1e9)
 
 func main() {
-	s := nextString()
-	dp := make([]int, len(s)+10)
+	S := nextString()
+	s := make([]int, len(S))
+	for i := 0; i < len(S); i++ {
+		s[i] = int(S[i] - 'a')
+	}
 
 	alpha := make([]int, 26)
-
-	for i := len(s) - 3; i >= 0; i-- {
-		i1, i2, i3 := i, i+1, i+2
-		if s[i1] == s[i2] && s[i2] != s[i3] {
-			dp[i] = dp[i+3] + len(s) - i - 1 - alpha[s[i]-'a']
-
-			for i := 0; i < len(alpha); i++ {
-				alpha[i] = 0
+	ans := 0
+	for i := len(s) - 1; i >= 1; i-- {
+		if s[i] == s[i-1] {
+			for j := 0; j < len(alpha); j++ {
+				if j != s[i] {
+					ans += alpha[j]
+					alpha[s[i]] += alpha[j]
+					alpha[j] = 0
+				}
 			}
-			alpha[s[i]-'a'] = len(s) - i
-		} else {
-			dp[i] = max(dp[i], dp[i+1])
-			alpha[s[i]-'a']++
 		}
+		alpha[s[i]]++
 	}
-	debug(dp[0:len(s)])
 
-	fmt.Println(dp[0])
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
