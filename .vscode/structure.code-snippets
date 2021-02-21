@@ -1,4 +1,20 @@
 {
+    "Pair": {
+        "scope": "go",
+        "description": "ペアの実装",
+        "prefix": "pair",
+        "body":[
+            "type pair struct {",
+            "    a, b int",
+            "}",
+            "",
+            "type pairs []pair",
+            "",
+            "func (a pairs) Len() int           { return len(a) }",
+            "func (a pairs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }",
+            "func (a pairs) Less(i, j int) bool { return a[i].a < a[j].a || a[i].a == a[j].a && a[i].b < a[j] }",
+        ]
+    },
     "Priority Queue": {
         "scope": "go",
         "description": "優先度付きキューの実装",
