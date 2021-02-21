@@ -45,7 +45,7 @@ func main() {
 	// arr[0] -> arr[1] -> .. . arr[last] -> arr[s]
 	pow := func(x, n int) int {
 		arr := m[x]
-		return arr[(n-1)%len(arr)]
+		return arr[(len(arr)+n-1)%len(arr)]
 	}
 
 	fmt.Println(pow(a, powmod(b, c, len(m[a]))))
