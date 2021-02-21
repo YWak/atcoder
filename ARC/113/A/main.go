@@ -22,7 +22,7 @@ func main() {
 	a3 := 0
 	a2 := 0
 	a1 := 0
-	for a := 1; a <= k; a++ {
+	for a := 1; a*a*a <= k; a++ {
 		for b := a; a*b <= k; b++ {
 			for c := b; a*b*c <= k; c++ {
 				if a == b && b == c {
