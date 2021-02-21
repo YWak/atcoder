@@ -145,6 +145,19 @@ func pow(a, b int) int {
 	return int(math.Pow(float64(a), float64(b)))
 }
 
+// powmod は (x^n) mod m を返します。
+func powmod(x, n, m int) int {
+	ans := 1
+	for n > 0 {
+		if n%2 == 1 {
+			ans = (ans * x) % m
+		}
+		x = (x * x) % m
+		n /= 2
+	}
+	return ans
+}
+
 // binarysearch は judgeがtrueを返す最小の数値を返します。
 func binarysearch(ok, ng int, judge func(int) bool) int {
 	for abs(ok-ng) > 1 {
