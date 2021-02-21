@@ -28,13 +28,13 @@ func main() {
 	ans := 0
 	for i := len(s) - 1; i >= 1; i-- {
 		if s[i] == s[i-1] {
+			c1 := alpha[s[i]]
+			c2 := len(s) - i - 1
+			ans += c2 - c1
 			for j := 0; j < len(alpha); j++ {
-				if j != s[i] {
-					ans += alpha[j]
-					alpha[s[i]] += alpha[j]
-					alpha[j] = 0
-				}
+				alpha[j] = 0
 			}
+			alpha[s[i]] = c2
 		}
 		alpha[s[i]]++
 	}
