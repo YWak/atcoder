@@ -21,8 +21,8 @@ for i in $(seq 10); do
     if [ ! -f "$INPUT" ] || [ ! -f "$OUTPUT" ] || [ ! -s "$INPUT" ]; then
         continue
     fi
-
-    time -f '(%Us %MKB)' timeout "$TIMEOUT" $EXE < "$INPUT" 2> "$TEMPFILE2" | diff --side-by-side - "$OUTPUT" > "$TEMPFILE1"
+    echo > "$TEMPFILE2"
+    time -f '(%Us %MKB)' timeout "$TIMEOUT" $EXE < "$INPUT" 2>> "$TEMPFILE2" | diff --side-by-side - "$OUTPUT" > "$TEMPFILE1"
 
     if [ $? = 0 ]; then
         echo "$i => OK $(cat $TEMPFILE2)" >&2
