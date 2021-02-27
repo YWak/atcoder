@@ -18,8 +18,22 @@ const INF18 = int(1e18)
 const INF9 = int(1e9)
 
 func main() {
+	n := nextInt()
+	used := map[int]bool{}
 
-	fmt.Println()
+	ng := 0
+	for i := 2; i*i <= n; i++ {
+		v := i * i
+		for v <= n {
+			if !used[v] {
+				ng++
+				used[v] = true
+			}
+			v *= i
+		}
+	}
+
+	fmt.Println(n - ng)
 }
 
 func debug(args ...interface{}) {
