@@ -17,40 +17,59 @@ const INF18 = int(1e18) * 2
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
-func extgcd(a, b int) (int, int, int) {
-	if b == 0 {
-		return a, 1, 0
+// crtは中国剰余定理の実装です。
+// x = b[i] mod m[i]
+// となる x mod lcm(m) を計算し、 x, lcm(m) を返します。
+// 解なしの場合は 0, 0を返します。
+func crt(b, m []int) (int, int) {
+	b0, m0 := 0, 1
+	invgcd := func(a, m int) (int, int) {
+		x, u := 1, 0
+		for m != 0 {
+			t := a / m
+			a, m = m, a-t*m
+			x, u = u, x-t*u
+		}
+		return a, x
 	}
-	d, y, x := extgcd(b, a%b)
-	y -= (a / b) * x
-	return d, x, y
+	for i := 0; i < len(b); i++ {
+		b1, m1 := b[i], m[i]
+		if m0 < m1 {
+			b0, b1 = b1, b0
+			m0, m1 = m1, m0
+		}
+		if m0%m1 == 0 {
+			if b0%m1 != b1 {
+				return 0, 0
+			}
+			continue
+		}
+
+		g, im := invgcd(m0, m1)
+		if (b1-b0)%g != 0 {
+			return 0, 0
+		}
+		u := m1 / g
+		x := (b1 - b0) / g % u * im % u
+		b0 += m0 * x
+		m0 *= u
+	}
+	return (b0%m0 + m0) % m0, m0
 }
 
 func solve(X, Y, P, Q int) {
 	ans := INF18
 
+	s := 2 * (X + Y)
+	t := P + Q
+
 	for y := 0; y < Y; y++ {
 		for q := 0; q < Q; q++ {
-			r := P + q - X - y
-			s := 2 * (X + Y)
-			t := P + Q
-
-			if r == 0 {
-				g := gcd(s, t)
-				m := s / g
-				a := m*t + P + q
-				// debug(y, q, a)
-				ans = min(ans, a)
-			} else {
-				g, n, m := extgcd(s, t)
-				// debug(g, n, m, r%g)
-				if r%g != 0 || n < 0 || m > 0 {
-					continue
-				}
-				n *= (r / g)
-				a := n*s + X + y
-				ans = min(ans, a)
+			a, b := crt([]int{X + y, P + q}, []int{s, t})
+			if b == 0 {
+				continue
 			}
+			ans = min(ans, a)
 		}
 	}
 
@@ -59,16 +78,6 @@ func solve(X, Y, P, Q int) {
 	} else {
 		fmt.Println(ans)
 	}
-}
-
-func gcd(a, b int) int {
-	if b > a {
-		a, b = b, a
-	}
-	for b != 0 {
-		a, b = b, a%b
-	}
-	return a
 }
 
 func main() {
