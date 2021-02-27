@@ -145,6 +145,11 @@ func pow(a, b int) int {
 	return int(math.Pow(float64(a), float64(b)))
 }
 
+// ceil は a/bの切り上げを返します。
+func ceil(a, b int) int {
+	return (a + b - 1) / b
+}
+
 // powmod は (x^n) mod m を返します。
 func powmod(x, n, m int) int {
 	ans := 1
