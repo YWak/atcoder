@@ -12,14 +12,70 @@ import (
 )
 
 // INF18 は最大値を表す数
-const INF18 = int(1e18)
+const INF18 = int(1e18) * 2
 
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
-func main() {
+func extgcd(a, b int) (int, int, int) {
+	if b == 0 {
+		return a, 1, 0
+	}
+	d, y, x := extgcd(b, a%b)
+	y -= (a / b) * x
+	return d, x, y
+}
 
-	fmt.Println()
+func solve(X, Y, P, Q int) {
+	ans := INF18
+
+	for y := 0; y < Y; y++ {
+		for q := 0; q < Q; q++ {
+			r := P + q - X - y
+			s := 2 * (X + Y)
+			t := P + Q
+
+			if r == 0 {
+				g := gcd(s, t)
+				m := s / g
+				a := m*t + P + q
+				debug(y, q, a)
+				ans = min(ans, a)
+			} else {
+				g, n, m := extgcd(s, t)
+				if r%g != 0 || n < 0 || m > 0 {
+					continue
+				}
+
+				a := (n*s + X + y) * (r / g)
+				ans = min(ans, a)
+			}
+		}
+	}
+
+	if ans == INF18 {
+		fmt.Println("infinity")
+	} else {
+		fmt.Println(ans)
+	}
+}
+
+func gcd(a, b int) int {
+	if b > a {
+		a, b = b, a
+	}
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
+}
+
+func main() {
+	t := nextInt()
+	for i := 0; i < t; i++ {
+		x, y, p, q := nextInt4()
+		solve(x, y, p, q)
+	}
 }
 
 func debug(args ...interface{}) {
