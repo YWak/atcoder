@@ -18,6 +18,11 @@ const INF18 = int(1e18)
 const INF9 = int(1e9)
 
 func main() {
+	n := nextInt()
+	field := make([]string, n)
+	for i := 0; i < n; i++ {
+		field[i] = nextString()
+	}
 
 	fmt.Println()
 }
