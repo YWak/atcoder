@@ -18,8 +18,9 @@ const INF18 = int(1e18)
 const INF9 = int(1e9)
 
 func main() {
+	a, b := nextFloat(), nextFloat()
 
-	fmt.Println()
+	fmt.Printf("%.8f\n", (a-b)*100/a)
 }
 
 func debug(args ...interface{}) {
