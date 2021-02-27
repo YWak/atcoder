@@ -18,8 +18,58 @@ const INF18 = int(1e18)
 const INF9 = int(1e9)
 
 func main() {
+	k := nextInt()
+	s := nextLongIntAsArray()
+	t := nextLongIntAsArray()
 
-	fmt.Println()
+	rem := make([]int, 10)
+	for i := 1; i < 10; i++ {
+		rem[i] = k
+	}
+	for i := 0; i < 4; i++ {
+		rem[s[i]]--
+		rem[t[i]]--
+	}
+	score := func(hand []int, a int) int {
+		s := 0
+		c := [10]int{}
+		for i := 0; i < 4; i++ {
+			c[hand[i]]++
+		}
+		c[a]++
+		for i := 1; i < 10; i++ {
+			s += i * pow(10, c[i])
+		}
+		return s
+	}
+
+	ans := 0.0
+	d1, d2 := float64(k*9-8), float64(k*9-9)
+	for i := 1; i < 10; i++ {
+		for j := 1; j < 10; j++ {
+			// 起きないケース
+			if i == j {
+				if rem[i]-2 < 0 {
+					continue
+				}
+			} else {
+				if rem[i]-1 < 0 || rem[j]-1 < 0 {
+					continue
+				}
+			}
+			ss := score(s, i)
+			st := score(t, j)
+			if ss > st {
+				if i == j {
+					ans += (float64(rem[i]) / d1) * (float64(rem[j]-1) / d2)
+				} else {
+					ans += (float64(rem[i]) / d1) * (float64(rem[j]) / d2)
+				}
+			}
+		}
+	}
+
+	fmt.Printf("%.10f\n", ans)
 }
 
 func debug(args ...interface{}) {
