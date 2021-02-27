@@ -39,15 +39,16 @@ func solve(X, Y, P, Q int) {
 				g := gcd(s, t)
 				m := s / g
 				a := m*t + P + q
-				debug(y, q, a)
+				// debug(y, q, a)
 				ans = min(ans, a)
 			} else {
 				g, n, m := extgcd(s, t)
+				// debug(g, n, m, r%g)
 				if r%g != 0 || n < 0 || m > 0 {
 					continue
 				}
-
-				a := (n*s + X + y) * (r / g)
+				n *= (r / g)
+				a := n*s + X + y
 				ans = min(ans, a)
 			}
 		}
