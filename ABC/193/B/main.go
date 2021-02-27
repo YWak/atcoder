@@ -18,8 +18,22 @@ const INF18 = int(1e18)
 const INF9 = int(1e9)
 
 func main() {
+	n := nextInt()
 
-	fmt.Println()
+	ans := INF18
+
+	for i := 0; i < n; i++ {
+		a, p, x := nextInt3()
+		if x-a > 0 {
+			ans = min(ans, p)
+		}
+	}
+
+	if ans == INF18 {
+		ans = -1
+	}
+
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
