@@ -17,38 +17,66 @@ const INF18 = int(1e18)
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
-type type pair struct {
-    a, b int
+type bag struct {
+	size, value int
 }
 
-type pairs []pair
-
-func (a pairs) Len() int           { return len(a) }
-func (a pairs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a pairs) Less(i, j int) bool { return a[i].a < a[j].a || a[i].a == a[j].a && a[i].b < a[j] }
+var bags []bag
 
 func main() {
 	n, m, q := nextInt3()
-	W := make([]int, n)
-	V := make([]int, n)
+	bags = make([]bag, n)
 	for i := 0; i < n; i++ {
-		W[i] = nextInt()
-		V[i] = nextInt()
+		bags[i].size = nextInt()
+		bags[i].value = nextInt()
 	}
-	x := make(pairs, m)
-    for i := 0; i < m; i++ {
-        x[i].a = nextInt()
-        x[i].b = nextInt()
-    }
-	L := make([]int, q)
-	R := make([]int, q)
+	sort.Slice(bags, func(i, j int) bool {
+		if bags[i].value > bags[j].value {
+			return true
+		}
+		return bags[i].value == bags[j].value && bags[i].size < bags[j].size
+	})
+
+	boxes := make([]int, m)
+	for i := 0; i < m; i++ {
+		boxes[i] = nextInt()
+	}
 	for i := 0; i < q; i++ {
 		l, r := nextInt2()
 		l--
 		r--
+		rest := make([]int, 0, 50)
+		for j := 0; j < m; j++ {
+			if j < l || j > r {
+				rest = append(rest, boxes[j])
+			}
+		}
+		x := sort.IntSlice(rest)
+		sort.Sort(x)
+		fmt.Println(solve(x))
+	}
+}
+
+func solve(boxes []int) int {
+	ans := 0
+	for i := 0; i < len(bags); i++ {
+		// i番目より前を使わなかった場合の最大値
+		used := make([]bool, len(boxes))
+		c := 0
+		for j := i; j < len(bags); j++ {
+			// ものが入る一番小さい箱を選ぶ
+			for k := 0; k < len(boxes); k++ {
+				if !used[k] && boxes[k] >= bags[j].size {
+					used[k] = true
+					c += bags[j].value
+					break
+				}
+			}
+		}
+		ans = max(ans, c)
 	}
 
-	fmt.Println()
+	return ans
 }
 
 func debug(args ...interface{}) {
