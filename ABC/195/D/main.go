@@ -17,22 +17,38 @@ const INF18 = int(1e18)
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
+type type pair struct {
+    a, b int
+}
+
+type pairs []pair
+
+func (a pairs) Len() int           { return len(a) }
+func (a pairs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a pairs) Less(i, j int) bool { return a[i].a < a[j].a || a[i].a == a[j].a && a[i].b < a[j] }
+
 func main() {
-	n := nextInt()
-	ans := 0
-	for i := 0; i < 16; i++ {
-		l, r := pow(10, i), pow(10, i+1)
-		c := i / 3
-		if r <= n {
-			// 全部ある
-			// debug(i, l, r, r-l, c)
-			ans += (r - l) * c
-		} else if l <= n && n < r {
-			// debug(i, l, n, n-l+1, c)
-			ans += (n - l + 1) * c
-		}
+	n, m, q := nextInt3()
+	W := make([]int, n)
+	V := make([]int, n)
+	for i := 0; i < n; i++ {
+		W[i] = nextInt()
+		V[i] = nextInt()
 	}
-	fmt.Println(ans)
+	x := make(pairs, m)
+    for i := 0; i < m; i++ {
+        x[i].a = nextInt()
+        x[i].b = nextInt()
+    }
+	L := make([]int, q)
+	R := make([]int, q)
+	for i := 0; i < q; i++ {
+		l, r := nextInt2()
+		l--
+		r--
+	}
+
+	fmt.Println()
 }
 
 func debug(args ...interface{}) {
