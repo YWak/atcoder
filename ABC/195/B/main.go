@@ -21,7 +21,15 @@ func main() {
 	a, b, w := nextInt3()
 	w *= 1000
 
-	fmt.Println()
+	// 必要数minc個からmaxc個で作れる。
+	maxc := w / a
+	minc := ceil(w, b)
+
+	if w/minc < a {
+		fmt.Println("UNSATISFIABLE")
+	} else {
+		fmt.Println(minc, maxc)
+	}
 }
 
 func debug(args ...interface{}) {
