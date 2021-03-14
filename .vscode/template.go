@@ -1,3 +1,4 @@
+//lint:file-ignore U1000 using template
 package main
 
 import (
