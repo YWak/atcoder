@@ -20,17 +20,8 @@ const INF9 = int(1e9)
 func main() {
 	n := nextInt()
 	ans := 0
-	for i := 0; i < 16; i++ {
-		l, r := pow(10, i), pow(10, i+1)
-		c := i / 3
-		if r <= n {
-			// 全部ある
-			// debug(i, l, r, r-l, c)
-			ans += (r - l) * c
-		} else if l <= n && n < r {
-			// debug(i, l, n, n-l+1, c)
-			ans += (n - l + 1) * c
-		}
+	for i := 1; i < 6; i++ {
+		ans += max(0, n-pow(1000, i)+1)
 	}
 	fmt.Println(ans)
 }
