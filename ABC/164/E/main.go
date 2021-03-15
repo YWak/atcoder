@@ -29,21 +29,25 @@ func main() {
 		u--
 		v--
 		for i := a; i < maxs; i++ {
+			// 銀貨をi枚持っているところから、a枚使って移動する
 			graph.AddWeightedEdge(u*maxs+i, v*maxs+i-a, b)
 			graph.AddWeightedEdge(v*maxs+i, u*maxs+i-a, b)
 		}
 	}
 	for i := 0; i < n; i++ {
 		c, d := nextInt2()
-		for j := 0; j < maxs-1; j++ {
-			graph.AddWeightedEdge(i*maxs+j, i*maxs+min(j+c, maxs-1), d)
+		for j := 0; j < maxs-2; j++ {
+			// 銀貨をj枚持っているところから、c枚追加する。ただし最大値はmaxs-1枚
+			next := min(j+c, maxs-1)
+			graph.AddWeightedEdge(i*maxs+j, i*maxs+next, d)
 		}
 	}
 
 	// debug(graph)
-	result := graph.DijkstraAll(min(s, maxs-1))
+	result := graph.DijkstraAll(0*maxs + min(s, maxs-1))
 
 	for i := 1; i < n; i++ {
+		// 都市ごとに最小コストを探す
 		ans := INF18
 		for j := 0; j < maxs; j++ {
 			ans = min(ans, result[i*maxs+j])
