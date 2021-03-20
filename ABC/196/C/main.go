@@ -21,7 +21,7 @@ const INF9 = int(1e9)
 func main() {
 	n := nextInt()
 	ans := 0
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 7; i++ {
 		b := pow(10, i+1) + 1
 
 		for j := pow(10, i); j < pow(10, i+1); j++ {
