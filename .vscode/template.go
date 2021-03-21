@@ -146,9 +146,23 @@ func pow(a, b int) int {
 	return int(math.Pow(float64(a), float64(b)))
 }
 
-// ceil は a/bの切り上げを返します。
-func ceil(a, b int) int {
+// divceil は a/b の結果を正の無限大に近づけるように丸めて返します。
+func divceil(a, b int) int {
+	if a%b == 0 || a/b < 0 {
+		return a / b
+	}
 	return (a + b - 1) / b
+}
+
+// divfloor は a/b の結果を負の無限大に近づけるように丸めて返します。
+func divfloor(a, b int) int {
+	if a%b == 0 || a/b > 0 {
+		return a / b
+	}
+	if b < 0 {
+		a, b = -a, -b
+	}
+	return (a - b + 1) / b
 }
 
 // powmod は (x^n) mod m を返します。
