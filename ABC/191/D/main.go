@@ -1,3 +1,4 @@
+//lint:file-ignore U1000 using template
 package main
 
 import (
@@ -6,47 +7,79 @@ import (
 	"math"
 	"math/bits"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-// INF は最大値を表す数
-const INF = int(1e9)
+// INF18 は最大値を表す数
+const INF18 = int(1e18)
+
+// INF9 は最大値を表す数
+const INF9 = int(1e9)
 
 func main() {
-	nx := func() int {
-		f := nextString()
-
-		index := strings.IndexByte(f, '.')
-		var a int
-		b := 10000
-		if index == -1 {
-			a, _ = strconv.Atoi(f)
-		} else {
-			n := strings.Replace(f, ".", "", -1)
-			a, _ = strconv.Atoi(n)
-			for i := 0; i < len(f)-index-1; i++ {
-				b /= 10
+	b := 10000
+	X := nextFloatAsInt(4)
+	Y := nextFloatAsInt(4)
+	R := nextFloatAsInt(4)
+	ans := 0
+	root := func(y, ok, ng int) int {
+		// okは円内に含まれる整数点
+		r2 := R * R
+		for abs(ok-ng) > 1 {
+			mid := (ok + ng) / 2
+			if pow(y-Y, 2)+pow(mid-X, 2) <= r2 {
+				ok = mid
+			} else {
+				ng = mid
 			}
 		}
-		return a * b
+		return ok
+	}
+	lroot := func(y int) int {
+		return ceilplus(root(y, X, X-R-b), b) * b
 	}
 
-	X := nx()
-	Y := nx()
-	R := nx()
-
-	c := 0
-	for x := (X - R + 10000 - 1) / 10000; x <= X+R; x += 10000 {
-		y := int(math.Sqrt(float64(R*R - x*x)))
-		y0 := Y + y
-		y1 := Y - y
-
-		c += (y0 - y1) / 10000
-		debug((y1-y0)/10000, x)
+	rroot := func(y int) int {
+		return ceilminus(root(y, X, X+R+b), b) * b
 	}
 
-	fmt.Println(c)
+	for y := ceilplus(Y-R, b) * b; y <= ceilminus(Y+R, b)*b; y += b {
+		l := lroot(y)
+		r := rroot(y)
+
+		if l <= r {
+			ans += (r - l) / b
+			if l%b == 0 {
+				ans++
+			}
+		}
+	}
+
+	fmt.Println(ans)
+}
+
+// ceilplus は a/b以上の整数のうち最も小さいもの
+func ceilplus(a, b int) int {
+	if a%b == 0 {
+		return a / b
+	}
+	if a < 0 {
+		return a / b
+	}
+	return (a + b - 1) / b
+}
+
+// ceilminus は a/b以下の整数
+func ceilminus(a, b int) int {
+	if a%b == 0 {
+		return a / b
+	}
+	if a > 0 {
+		return a / b
+	}
+	return (a - b + 1) / b
 }
 
 func debug(args ...interface{}) {
@@ -81,12 +114,24 @@ func nextInt() int {
 	return i
 }
 
-func nextInts(n int) []int {
+func nextInt2() (int, int) {
+	return nextInt(), nextInt()
+}
+
+func nextInt3() (int, int, int) {
+	return nextInt(), nextInt(), nextInt()
+}
+
+func nextInt4() (int, int, int, int) {
+	return nextInt(), nextInt(), nextInt(), nextInt()
+}
+
+func nextInts(n int) sort.IntSlice {
 	a := make([]int, n)
 	for i := 0; i < n; i++ {
 		a[i] = nextInt()
 	}
-	return a
+	return sort.IntSlice(a)
 }
 
 // toi は byteの数値をintに変換します。
@@ -108,6 +153,23 @@ func nextLongIntAsArray() []int {
 func nextFloat() float64 {
 	f, _ := strconv.ParseFloat(nextString(), 64)
 	return f
+}
+
+// nextFloatAsInt は 数を 10^base 倍した整数値を取得します。
+func nextFloatAsInt(base int) int {
+	s := nextString()
+	index := strings.IndexByte(s, '.')
+	if index == -1 {
+		n, _ := strconv.Atoi(s)
+		return n * pow(10, base)
+	}
+	for s[len(s)-1] == '0' {
+		s = s[:len(s)-1]
+	}
+	s1, s2 := s[:index], s[index+1:]
+	n, _ := strconv.Atoi(s1)
+	m, _ := strconv.Atoi(s2)
+	return n*pow(10, base) + m*pow(10, base-len(s2))
 }
 
 // ==================================================
@@ -143,6 +205,24 @@ func pow(a, b int) int {
 	return int(math.Pow(float64(a), float64(b)))
 }
 
+// ceil は a/bの切り上げを返します。
+func ceil(a, b int) int {
+	return (a + b - 1) / b
+}
+
+// powmod は (x^n) mod m を返します。
+func powmod(x, n, m int) int {
+	ans := 1
+	for n > 0 {
+		if n%2 == 1 {
+			ans = (ans * x) % m
+		}
+		x = (x * x) % m
+		n /= 2
+	}
+	return ans
+}
+
 // binarysearch は judgeがtrueを返す最小の数値を返します。
 func binarysearch(ok, ng int, judge func(int) bool) int {
 	for abs(ok-ng) > 1 {
@@ -166,6 +246,20 @@ func ch(cond bool, ok, ng int) int {
 	return ng
 }
 
+func mul(a, b int) (int, int) {
+	if a < 0 {
+		a, b = -a, -b
+	}
+	if a == 0 || b == 0 {
+		return 0, 0
+	} else if a > 0 && b > 0 && a > math.MaxInt64/b {
+		return 0, +1
+	} else if a > math.MinInt64/b {
+		return 0, -1
+	}
+	return a * b, 0
+}
+
 // ==================================================
 // ビット操作
 // ==================================================
@@ -177,6 +271,8 @@ func nthbit(a int, n int) int { return int((a >> uint(n)) & 1) }
 func popcount(a int) int {
 	return bits.OnesCount(uint(a))
 }
+
+func xor(a, b bool) bool { return a != b }
 
 // ==================================================
 // 文字列操作
@@ -200,6 +296,37 @@ func isLower(b byte) bool {
 // isUpper はbが大文字かどうかを判定します
 func isUpper(b byte) bool {
 	return 'A' <= b && b <= 'Z'
+}
+
+// ==================================================
+// 配列
+// ==================================================0
+func reverse(arr *[]interface{}) {
+	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
+		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
+	}
+}
+
+func reverseInt(arr *[]int) {
+	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
+		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
+	}
+}
+
+func uniqueInt(arr []int) []int {
+	hist := map[int]bool{}
+	j := 0
+	for i := 0; i < len(arr); i++ {
+		if hist[arr[i]] {
+			continue
+		}
+
+		a := arr[i]
+		arr[j] = a
+		hist[a] = true
+		j++
+	}
+	return arr[:j]
 }
 
 // ==================================================
