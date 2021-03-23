@@ -20,8 +20,47 @@ const INF9 = int(1e9)
 
 func main() {
 	a, b := nextInt2()
+	primes := primes()
+
 	n := b - a + 1
-	primes := make([]int, 0)
+	d := make([]int, n)
+	for i := 0; i < n; i++ {
+		p := 0
+		u := i + a
+		for j, v := range primes {
+			if u%v == 0 {
+				p = p | (1 << j)
+			}
+		}
+		d[i] = p
+	}
+
+	m := 1 << len(primes)
+	dp := make([][]int, n+1)
+	for i := 0; i <= n; i++ {
+		dp[i] = make([]int, m)
+	}
+	dp[0][0] = 1 // 空集合を数える
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+			// 選ばない場合
+			dp[i+1][j] += dp[i][j]
+			// 選ぶ場合
+			if j&d[i] == 0 { // 被りがなければ選択できる
+				dp[i+1][j|d[i]] += dp[i+1][j]
+			}
+		}
+	}
+	ans := 0
+	for j := 0; j < m; j++ {
+		ans += dp[n][j]
+	}
+	fmt.Println(ans)
+}
+
+func primes() []int {
+	primes := []int{2}
+
 	for i := 3; i < 73; i += 2 {
 		ok := true
 		for j := 0; j < len(primes); j++ {
@@ -35,79 +74,7 @@ func main() {
 		}
 	}
 
-	even := map[int]int{}
-	odd := map[int]int{}
-	for i := 0; i < n; i++ {
-		d := a + i
-		if d%2 == 0 {
-			for j := 0; j < len(primes); j++ {
-				p := primes[j]
-				if d%p == 0 {
-					even[d] += 1 << j
-				}
-			}
-		} else {
-			for j := 0; j < len(primes); j++ {
-				p := primes[j]
-				if d%p == 0 {
-					odd[d] += 1 << j
-				}
-			}
-		}
-	}
-
-	cand := make([]int, 0, len(odd))
-	for k := range odd {
-		cand = append(cand, k)
-	}
-
-	left := []int{0}
-	right := []int{0}
-
-	for i := 0; i < len(cand); i++ {
-		d := cand[i]
-		l := len(left)
-		for j := 0; j < l; j++ {
-			if left[j]&odd[d] == 0 {
-				left = append(left, left[j]|odd[d])
-			}
-		}
-		left, right = right, left
-	}
-	left2 := make([]int, len(left))
-	for i := 0; i < len(left); i++ {
-		for _, v := range even {
-			if left[i]&v == 0 {
-				left2[i]++
-			}
-		}
-	}
-	right2 := make([]int, len(right))
-	for i := 0; i < len(right); i++ {
-		for _, v := range even {
-			if right[i]&v == 0 {
-				right2[i]++
-			}
-		}
-	}
-
-	ans := 0
-	for i := 0; i < len(right); i++ {
-		ans++            // rightのみを採用する分
-		ans += right2[i] // right[i]に偶数を追加した分
-	}
-	ans += left2[0]
-	for i := 1; i < len(left); i++ {
-		ans++           // leftのみを採用する分
-		ans += left2[i] // left[i]に偶数を追加した分
-		for j := 0; j < len(right); j++ {
-			if left[i]&right[j] == 0 {
-				ans++                       // leftとrightをマージした分
-				ans += left2[i] + right2[j] // leftとrightをマージした集合に偶数を足した分
-			}
-		}
-	}
-	fmt.Println(ans)
+	return primes
 }
 
 func debug(args ...interface{}) {
