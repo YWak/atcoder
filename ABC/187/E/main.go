@@ -1,3 +1,4 @@
+//lint:file-ignore U1000 using template
 package main
 
 import (
@@ -6,16 +7,92 @@ import (
 	"math"
 	"math/bits"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-// INF は最大値を表す数
-const INF = int(1e9)
+// INF18 は最大値を表す数
+const INF18 = int(1e18)
+
+// INF9 は最大値を表す数
+const INF9 = int(1e9)
+
+type pair struct {
+	a, b int
+}
+
+var graph [][]pair
+var edges []pair
+var rev []bool
+var scores []int
+var ans []int
 
 func main() {
+	n := nextInt()
+	graph = make([][]pair, n+1)
+	edges = make([]pair, n-1)
+	rev = make([]bool, n-1)
+	scores = make([]int, n+1)
+	ans = make([]int, n+1)
+	graph[0] = []pair{{1, 0}}
 
-	fmt.Println()
+	for i := 0; i < n-1; i++ {
+		a, b := nextInt2()
+		graph[a] = append(graph[a], pair{b, i})
+		graph[b] = append(graph[b], pair{a, i})
+		edges[i].a = a
+		edges[i].b = b
+	}
+	dir(1, 0)
+	q := nextInt()
+	for i := 0; i < q; i++ {
+		t, e, x := nextInt3()
+		e--
+		a, b := edges[e].a, edges[e].b
+		if rev[e] {
+			a, b = b, a
+			t = 3 - t
+		}
+
+		var x0, xb int
+		if t == 1 {
+			x0, xb = x, -x
+		} else {
+			x0, xb = 0, x
+		}
+
+		scores[0] += x0
+		scores[b] += xb
+	}
+	dfs(0, -1)
+	for i := 1; i <= n; i++ {
+		fmt.Println(ans[i])
+	}
+}
+
+func dir(curr, prev int) {
+	for _, v := range graph[curr] {
+		if v.a == prev {
+			continue
+		}
+
+		if edges[v.b].b == curr { // next - currの組み合わせ
+			rev[v.b] = true
+		}
+		dir(v.a, curr)
+	}
+}
+
+func dfs(curr, prev int) {
+	ans[curr] += scores[curr]
+	for _, v := range graph[curr] {
+		if v.a == prev {
+			continue
+		}
+		ans[v.a] = ans[curr]
+		dfs(v.a, curr)
+	}
 }
 
 func debug(args ...interface{}) {
@@ -50,12 +127,24 @@ func nextInt() int {
 	return i
 }
 
-func nextInts(n int) []int {
+func nextInt2() (int, int) {
+	return nextInt(), nextInt()
+}
+
+func nextInt3() (int, int, int) {
+	return nextInt(), nextInt(), nextInt()
+}
+
+func nextInt4() (int, int, int, int) {
+	return nextInt(), nextInt(), nextInt(), nextInt()
+}
+
+func nextInts(n int) sort.IntSlice {
 	a := make([]int, n)
 	for i := 0; i < n; i++ {
 		a[i] = nextInt()
 	}
-	return a
+	return sort.IntSlice(a)
 }
 
 // toi は byteの数値をintに変換します。
@@ -77,6 +166,23 @@ func nextLongIntAsArray() []int {
 func nextFloat() float64 {
 	f, _ := strconv.ParseFloat(nextString(), 64)
 	return f
+}
+
+// nextFloatAsInt は 数を 10^base 倍した整数値を取得します。
+func nextFloatAsInt(base int) int {
+	s := nextString()
+	index := strings.IndexByte(s, '.')
+	if index == -1 {
+		n, _ := strconv.Atoi(s)
+		return n * pow(10, base)
+	}
+	for s[len(s)-1] == '0' {
+		s = s[:len(s)-1]
+	}
+	s1, s2 := s[:index], s[index+1:]
+	n, _ := strconv.Atoi(s1)
+	m, _ := strconv.Atoi(s2)
+	return n*pow(10, base) + m*pow(10, base-len(s2))
 }
 
 // ==================================================
@@ -112,6 +218,38 @@ func pow(a, b int) int {
 	return int(math.Pow(float64(a), float64(b)))
 }
 
+// divceil は a/b の結果を正の無限大に近づけるように丸めて返します。
+func divceil(a, b int) int {
+	if a%b == 0 || a/b < 0 {
+		return a / b
+	}
+	return (a + b - 1) / b
+}
+
+// divfloor は a/b の結果を負の無限大に近づけるように丸めて返します。
+func divfloor(a, b int) int {
+	if a%b == 0 || a/b > 0 {
+		return a / b
+	}
+	if b < 0 {
+		a, b = -a, -b
+	}
+	return (a - b + 1) / b
+}
+
+// powmod は (x^n) mod m を返します。
+func powmod(x, n, m int) int {
+	ans := 1
+	for n > 0 {
+		if n%2 == 1 {
+			ans = (ans * x) % m
+		}
+		x = (x * x) % m
+		n /= 2
+	}
+	return ans
+}
+
 // binarysearch は judgeがtrueを返す最小の数値を返します。
 func binarysearch(ok, ng int, judge func(int) bool) int {
 	for abs(ok-ng) > 1 {
@@ -127,6 +265,28 @@ func binarysearch(ok, ng int, judge func(int) bool) int {
 	return ok
 }
 
+// ch は condがtrueのときok, falseのときngを返します。
+func ch(cond bool, ok, ng int) int {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+func mul(a, b int) (int, int) {
+	if a < 0 {
+		a, b = -a, -b
+	}
+	if a == 0 || b == 0 {
+		return 0, 0
+	} else if a > 0 && b > 0 && a > math.MaxInt64/b {
+		return 0, +1
+	} else if a > math.MinInt64/b {
+		return 0, -1
+	}
+	return a * b, 0
+}
+
 // ==================================================
 // ビット操作
 // ==================================================
@@ -138,6 +298,8 @@ func nthbit(a int, n int) int { return int((a >> uint(n)) & 1) }
 func popcount(a int) int {
 	return bits.OnesCount(uint(a))
 }
+
+func xor(a, b bool) bool { return a != b }
 
 // ==================================================
 // 文字列操作
@@ -161,6 +323,37 @@ func isLower(b byte) bool {
 // isUpper はbが大文字かどうかを判定します
 func isUpper(b byte) bool {
 	return 'A' <= b && b <= 'Z'
+}
+
+// ==================================================
+// 配列
+// ==================================================0
+func reverse(arr *[]interface{}) {
+	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
+		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
+	}
+}
+
+func reverseInt(arr *[]int) {
+	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
+		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
+	}
+}
+
+func uniqueInt(arr []int) []int {
+	hist := map[int]bool{}
+	j := 0
+	for i := 0; i < len(arr); i++ {
+		if hist[arr[i]] {
+			continue
+		}
+
+		a := arr[i]
+		arr[j] = a
+		hist[a] = true
+		j++
+	}
+	return arr[:j]
 }
 
 // ==================================================
