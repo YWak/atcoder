@@ -30,12 +30,17 @@ func main() {
 		ok := true
 		c := 0
 		for j := 0; j < m; j++ {
-			if (i & ngs[j]) == ngs[j] {
+			pc := popcount(i & ngs[j])
+			if pc == 3 {
 				ok = false
 				break
 			}
+			if pc <= 1 {
+				continue
+			}
+			// 入れると爆発する薬
 			for k := 0; k < n; k++ {
-				if i&ngs[j] == (1 << k) {
+				if (i|(1<<k))&ngs[j] == ngs[j] {
 					c = c | (1 << k)
 				}
 			}
