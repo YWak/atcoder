@@ -43,7 +43,12 @@ func main() {
 		fmt.Println("UNSOLVABLE")
 		return
 	}
-	num := func(s string, p []int) int {
+	p := make([]int, 10)
+	for i := 0; i < 10; i++ {
+		p[i] = i
+	}
+
+	num := func(s string) int {
 		n := 0
 		for i := 0; i < len(s); i++ {
 			n = n*10 + p[chars[s[i]]]
@@ -51,41 +56,42 @@ func main() {
 		return n
 	}
 
-	for _, p := range perm(10) {
-		if p[chars[s1[0]]] == 0 || p[chars[s2[0]]] == 0 || p[chars[s3[0]]] == 0 {
-			continue
+	ok := true
+	next := func() bool {
+		var i int
+		for i = len(p) - 2; i >= 0; i-- {
+			if p[i] > p[i+1] {
+				continue
+			}
+			j := len(p)
+			for {
+				j--
+				if p[i] < p[j] {
+					break
+				}
+			}
+			p[i], p[j] = p[j], p[i]
+			for k, l := i+1, len(p)-1; k < l; k, l = k+1, l-1 {
+				p[k], p[l] = p[l], p[k]
+			}
+			return true
 		}
-		if num(s1, p)+num(s2, p) == num(s3, p) {
-			fmt.Println(num(s1, p))
-			fmt.Println(num(s2, p))
-			fmt.Println(num(s3, p))
-			return
+		return false
+	}
+	for ok {
+		if p[chars[s1[0]]] != 0 && p[chars[s2[0]]] != 0 && p[chars[s3[0]]] != 0 {
+			if num(s1)+num(s2) == num(s3) {
+				fmt.Println(num(s1))
+				fmt.Println(num(s2))
+				fmt.Println(num(s3))
+				return
+			}
 		}
+		// 順列生成
+		ok = next()
 	}
 
 	fmt.Println("UNSOLVABLE")
-}
-
-// 1からnまでの順列を作成して返します
-func perm(n int) [][]int {
-	return perm1(n, 0, (1<<uint(n))-1, []int{})
-}
-
-// usedのiビット目が0の場合iがarrに含まれていない
-func perm1(n, used, end int, arr []int) [][]int {
-	if used == end {
-		return [][]int{arr}
-	}
-	ret := make([][]int, 0)
-	for i := 1; i <= n; i++ {
-		k := 1 << uint(i-1)
-		if used&k == 0 {
-			l := append([]int{}, arr...)
-			l = append(l, i-1)
-			ret = append(ret, perm1(n, used|k, end, l)...)
-		}
-	}
-	return ret
 }
 
 func debug(args ...interface{}) {
