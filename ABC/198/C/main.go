@@ -26,7 +26,7 @@ func main() {
 		fmt.Println(2)
 	} else {
 		xf, yf := float64(x), float64(y)
-		fmt.Println(divceil(int(math.Ceil(math.Sqrt(xf*xf+yf+yf))), r))
+		fmt.Println(divceil(int(math.Ceil(math.Sqrt(xf*xf+yf*yf))), r))
 	}
 }
 
