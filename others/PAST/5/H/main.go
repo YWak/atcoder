@@ -18,15 +18,16 @@ const INF18 = int(1e18)
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
-type pair struct{ h, w int }
+var ans [][]byte
+var field []string
 
 func main() {
 	H, W := nextInt2()
 	r, c := nextInt2()
 	r--
 	c--
-	field := make([]string, H)
-	ans := make([][]byte, H)
+	field = make([]string, H)
+	ans = make([][]byte, H)
 	for i := 0; i < H; i++ {
 		field[i] = nextString()
 		ans[i] = make([]byte, W)
@@ -36,23 +37,11 @@ func main() {
 			}
 		}
 	}
-	dir := [][]int{{-1, +0, 'V'}, {+1, +0, '^'}, {+0, -1, '>'}, {+0, +1, '<'}}
-	queue := []pair{{r, c}}
-	for len(queue) > 0 {
-		q := queue[0]
-		queue = queue[1:]
-		for _, d := range dir {
-			x, y := q.h+d[0], q.w+d[1]
-			if x < 0 || y < 0 || x == H || y == W {
-				continue
-			}
-			if ans[x][y] != 0 {
-				continue
-			}
-			if field[x][y] == '.' || int(field[x][y]) == d[2] {
-				queue = append(queue, pair{x, y})
-				ans[x][y] = 'o'
-			}
+	ans[r][c] = 'o'
+
+	for i := 0; i < H; i++ {
+		for j := 0; j < W; j++ {
+			dfs(i, j, -1, -1)
 		}
 	}
 	for i := 0; i < H; i++ {
@@ -63,6 +52,31 @@ func main() {
 		}
 		fmt.Println(string(ans[i]))
 	}
+}
+
+func dfs(i, j, pi, pj int) bool {
+	if ans[i][j] != 0 {
+		return ans[i][j] == 'o'
+	}
+	ok := false
+	if i != 0 && (i-1 != pi || j != pj) && (field[i-1][j] == '.' || field[i-1][j] == 'V') {
+		ok = dfs(i-1, j, i, j) || ok
+	}
+	if i < len(field)-1 && (i+1 != pi || j != pj) && (field[i+1][j] == '.' || field[i+1][j] == '^') {
+		ok = dfs(i+1, j, i, j) || ok
+	}
+	if j != 0 && (i != pi || j-1 != pj) && (field[i][j-1] == '.' || field[i][j-1] == '>') {
+		ok = dfs(i, j-1, i, j) || ok
+	}
+	if j < len(field[0])-1 && (i != pi || j+1 != pj) && (field[i][j+1] == '.' || field[i][j+1] == '<') {
+		ok = dfs(i, j+1, i, j) || ok
+	}
+	if ok {
+		ans[i][j] = 'o'
+	} else {
+		ans[i][j] = 'x'
+	}
+	return ans[i][j] == 'o'
 }
 
 func debug(args ...interface{}) {
