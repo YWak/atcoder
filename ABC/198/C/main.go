@@ -25,7 +25,8 @@ func main() {
 	if r*r > d2 {
 		fmt.Println(2)
 	} else {
-		fmt.Println(divceil(dist(x, y), r))
+		xf, yf := float64(x), float64(y)
+		fmt.Println(divceil(int(math.Ceil(math.Sqrt(xf*xf+yf+yf))), r))
 	}
 }
 
