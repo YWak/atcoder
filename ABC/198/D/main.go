@@ -43,7 +43,7 @@ func main() {
 		fmt.Println("UNSOLVABLE")
 		return
 	}
-	p := make([]int, 10)
+	p := make(Permutation, 10)
 	for i := 0; i < 10; i++ {
 		p[i] = i
 	}
@@ -57,27 +57,6 @@ func main() {
 	}
 
 	ok := true
-	next := func() bool {
-		var i int
-		for i = len(p) - 2; i >= 0; i-- {
-			if p[i] > p[i+1] {
-				continue
-			}
-			j := len(p)
-			for {
-				j--
-				if p[i] < p[j] {
-					break
-				}
-			}
-			p[i], p[j] = p[j], p[i]
-			for k, l := i+1, len(p)-1; k < l; k, l = k+1, l-1 {
-				p[k], p[l] = p[l], p[k]
-			}
-			return true
-		}
-		return false
-	}
 	for ok {
 		if p[chars[s1[0]]] != 0 && p[chars[s2[0]]] != 0 && p[chars[s3[0]]] != 0 {
 			if num(s1)+num(s2) == num(s3) {
@@ -88,10 +67,34 @@ func main() {
 			}
 		}
 		// 順列生成
-		ok = next()
+		ok = p.next()
 	}
 
 	fmt.Println("UNSOLVABLE")
+}
+
+type Permutation []int
+
+func (p *Permutation) next() bool {
+	for i := len(*p) - 2; i >= 0; i-- {
+		if (*p)[i] > (*p)[i+1] {
+			continue
+		}
+		j := len(*p)
+		for {
+			j--
+			if (*p)[i] < (*p)[j] {
+				break
+			}
+		}
+		(*p)[i], (*p)[j] = (*p)[j], (*p)[i]
+		for k, l := i+1, len(*p)-1; k < l; k, l = k+1, l-1 {
+			(*p)[k], (*p)[l] = (*p)[l], (*p)[k]
+		}
+		return true
+
+	}
+	return false
 }
 
 func debug(args ...interface{}) {
