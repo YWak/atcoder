@@ -21,8 +21,12 @@ const INF9 = int(1e9)
 func main() {
 	r := nextInt()
 	x, y := nextInt2()
-
-	fmt.Println(divceil(dist(x, y), r))
+	d2 := x*x + y*y
+	if r*r > d2 {
+		fmt.Println(2)
+	} else {
+		fmt.Println(divceil(dist(x, y), r))
+	}
 }
 
 func dist(x, y int) int {
