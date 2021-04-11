@@ -20,6 +20,7 @@ const INF9 = int(1e9)
 
 var c []int
 var tree [][]int
+var ans map[int]bool
 
 func main() {
 	n := nextInt()
@@ -31,18 +32,23 @@ func main() {
 		tree[a] = append(tree[a], b)
 		tree[b] = append(tree[b], a)
 	}
-	a := dfs(0, -1, map[int]int{})
-	ans := sort.IntSlice(a)
-	sort.Sort(ans)
-	for i := 0; i < len(ans); i++ {
-		fmt.Println(ans[i])
+	ans = map[int]bool{}
+	dfs(0, -1, map[int]int{})
+	a := make(sort.IntSlice, len(ans))
+	j := 0
+	for k := range ans {
+		a[j] = k
+		j++
+	}
+	sort.Sort(a)
+	for i := 0; i < len(a); i++ {
+		fmt.Println(a[i])
 	}
 }
 
-func dfs(curr, prev int, hist map[int]int) []int {
-	ans := []int{}
+func dfs(curr, prev int, hist map[int]int) {
 	if hist[c[curr]] == 0 {
-		ans = append(ans, curr+1)
+		ans[curr+1] = true
 	}
 	hist[c[curr]]++
 	for i := 0; i < len(tree[curr]); i++ {
@@ -50,10 +56,9 @@ func dfs(curr, prev int, hist map[int]int) []int {
 		if prev == next {
 			continue
 		}
-		ans = append(ans, dfs(next, curr, hist)...)
+		dfs(next, curr, hist)
 	}
 	hist[c[curr]]--
-	return ans
 }
 
 func debug(args ...interface{}) {
