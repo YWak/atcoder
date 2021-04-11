@@ -21,9 +21,23 @@ const INF9 = int(1e9)
 func main() {
 	r := nextInt()
 	x, y := nextInt2()
-	xx, yy := float64(x), float64(y)
 
-	fmt.Println(divceil(int(math.Ceil(math.Sqrt(xx*xx+yy*yy))), r))
+	fmt.Println(divceil(dist(x, y), r))
+}
+
+func dist(x, y int) int {
+	d2 := x*x + y*y
+	ok, ng := d2+1, -1
+	for ok-ng > 1 {
+		mid := (ok + ng) / 2
+		if mid*mid < d2 {
+			ng = mid
+		} else {
+			ok = mid
+		}
+	}
+
+	return ok
 }
 
 func debug(args ...interface{}) {
