@@ -22,25 +22,19 @@ func main() {
 	n := nextInt()
 	a := nextInts(n)
 	a = append(a, 0)
-	ans := INF18
-	for i := 1; i < (1 << n); i++ {
-		x := 0
-		ii := i
-		if nthbit(i, n-1) == 0 {
-			ii += (1 << n)
-		}
-		b := 0
-		for j := 0; j < n+1; j++ {
-			if nthbit(ii, j) != nthbit(ii, j+1) {
-				x = x ^ b
-				b = 0
-			}
-			b = b | a[j]
-		}
-		ans = min(ans, x)
-	}
 
-	fmt.Println(ans)
+	fmt.Println(dfs(a, 1, 0, a[0], 1))
+}
+
+// k番目まで見てxorの結果がx, orの結果がb, 連続n個使用中の最小値
+func dfs(a []int, k, x, b, n int) int {
+	if k == len(a) {
+		return x ^ b
+	}
+	return min(
+		dfs(a, k+1, x, b|a[k], n+1), // a[k]を使う
+		dfs(a, k+1, x^b, a[k], 1),   // a[k]を次に使う
+	)
 }
 
 func debug(args ...interface{}) {
