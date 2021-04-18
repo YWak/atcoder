@@ -16,7 +16,7 @@ import (
 const INF18 = int(1e18)
 
 // INF9 は最大値を表す数
-const INF9 = int(1e9)
+const INF9 = int(1e8)
 
 func main() {
 	a, b := nextInt2()
