@@ -16,7 +16,7 @@ import (
 const INF18 = int(1e18)
 
 // INF9 は最大値を表す数
-const INF9 = int(1e8)
+const INF9 = int(1e7)
 
 func main() {
 	a, b := nextInt2()
@@ -49,7 +49,7 @@ func main() {
 			fmt.Printf("%d ", e)
 			sa += e
 		}
-		fmt.Println(sa + sb)
+		fmt.Println(-sa - sb)
 		sa -= sa + sb
 	}
 }
