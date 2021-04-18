@@ -22,36 +22,31 @@ func main() {
 	a, b := nextInt2()
 	sb := 0
 	sa := 0
-
-	for i := 0; i < min(a, b)-1; i++ {
+	ea := make([]int, a)
+	eb := make([]int, b)
+	for i := 0; i < a; i++ {
 		e := i + 1
-		fmt.Printf("%d %d ", -e, e)
+		ea[i] = e
 		sa += e
-		sb -= e
 	}
-	if a == b {
-		fmt.Printf("%d %d\n", a, -a)
-	} else if a < b {
-		fmt.Printf("%d ", INF9)
-		sa += INF9
-		for i := a; i < b-1; i++ {
-			e := i + 1
-			fmt.Printf("%d ", -e)
-			sb -= e
-		}
-		fmt.Println(-sa - sb)
-		sb -= sa + sb
+	for i := 0; i < b; i++ {
+		e := -i - 1
+		eb[i] = e
+		sb += e
+	}
+	d := sa + sb
+	if d < 0 {
+		ea[a-1] += abs(d)
 	} else {
-		fmt.Printf("%d ", -INF9)
-		sb -= INF9
-		for i := b; i < a-1; i++ {
-			e := i + 1
-			fmt.Printf("%d ", e)
-			sa += e
-		}
-		fmt.Println(-sa - sb)
-		sa -= sa + sb
+		eb[b-1] -= abs(d)
 	}
+	for i := 0; i < a; i++ {
+		fmt.Printf("%d ", ea[i])
+	}
+	for i := 0; i < b; i++ {
+		fmt.Printf("%d ", eb[i])
+	}
+	fmt.Println()
 }
 
 func debug(args ...interface{}) {
