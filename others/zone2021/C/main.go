@@ -18,10 +18,88 @@ const INF18 = int(1e18)
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
+type man struct{ i, a, b, c, d, e int }
+
 func main() {
 	n := nextInt()
+	mm := []man{}
+	ma := []man{}
+	mb := []man{}
+	mc := []man{}
+	md := []man{}
+	me := []man{}
 
-	fmt.Println()
+	for i := 0; i < n; i++ {
+		a, b, c, d, e := nextInt5()
+		m := man{i, a, b, c, d, e}
+		mm = append(mm, m)
+		ma = append(ma, m)
+		mb = append(mb, m)
+		mc = append(mc, m)
+		md = append(md, m)
+		me = append(me, m)
+	}
+	sort.Slice(ma, func(i, j int) bool { return ma[i].a > ma[j].a })
+	sort.Slice(mb, func(i, j int) bool { return mb[i].b > mb[j].b })
+	sort.Slice(mc, func(i, j int) bool { return mc[i].c > mb[j].c })
+	sort.Slice(md, func(i, j int) bool { return md[i].d > mb[j].d })
+	sort.Slice(me, func(i, j int) bool { return me[i].e > mb[j].e })
+
+	ans := 0
+	min5 := func(a, b, c, d, e int) int { return min(a, min(b, min(c, min(d, e)))) }
+	score := func(m1, m2, m3 man) int {
+		a := max(m1.a, max(m2.a, m3.a))
+		b := max(m1.b, max(m2.b, m3.b))
+		c := max(m1.c, max(m2.c, m3.c))
+		d := max(m1.d, max(m2.d, m3.d))
+		e := max(m1.e, max(m2.e, m3.e))
+
+		return min5(a, b, c, d, e)
+	}
+
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			// aが一番小さいのでこれを最大化したい
+			z := -1
+			for k := 0; k < 3; k++ {
+				if ma[k].i != i && ma[k].i != j {
+					z = k
+					break
+				}
+			}
+			ans = max(ans, score(mm[i], mm[j], ma[z]))
+			for k := 0; k < 3; k++ {
+				if mb[k].i != i && mb[k].i != j {
+					z = k
+					break
+				}
+			}
+			ans = max(ans, score(mm[i], mm[j], mb[z]))
+			for k := 0; k < 3; k++ {
+				if mc[k].i != i && mc[k].i != j {
+					z = k
+					break
+				}
+			}
+			ans = max(ans, score(mm[i], mm[j], mc[z]))
+			for k := 0; k < 3; k++ {
+				if md[k].i != i && md[k].i != j {
+					z = k
+					break
+				}
+			}
+			ans = max(ans, score(mm[i], mm[j], md[z]))
+			for k := 0; k < 3; k++ {
+				if me[k].i != i && me[k].i != j {
+					z = k
+					break
+				}
+			}
+			ans = max(ans, score(mm[i], mm[j], me[z]))
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 func debug(args ...interface{}) {
@@ -64,8 +142,8 @@ func nextInt3() (int, int, int) {
 	return nextInt(), nextInt(), nextInt()
 }
 
-func nextInt4() (int, int, int, int) {
-	return nextInt(), nextInt(), nextInt(), nextInt()
+func nextInt5() (int, int, int, int, int) {
+	return nextInt(), nextInt(), nextInt(), nextInt(), nextInt()
 }
 
 func nextInts(n int) sort.IntSlice {
