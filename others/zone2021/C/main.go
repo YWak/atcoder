@@ -22,12 +22,12 @@ type man struct{ i, a, b, c, d, e int }
 
 func main() {
 	n := nextInt()
-	mm := []man{}
-	ma := []man{}
-	mb := []man{}
-	mc := []man{}
-	md := []man{}
-	me := []man{}
+	mm := make([]man, 0, n)
+	ma := make([]man, 0, n)
+	mb := make([]man, 0, n)
+	mc := make([]man, 0, n)
+	md := make([]man, 0, n)
+	me := make([]man, 0, n)
 
 	for i := 0; i < n; i++ {
 		a, b, c, d, e := nextInt5()
@@ -41,61 +41,38 @@ func main() {
 	}
 	sort.Slice(ma, func(i, j int) bool { return ma[i].a > ma[j].a })
 	sort.Slice(mb, func(i, j int) bool { return mb[i].b > mb[j].b })
-	sort.Slice(mc, func(i, j int) bool { return mc[i].c > mb[j].c })
-	sort.Slice(md, func(i, j int) bool { return md[i].d > mb[j].d })
-	sort.Slice(me, func(i, j int) bool { return me[i].e > mb[j].e })
+	sort.Slice(mc, func(i, j int) bool { return mc[i].c > mc[j].c })
+	sort.Slice(md, func(i, j int) bool { return md[i].d > md[j].d })
+	sort.Slice(me, func(i, j int) bool { return me[i].e > me[j].e })
 
 	ans := 0
 	min5 := func(a, b, c, d, e int) int { return min(a, min(b, min(c, min(d, e)))) }
+	max3 := func(a, b, c int) int { return max(a, max(b, c)) }
 	score := func(m1, m2, m3 man) int {
-		a := max(m1.a, max(m2.a, m3.a))
-		b := max(m1.b, max(m2.b, m3.b))
-		c := max(m1.c, max(m2.c, m3.c))
-		d := max(m1.d, max(m2.d, m3.d))
-		e := max(m1.e, max(m2.e, m3.e))
+		a := max3(m1.a, m2.a, m3.a)
+		b := max3(m1.b, m2.b, m3.b)
+		c := max3(m1.c, m2.c, m3.c)
+		d := max3(m1.d, m2.d, m3.d)
+		e := max3(m1.e, m2.e, m3.e)
 
 		return min5(a, b, c, d, e)
+	}
+	find := func(a, b int, mz []man) int {
+		for i := 0; i < 3; i++ {
+			if mz[i].i != a && mz[i].i != b {
+				return i
+			}
+		}
+		return -1
 	}
 
 	for i := 0; i < n; i++ {
 		for j := i + 1; j < n; j++ {
-			// aが一番小さいのでこれを最大化したい
-			z := -1
-			for k := 0; k < 3; k++ {
-				if ma[k].i != i && ma[k].i != j {
-					z = k
-					break
-				}
-			}
-			ans = max(ans, score(mm[i], mm[j], ma[z]))
-			for k := 0; k < 3; k++ {
-				if mb[k].i != i && mb[k].i != j {
-					z = k
-					break
-				}
-			}
-			ans = max(ans, score(mm[i], mm[j], mb[z]))
-			for k := 0; k < 3; k++ {
-				if mc[k].i != i && mc[k].i != j {
-					z = k
-					break
-				}
-			}
-			ans = max(ans, score(mm[i], mm[j], mc[z]))
-			for k := 0; k < 3; k++ {
-				if md[k].i != i && md[k].i != j {
-					z = k
-					break
-				}
-			}
-			ans = max(ans, score(mm[i], mm[j], md[z]))
-			for k := 0; k < 3; k++ {
-				if me[k].i != i && me[k].i != j {
-					z = k
-					break
-				}
-			}
-			ans = max(ans, score(mm[i], mm[j], me[z]))
+			ans = max(ans, score(mm[i], mm[j], ma[find(i, j, ma)]))
+			ans = max(ans, score(mm[i], mm[j], mb[find(i, j, mb)]))
+			ans = max(ans, score(mm[i], mm[j], mc[find(i, j, mc)]))
+			ans = max(ans, score(mm[i], mm[j], md[find(i, j, md)]))
+			ans = max(ans, score(mm[i], mm[j], me[find(i, j, me)]))
 		}
 	}
 
