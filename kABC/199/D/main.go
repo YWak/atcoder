@@ -19,78 +19,82 @@ const INF18 = int(1e18)
 const INF9 = int(1e9)
 
 var graph [][]int
-var check = map[int][]int{}
-var uf UnionFind
 
 func main() {
 	n, m := nextInt2()
 	graph = make([][]int, n)
-	uf = ufNew(n)
+	counts := make([]int, n)
+	uf := ufNew(n)
 
 	for i := 0; i < m; i++ {
 		a, b := nextInt2()
 		a--
 		b--
-		if uf.Same(a, b) {
-			ca, ea := check[a]
-			if !ea {
-				ca = []int{}
-			}
-			check[a] = append(ca, b)
-			cb, eb := check[b]
-			if !eb {
-				cb = []int{}
-			}
-			check[b] = append(cb, a)
-		} else {
-			graph[a] = append(graph[a], b)
-			graph[b] = append(graph[b], a)
-			uf.Unite(a, b)
+		counts[a]++
+		counts[b]++
+		// つないでも森のままならつなぐ
+		graph[a] = append(graph[a], b)
+		graph[b] = append(graph[b], a)
+		uf.Unite(a, b)
+	}
+	// 0件チェック
+	for i := 0; i < n; i++ {
+		if counts[i] >= 3 {
+			fmt.Println(0)
+			return
 		}
 	}
-	roots := map[int]bool{}
+
+	// 各ルートを取得する
+	roots := map[int][]int{}
 	for i := 0; i < n; i++ {
-		roots[uf.Root(i)] = true
+		r := uf.Root(i)
+		arr, ok := roots[r]
+		if !ok {
+			arr = []int{}
+		}
+		arr = append(arr, i)
+		roots[r] = arr
 	}
 
-	ans := 1
 	hist := make([]int, n)
 	for i := 0; i < n; i++ {
 		hist[i] = -1
 	}
-	for root := range roots {
-		ans *= dfs(root, hist)
+
+	// 各森で得られるパターンの積が答えになる
+	ans := 1
+	for _, nodes := range roots {
+		hist[nodes[0]] = 0
+		a := dfs(0, nodes, hist)
+		ans *= a * 3
 	}
+
 	fmt.Println(ans)
 }
 
 var colors = []int{0, 1, 2}
 
 // dfsは histの状態でuにいるときにできる
-func dfs(u int, hist []int) int {
-	left := 0
-	c := map[int]bool{}
-	// 残りの点が埋まっている？
-	for _, v := range graph[u] {
-		if hist[v] != -1 {
-			left++
-			c[hist[v]] = true
+func dfs(i int, nodes []int, hist []int) int {
+	used := map[int]bool{}
+
+	// 最大3点なので、決まっていない分を適当に決めてdfs
+	// すべて決まっていればreturn 1
+	for _, v := range graph[nodes[i]] {
+		c := hist[v]
+		if c != -1 {
+			used[c] = true
 		}
 	}
 
-	// 残りの色を試す
 	ans := 0
 	for _, color := range colors {
-		ok := !c[color]
-		for _, v := range check[u] {
-			if hist[v] == color {
-				ok = false
-			}
-		}
-		if !ok {
+		if used[color] {
 			continue
 		}
 
+		// 残りの色を試す
 		hist[u] = color
 		a := 1
 		for _, v := range graph[u] {
