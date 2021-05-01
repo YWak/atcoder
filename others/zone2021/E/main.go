@@ -24,6 +24,7 @@ func main() {
 	ref := func(a, b int) int {
 		return a*C + b
 	}
+	refd := func(a, b int) int { return ref(a, b) + R*C }
 	A := make([][]int, R)
 	for i := 0; i < R; i++ {
 		A[i] = nextInts(C - 1)
@@ -33,7 +34,7 @@ func main() {
 		B[i] = nextInts(C)
 	}
 
-	graph := NewGraph(R * C)
+	graph := NewGraph(R * C * 2)
 	for r := 0; r < R; r++ {
 		for c := 0; c < C; c++ {
 			// ノードをつなぐ
@@ -46,9 +47,10 @@ func main() {
 			if r+1 < R {
 				graph.AddWeightedEdge(ref(r, c), ref(r+1, c), B[r][c])
 			}
-			for i := 1; i <= r; i++ {
-				// debug(r, r-i, i+1)
-				graph.AddWeightedEdge(ref(r, c), ref(r-i, c), i+1)
+			graph.AddWeightedEdge(refd(r, c), ref(r, c), 0)
+			graph.AddWeightedEdge(ref(r, c), refd(r, c), 1)
+			if r > 0 {
+				graph.AddWeightedEdge(refd(r, c), refd(r-1, c), 1)
 			}
 		}
 	}
