@@ -20,7 +20,7 @@ const INF9 = int(1e9)
 
 type man struct{ i, a, b, c, d, e int }
 
-func main() {
+func ywak() {
 	n := nextInt()
 	mm := make([]man, 0, n)
 	ma := make([]man, 0, n)
@@ -77,6 +77,45 @@ func main() {
 	}
 
 	fmt.Println(ans)
+}
+
+func chokudai() {
+	K := 5
+	M := 1 << K
+	n := nextInt()
+	best := make([]int, M)
+
+	for i := 0; i < n; i++ {
+		m := nextInts(K)
+
+		for j := 0; j < M; j++ {
+			t := INF9
+			for k := 0; k < K; k++ {
+				if (j>>k)&1 == 1 {
+					t = min(t, m[k])
+				}
+			}
+			best[j] = max(best[j], t)
+		}
+	}
+
+	ans := 0
+	for i := 0; i < M; i++ {
+		for j := i; j < M; j++ {
+			for k := j; k < M; k++ {
+				if i^j^k != M-1 {
+					continue
+				}
+				a := min(best[i], min(best[j], best[k]))
+				ans = max(ans, a)
+			}
+		}
+	}
+	fmt.Println(ans)
+}
+
+func main() {
+	chokudai()
 }
 
 func debug(args ...interface{}) {
