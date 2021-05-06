@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"math/bits"
+	"math/rand"
 	"os"
 	"sort"
 	"strconv"
@@ -19,38 +20,70 @@ const INF18 = int(1e18)
 const INF9 = int(1e9)
 
 func main() {
-	s := nextString()
-	c := 0
-	hh, ht, th, tt := []byte{}, []byte{}, []byte{}, []byte{}
+	fmt.Println(solve(nextString()))
+	// random()
+}
+
+func random() {
+	c := "qwertyuiopasdfghjklzxcvbnmR"
+
+	for i := 0; i < 1000; i++ {
+		n := rand.Intn(500)
+		b := make([]byte, n)
+		for j := 0; j < n; j++ {
+			b[j] = c[rand.Intn(len(c))]
+		}
+		s := string(b)
+		s1, s2 := solve(s), naive(s)
+		if s1 == s2 {
+			// fmt.Println("OK", s)
+		} else {
+			fmt.Println("NG", s, s1, s2)
+		}
+	}
+}
+
+func naive(s string) string {
+	b := make([]byte, 0, len(s))
 
 	for i := 0; i < len(s); i++ {
 		if s[i] == 'R' {
-			hh, ht, th, tt = tt, th, ht, hh
+			for k, l := 0, len(b)-1; k < l; k, l = k+1, l-1 {
+				b[k], b[l] = b[l], b[k]
+			}
+		} else if len(b) > 0 && b[len(b)-1] == s[i] {
+			b = b[:len(b)-1]
 		} else {
-			tt = append(tt, s[i])
-			c++
-		}
-		// debugrev(hh, ht, th, tt)
-	}
-	ans := make([]byte, 0, c)
-	for i := 0; i < len(hh); i++ {
-		ans = append(ans, hh[len(hh)-1-i])
-	}
-	ans = append(ans, ht...)
-	for i := 0; i < len(th); i++ {
-		ans = append(ans, th[len(th)-1-i])
-	}
-	ans = append(ans, tt...)
-	st := make([]byte, c)
-	k := -1
-	for i := 0; i < c; i++ {
-		k++
-		st[k] = ans[i]
-		for k >= 1 && st[k] == st[k-1] {
-			k -= 2
+			b = append(b, s[i])
 		}
 	}
-	fmt.Println(string(st[:k+1]))
+
+	return string(b)
+}
+
+func solve(s string) string {
+	deque := NewDeque()
+
+	for i := 0; i < len(s); i++ {
+		if s[i] == 'R' {
+			deque.Reverse()
+		} else if deque.Len() > 0 && deque.PeekBack() == int(s[i]) {
+			deque.PopBack()
+		} else {
+			deque.PushBack(int(s[i]))
+		}
+	}
+	array := deque.ToArray()
+	arr := make([]byte, 0, len(array))
+
+	for i := 0; i < len(array); i++ {
+		arr = append(arr, byte(array[i]))
+	}
+	if deque.Len() != len(array) {
+		debug(fmt.Sprintf("%d vs %d", deque.length, len(array)))
+	}
+
+	return string(arr)
 }
 
 func debugrev(hh, ht, th, tt []byte) {
@@ -71,6 +104,155 @@ func debug(args ...interface{}) {
 // ==================================================
 // 入力操作
 // ==================================================
+// DequeNode はDequeの各要素を保持するstruct
+type DequeNode struct {
+	value int
+	prev  *DequeNode
+	next  *DequeNode
+}
+
+// Deque は両端の操作が可能なキューです
+type Deque struct {
+	head     *DequeNode
+	tail     *DequeNode
+	length   int
+	reversed bool
+}
+
+// NewDeque はDequeを作成します
+func NewDeque() Deque {
+	return Deque{nil, nil, 0, false}
+}
+
+// Len はDequeに含まれる要素の数を取得します
+func (deque *Deque) Len() int {
+	return deque.length
+}
+
+// PushFront はDequeの先頭に値を追加します。
+func (deque *Deque) PushFront(value int) {
+	if deque.reversed {
+		_dequePushBackInternal(deque, value)
+	} else {
+		_dequePushFrontInternal(deque, value)
+	}
+}
+
+// PushBack はDequeの末尾に値を追加します。
+func (deque *Deque) PushBack(value int) {
+	if deque.reversed {
+		_dequePushFrontInternal(deque, value)
+	} else {
+		_dequePushBackInternal(deque, value)
+	}
+}
+
+// PopFront はDequeの先頭から値を取得し、値を除去します。
+func (deque *Deque) PopFront() int {
+	if deque.reversed {
+		return _dequePopBackInternal(deque)
+	}
+	return _dequePopFrontInternal(deque)
+}
+
+// PopBack はDequeの末尾から値を取得し、値を除去します。
+func (deque *Deque) PopBack() int {
+	if deque.reversed {
+		return _dequePopFrontInternal(deque)
+	}
+	return _dequePopBackInternal(deque)
+}
+
+// PeekFront はDequeの先頭の値を取得します。
+func (deque *Deque) PeekFront() int {
+	if deque.reversed {
+		return deque.tail.value
+	}
+	return deque.head.value
+}
+
+// PeekBack はDequeの末尾の値を取得します。
+func (deque *Deque) PeekBack() int {
+	if deque.reversed {
+		return deque.head.value
+	}
+	return deque.tail.value
+}
+
+// Reverse はDequeの順序を逆転します。
+func (deque *Deque) Reverse() {
+	deque.reversed = !deque.reversed
+}
+
+// ToArray はDequeを配列化します。
+func (deque *Deque) ToArray() []int {
+	ret := make([]int, 0, deque.Len())
+
+	if deque.reversed {
+		for p := deque.tail; p != nil; p = p.prev {
+			ret = append(ret, p.value)
+		}
+	} else {
+		for p := deque.head; p != nil; p = p.next {
+			ret = append(ret, p.value)
+		}
+	}
+	return ret
+}
+
+func _dequePushBackInternal(deque *Deque, value int) {
+	node := DequeNode{value, deque.tail, nil}
+	if deque.tail == nil {
+		deque.head = &node
+	} else {
+		deque.tail.next = &node
+	}
+	deque.tail = &node
+	deque.length++
+}
+
+func _dequePushFrontInternal(deque *Deque, value int) {
+	node := DequeNode{value, nil, deque.head}
+	if deque.head == nil {
+		deque.tail = &node
+	} else {
+		deque.head.prev = &node
+	}
+	deque.head = &node
+	deque.length++
+}
+
+func _dequePopFrontInternal(deque *Deque) int {
+	node := deque.head
+	deque.head = node.next
+	if deque.head == nil {
+		deque.tail = nil
+	} else {
+		deque.head.prev = nil
+	}
+
+	node.prev = nil
+	node.next = nil
+	deque.length--
+	return node.value
+}
+
+func _dequePopBackInternal(deque *Deque) int {
+	node := deque.tail
+	deque.tail = node.prev
+	if deque.tail == nil {
+		deque.head = nil
+	} else {
+		deque.tail.next = nil
+	}
+
+	node.next = nil
+	node.prev = nil
+	deque.length--
+
+	return node.value
+}
+
 var stdin = initStdin()
 
 func initStdin() *bufio.Scanner {
