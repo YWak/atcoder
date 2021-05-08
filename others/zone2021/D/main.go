@@ -67,23 +67,15 @@ func solve(s string) string {
 	for i := 0; i < len(s); i++ {
 		if s[i] == 'R' {
 			deque.Reverse()
-		} else if deque.Len() > 0 && deque.PeekBack() == int(s[i]) {
+		} else if deque.Len() > 0 && deque.Back() == s[i] {
 			deque.PopBack()
 		} else {
-			deque.PushBack(int(s[i]))
+			deque.PushBack(s[i])
 		}
 	}
 	array := deque.ToArray()
-	arr := make([]byte, 0, len(array))
 
-	for i := 0; i < len(array); i++ {
-		arr = append(arr, byte(array[i]))
-	}
-	if deque.Len() != len(array) {
-		debug(fmt.Sprintf("%d vs %d", deque.length, len(array)))
-	}
-
-	return string(arr)
+	return string(array)
 }
 
 func debugrev(hh, ht, th, tt []byte) {
@@ -106,7 +98,7 @@ func debug(args ...interface{}) {
 // ==================================================
 // DequeNode はDequeの各要素を保持するstruct
 type DequeNode struct {
-	value int
+	value byte
 	prev  *DequeNode
 	next  *DequeNode
 }
@@ -130,49 +122,49 @@ func (deque *Deque) Len() int {
 }
 
 // PushFront はDequeの先頭に値を追加します。
-func (deque *Deque) PushFront(value int) {
+func (deque *Deque) PushFront(value byte) {
 	if deque.reversed {
-		_dequePushBackInternal(deque, value)
+		deque.pushBackInternal(value)
 	} else {
-		_dequePushFrontInternal(deque, value)
+		deque.pushFrontInternal(value)
 	}
 }
 
 // PushBack はDequeの末尾に値を追加します。
-func (deque *Deque) PushBack(value int) {
+func (deque *Deque) PushBack(value byte) {
 	if deque.reversed {
-		_dequePushFrontInternal(deque, value)
+		deque.pushFrontInternal(value)
 	} else {
-		_dequePushBackInternal(deque, value)
+		deque.pushBackInternal(value)
 	}
 }
 
 // PopFront はDequeの先頭から値を取得し、値を除去します。
-func (deque *Deque) PopFront() int {
+func (deque *Deque) PopFront() byte {
 	if deque.reversed {
-		return _dequePopBackInternal(deque)
+		return deque.popBackInternal()
 	}
-	return _dequePopFrontInternal(deque)
+	return deque.popFrontInternal()
 }
 
 // PopBack はDequeの末尾から値を取得し、値を除去します。
-func (deque *Deque) PopBack() int {
+func (deque *Deque) PopBack() byte {
 	if deque.reversed {
-		return _dequePopFrontInternal(deque)
+		return deque.popFrontInternal()
 	}
-	return _dequePopBackInternal(deque)
+	return deque.popBackInternal()
 }
 
-// PeekFront はDequeの先頭の値を取得します。
-func (deque *Deque) PeekFront() int {
+// Front はDequeの先頭の値を取得します。
+func (deque *Deque) Front() byte {
 	if deque.reversed {
 		return deque.tail.value
 	}
 	return deque.head.value
 }
 
-// PeekBack はDequeの末尾の値を取得します。
-func (deque *Deque) PeekBack() int {
+// Back はDequeの末尾の値を取得します。
+func (deque *Deque) Back() byte {
 	if deque.reversed {
 		return deque.head.value
 	}
@@ -185,8 +177,8 @@ func (deque *Deque) Reverse() {
 }
 
 // ToArray はDequeを配列化します。
-func (deque *Deque) ToArray() []int {
-	ret := make([]int, 0, deque.Len())
+func (deque *Deque) ToArray() []byte {
+	ret := make([]byte, 0, deque.Len())
 
 	if deque.reversed {
 		for p := deque.tail; p != nil; p = p.prev {
@@ -200,7 +192,7 @@ func (deque *Deque) ToArray() []int {
 	return ret
 }
 
-func _dequePushBackInternal(deque *Deque, value int) {
+func (deque *Deque) pushBackInternal(value byte) {
 	node := DequeNode{value, deque.tail, nil}
 	if deque.tail == nil {
 		deque.head = &node
@@ -211,7 +203,7 @@ func _dequePushBackInternal(deque *Deque, value int) {
 	deque.length++
 }
 
-func _dequePushFrontInternal(deque *Deque, value int) {
+func (deque *Deque) pushFrontInternal(value byte) {
 	node := DequeNode{value, nil, deque.head}
 	if deque.head == nil {
 		deque.tail = &node
@@ -222,7 +214,7 @@ func _dequePushFrontInternal(deque *Deque, value int) {
 	deque.length++
 }
 
-func _dequePopFrontInternal(deque *Deque) int {
+func (deque *Deque) popFrontInternal() byte {
 	node := deque.head
 	deque.head = node.next
 	if deque.head == nil {
@@ -237,7 +229,7 @@ func _dequePopFrontInternal(deque *Deque) int {
 	return node.value
 }
 
-func _dequePopBackInternal(deque *Deque) int {
+func (deque *Deque) popBackInternal() byte {
 	node := deque.tail
 	deque.tail = node.prev
 	if deque.tail == nil {
