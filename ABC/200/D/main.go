@@ -22,112 +22,37 @@ func calc() {
 	n := nextInt()
 	a := nextInts(n)
 
-	// dp[i][j] はi番目まで使ってあまりがjになる場合の数
-	dp := make([][]int, n+1)
-	for i := 0; i < n+1; i++ {
-		dp[i] = make([]int, 200)
-	}
-	dp[0][0] = 1
-	for i := 0; i < n; i++ {
-		for j := 0; j < 200; j++ {
-			dp[i+1][(j+a[i])%200] += dp[i][j]
-			dp[i+1][j] += dp[i][j]
+	N := min(n, 8)
+	m := make([][]int, 200)
+	for i := 1; i < 1<<N; i++ {
+		s := 0
+		for j := 0; j < N; j++ {
+			if nthbit(i, j) == 1 {
+				s = (s + a[j]) % 200
+			}
 		}
+		m[s] = append(m[s], i)
 	}
-	s := -1
-	for j := 0; j < 200; j++ {
-		if dp[n][j] > 1 {
-			s = j
-			break
+	p := func(k int) {
+		fmt.Print(popcount(k))
+		for j := 0; j < N; j++ {
+			if nthbit(k, j) == 1 {
+				fmt.Printf(" %d", j+1)
+			}
 		}
+		fmt.Println()
 	}
-	if s == -1 {
-		fmt.Println("No")
-		return
-	}
-	fmt.Println("Yes")
-	debug(s)
 
-	b := make([]bool, n)
-	c := make([]bool, n)
-
-	// 分岐するまでは同じになる
-	var jj int
-	var sb int
-	var sc int
-	cb := 0
-	cc := 0
-	mod := func(k int) int {
-		return (200 + k) % 200
-	}
-	for j := n - 1; j >= 0; j-- {
-		if dp[j+1][s] == dp[j][s] {
-			// 両方使わない
-			b[j] = false
-			c[j] = false
-		} else if dp[j][mod(s-a[j])] == dp[j+1][s] {
-			// 両方使う
-			b[j] = true
-			c[j] = true
-			cb++
-			cc++
-			s = mod(s - a[j])
-		} else {
-			b[j] = true
-			c[j] = false
-			cb++
-			sb = mod(s - a[j])
-			sc = s
-			jj = j - 1
-			break
-		}
-	}
-	// debug("mid", jj, sb, sc, b, c)
-	// for i := 0; i < len(dp); i++ {
-	// 	m := map[int]int{}
-	// 	for j := 0; j < len(dp[i]); j++ {
-	// 		if dp[i][j] != 0 {
-	// 			m[j] += dp[i][j]
-	// 		}
-	// 	}
-	// 	debug(m)
-	// }
-	// bの復元
-	for j := jj; j >= 0; j-- {
-		if dp[j+1][mod(sb-a[j])] != 0 {
-			b[j] = true
-			sb = mod(sb - a[j])
-			cb++
-		}
-	}
-	// cの復元
-	for j := jj; j >= 0; j-- {
-		if dp[j+1][mod(sc-a[j])] != 0 {
-			c[j] = true
-			sc = mod(sc - a[j])
-			cc++
+	for i := 0; i < 200; i++ {
+		if len(m[i]) >= 2 {
+			fmt.Println("Yes")
+			p(m[i][0])
+			p(m[i][1])
+			return
 		}
 	}
 
-	ansb := 0
-	ansc := 0
-	fmt.Print(cb)
-	for i := 0; i < n; i++ {
-		if b[i] {
-			fmt.Printf(" %d", i+1)
-			ansb += a[i]
-		}
-	}
-	fmt.Println()
-	fmt.Print(cc)
-	for i := 0; i < n; i++ {
-		if c[i] {
-			fmt.Printf(" %d", i+1)
-			ansc += a[i]
-		}
-	}
-	fmt.Println()
-	// debug("sum", ansb%200, ansc%200)
+	fmt.Println("No")
 }
 
 func main() {
