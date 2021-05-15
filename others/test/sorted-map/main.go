@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"math/bits"
+	"math/rand"
 	"os"
 	"sort"
 	"strconv"
@@ -18,7 +19,33 @@ const INF18 = int(1e18)
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
+type ll int
+type lls []ll
+
+func (a ll) Compare(bb SortedMapKey) int {
+	b := bb.(ll)
+	if a == b {
+		return 0
+	}
+	if a < b {
+		return -1
+	}
+	return +1
+}
+
 func calc() {
+	m := NewSortedMap()
+
+	for i := 0; i < 15; i++ {
+		k := ll(rand.Int())
+		v := ll(rand.Int())
+		m.Put(k, v)
+	}
+	hasNext, next := m.Iterate()
+	for hasNext() {
+		k, v := next()
+		fmt.Printf("% 20d % 20d\n", k, v)
+	}
 
 	fmt.Println()
 }
@@ -31,21 +58,16 @@ func debug(args ...interface{}) {
 	fmt.Fprintln(os.Stderr, args...)
 }
 
-type RedOrBlack int
-
-const (
-	Red RedOrBlack = iota
-	Black
-)
-
+// Randmoized Binary Search Treeの実装
+// https://tjkendev.github.io/procon-library/python/binary_search_tree/RBST.html
 type SortedMapKey interface {
-	Compare(other SortedMapKey) int
+	Compare(b SortedMapKey) int
 }
 
 type SortedMapNode struct {
 	key   SortedMapKey
 	value interface{}
-	color RedOrBlack
+	size  int
 	left  *SortedMapNode
 	right *SortedMapNode
 }
@@ -59,11 +81,13 @@ func NewSortedMap() SortedMap {
 	return SortedMap{nil, 0}
 }
 
-func (m *SortedMap) Add(key SortedMapKey, value interface{}) {
+// Put は keyに対応する値を設定します。
+func (m *SortedMap) Put(key SortedMapKey, value interface{}) {
 	pp := &m.root
 	p := m.root
+
 	for p != nil {
-		c := p.key.Compare(key)
+		c := key.Compare(p.key)
 		if c == 0 {
 			p.value = value
 			return
@@ -76,7 +100,69 @@ func (m *SortedMap) Add(key SortedMapKey, value interface{}) {
 			p = p.right
 		}
 	}
-	*pp = &SortedMapNode{key, value, Black, nil, nil}
+	*pp = &SortedMapNode{key, value, 0, nil, nil}
+	m.size++
+}
+
+// Get は keyに対応する値を取得します。
+func (m *SortedMap) Get(key SortedMapKey) (interface{}, bool) {
+	p := m.root
+	for p != nil {
+		c := p.key.Compare(key)
+		if c == 0 {
+			return p.value, true
+		}
+		if c < 0 {
+			p = p.left
+		} else {
+			p = p.right
+		}
+	}
+
+	return nil, false
+}
+
+// At は k番目のキーを取得します。
+func (m *SortedMap) At(k int) SortedMapKey {
+	return nil
+}
+
+// Remove は key に対応する値を削除します。
+func (m *SortedMap) Remove(key SortedMapKey) interface{} {
+	return nil
+}
+
+// Iterate は keyが小さい順に値を取り出す関数を返します。
+func (m *SortedMap) Iterate() (func() bool, func() (SortedMapKey, interface{})) {
+	keys := make([]SortedMapKey, m.size)
+	values := make([]interface{}, m.size)
+
+	// 探索
+	m.dfs(-1, m.root, &keys, &values)
+
+	k := 0
+	next := func() bool {
+		return k < len(keys)
+	}
+	get := func() (SortedMapKey, interface{}) {
+		key := keys[k]
+		value := values[k]
+		k++
+		return key, value
+	}
+
+	return next, get
+}
+
+func (m *SortedMap) dfs(i int, node *SortedMapNode, keys *[]SortedMapKey, values *[]interface{}) int {
+	if node == nil {
+		return i
+	}
+	i = m.dfs(i, node.left, keys, values) // 行きがけ
+	i++
+	(*keys)[i] = node.key
+	(*values)[i] = node.value
+	return m.dfs(i, node.right, keys, values)
 }
 
 // ==================================================
