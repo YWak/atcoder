@@ -4,9 +4,9 @@
         "prefix": "fieldreading",
         "description": "フィールドを読み込みます",
         "body": [
-            "field := make([]string, ${1:H})",
-            "for i := 0; i < ${1}; i++ {",
-            "    field[i] = nextString()",
+            "${1:field} := make([]string, ${2:H})",
+            "for i := 0; i < ${2}; i++ {",
+            "    ${1}[i] = in.NextString()",
             "}",
         ]
     }

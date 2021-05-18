@@ -18,12 +18,18 @@ const INF18 = int(1e18)
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
+var in *In
+var out *Out
+
 func calc() {
 
 	fmt.Println()
 }
 
 func main() {
+	in, out = InitIo()
+	defer out.writer.Flush()
+
 	calc()
 }
 
@@ -32,49 +38,57 @@ func debug(args ...interface{}) {
 }
 
 // ==================================================
-// 入力操作
+// 入出力操作
 // ==================================================
-var stdin = initStdin()
-
-func initStdin() *bufio.Scanner {
-	bufsize := 1 * 1024 * 1024 // 1 MB
-	var stdin = bufio.NewScanner(os.Stdin)
-	stdin.Buffer(make([]byte, bufsize), bufsize)
-	stdin.Split(bufio.ScanWords)
-	return stdin
+type In struct {
+	reader *bufio.Scanner
+}
+type Out struct {
+	writer *bufio.Writer
 }
 
-func nextString() string {
-	stdin.Scan()
-	return stdin.Text()
+func InitIo() (*In, *Out) {
+	bufsize := 4 * 1024 * 1024 // 1 MB
+	in := bufio.NewScanner(os.Stdin)
+	in.Buffer(make([]byte, bufsize), bufsize)
+	in.Split(bufio.ScanWords)
+
+	out := bufio.NewWriterSize(os.Stdout, bufsize)
+
+	return &In{in}, &Out{out}
+}
+
+func (in *In) NextString() string {
+	in.reader.Scan()
+	return in.reader.Text()
 }
 
 // 遅いから極力使わない。
-func nextBytes() []byte {
-	return []byte(nextString())
+func (in *In) NextBytes() []byte {
+	return []byte(in.NextString())
 }
 
-func nextInt() int {
-	i, _ := strconv.Atoi(nextString())
+func (in *In) NextInt() int {
+	i, _ := strconv.Atoi(in.NextString())
 	return i
 }
 
-func nextInt2() (int, int) {
-	return nextInt(), nextInt()
+func (in *In) NextInt2() (int, int) {
+	return in.NextInt(), in.NextInt()
 }
 
-func nextInt3() (int, int, int) {
-	return nextInt(), nextInt(), nextInt()
+func (in *In) NextInt3() (int, int, int) {
+	return in.NextInt(), in.NextInt(), in.NextInt()
 }
 
-func nextInt4() (int, int, int, int) {
-	return nextInt(), nextInt(), nextInt(), nextInt()
+func (in *In) nextInt4() (int, int, int, int) {
+	return in.NextInt(), in.NextInt(), in.NextInt(), in.NextInt()
 }
 
-func nextInts(n int) sort.IntSlice {
+func (in *In) NextInts(n int) sort.IntSlice {
 	a := make([]int, n)
 	for i := 0; i < n; i++ {
-		a[i] = nextInt()
+		a[i] = in.NextInt()
 	}
 	return sort.IntSlice(a)
 }
@@ -84,8 +98,8 @@ func toi(b byte) int {
 	return int(b - '0')
 }
 
-func nextLongIntAsArray() []int {
-	s := nextString()
+func (in *In) NextLongIntAsArray() []int {
+	s := in.NextString()
 	l := len(s)
 	arr := make([]int, l)
 	for i := 0; i < l; i++ {
@@ -95,14 +109,14 @@ func nextLongIntAsArray() []int {
 	return arr
 }
 
-func nextFloat() float64 {
-	f, _ := strconv.ParseFloat(nextString(), 64)
+func (in *In) NextFloat() float64 {
+	f, _ := strconv.ParseFloat(in.NextString(), 64)
 	return f
 }
 
-// nextFloatAsInt は 数を 10^base 倍した整数値を取得します。
-func nextFloatAsInt(base int) int {
-	s := nextString()
+// NextFloatAsInt は 数を 10^base 倍した整数値を取得します。
+func (in *In) NextFloatAsInt(base int) int {
+	s := in.NextString()
 	index := strings.IndexByte(s, '.')
 	if index == -1 {
 		n, _ := strconv.Atoi(s)
@@ -115,6 +129,30 @@ func nextFloatAsInt(base int) int {
 	n, _ := strconv.Atoi(s1)
 	m, _ := strconv.Atoi(s2)
 	return n*pow(10, base) + m*pow(10, base-len(s2))
+}
+
+func (out *Out) Println(a ...interface{}) {
+	fmt.Fprintln(out.writer, a...)
+}
+
+func (out *Out) Printf(format string, a ...interface{}) {
+	fmt.Fprintf(out.writer, format, a...)
+}
+
+func (out *Out) PrintStringsln(a []string) {
+	b := make([]interface{}, len(a))
+	for i, v := range a {
+		b[i] = v
+	}
+	out.Println(b...)
+}
+
+func (out *Out) PrintIntsLn(a []int) {
+	b := make([]interface{}, len(a))
+	for i, v := range a {
+		b[i] = v
+	}
+	out.Println(b...)
 }
 
 // ==================================================
