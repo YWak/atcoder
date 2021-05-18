@@ -31,12 +31,12 @@ func calc(h, w int, a [][]int) {
 			sw[j] += a[i][j]
 		}
 	}
-	buf := make([]int, w)
+	buf := make([]interface{}, w)
 	for i := 0; i < h; i++ {
 		for j := 0; j < w; j++ {
 			buf[j] = sh[i] + sw[j] - a[i][j]
 		}
-		out.PrintIntsLn(buf)
+		out.Println(buf...)
 	}
 }
 
