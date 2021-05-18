@@ -3,6 +3,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"math/bits"
@@ -22,8 +23,77 @@ var in *In
 var out *Out
 
 func calc() {
+	h, w := in.NextInt2()
+	rs, cs := in.NextInt2()
+	rt, ct := in.NextInt2()
+	rs--
+	cs--
+	rt--
+	ct--
 
-	fmt.Println()
+	s := make([]string, h)
+	ew := make([][]int, h)
+	eh := make([][]int, h)
+	for i := 0; i < h; i++ {
+		s[i] = in.NextString()
+		ew[i] = make([]int, w)
+		eh[i] = make([]int, w)
+	}
+	// エッジの検出
+	c := 0
+	for i := 0; i < h; i++ {
+		inLine := false
+		for j := 0; j < w; j++ {
+			if s[i][j] == '#' {
+				inLine = false
+			} else {
+				if !inLine {
+					c++
+				}
+				inLine = true
+			}
+			if inLine {
+				ew[i][j] = c
+			}
+		}
+		c++
+	}
+	for j := 0; j < w; j++ {
+		inLine := false
+		for i := 0; i < h; i++ {
+			if s[i][j] == '#' {
+				inLine = false
+			} else {
+				if !inLine {
+					c++
+				}
+				inLine = true
+			}
+			if inLine {
+				eh[i][j] = c
+			}
+		}
+		c++
+	}
+
+	graph := NewGraph(c + 2)
+	start := c
+	goal := c + 1
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			if s[i][j] == '#' {
+				continue
+			}
+			a, b := eh[i][j], ew[i][j]
+			graph.AddWeightedEdge(a, b, 1)
+			graph.AddWeightedEdge(b, a, 1)
+		}
+	}
+	graph.AddWeightedEdge(start, eh[rs][cs], 0)
+	graph.AddWeightedEdge(start, ew[rs][cs], 0)
+	graph.AddWeightedEdge(eh[rt][ct], goal, 0)
+	graph.AddWeightedEdge(ew[rt][ct], goal, 0)
+	fmt.Println(graph.Dijkstra(start, goal))
 }
 
 func main() {
@@ -35,6 +105,161 @@ func main() {
 
 func debug(args ...interface{}) {
 	fmt.Fprintln(os.Stderr, args...)
+}
+
+// Graph はグラフを表現する構造です
+type Graph struct {
+	// 隣接リスト
+	list [][]Edge
+}
+
+// Edge は辺を表現する構造体です
+type Edge struct {
+	to     int
+	weight int
+}
+
+// NewGraph はグラフを作成します
+func NewGraph(n int) *Graph {
+	return &(Graph{make([][]Edge, n)})
+}
+
+// AddEdge は辺を追加します
+func (g *Graph) AddEdge(s, t int) {
+	g.AddWeightedEdge(s, t, 1)
+}
+
+// AddWeightedEdge は重み付きの辺を追加します。
+func (g *Graph) AddWeightedEdge(s, t, w int) {
+	g.list[s] = append(g.list[s], Edge{t, w})
+}
+
+// DijkstraNode は ダイクストラ法を使用するときに使うノード
+type DijkstraNode struct {
+	node int
+	cost int
+}
+
+// DijkstraPriorityQueue はダイクストラ法を使用するときに使う優先度付きキュー
+type DijkstraPriorityQueue []*DijkstraNode
+
+func (pq DijkstraPriorityQueue) Len() int           { return len(pq) }
+func (pq DijkstraPriorityQueue) Less(i, j int) bool { return pq[i].cost < pq[j].cost }
+func (pq DijkstraPriorityQueue) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
+
+// Push はpqに要素を追加する
+func (pq *DijkstraPriorityQueue) Push(x interface{}) { *pq = append(*pq, x.(*DijkstraNode)) }
+
+// Pop はpqから要素を取得する
+func (pq *DijkstraPriorityQueue) Pop() interface{} {
+	o := *pq
+	n := len(o) - 1
+	item := o[n]
+	*pq = o[0:n]
+	return item
+}
+
+// Dijkstra はsからtへの最短距離を返します。
+// 重みが負の辺があるときには使用できません。
+// 計算量: |V| + |E|log|V|
+func (g *Graph) Dijkstra(s, t int) int {
+	n := len(g.list)
+	pq := make(DijkstraPriorityQueue, 0)
+	cost := make([]int, n)
+	for i := 0; i < n; i++ {
+		var c int
+		if i == s {
+			c = 0
+		} else {
+			c = INF18
+		}
+		cost[i] = c
+		heap.Push(&pq, &DijkstraNode{i, c})
+	}
+
+	for pq.Len() > 0 {
+		u := heap.Pop(&pq).(*DijkstraNode)
+		if u.node == t {
+			break
+		}
+		for i := 0; i < len(g.list[u.node]); i++ {
+			v := g.list[u.node][i]
+			c := cost[u.node] + v.weight
+			if cost[v.to] > c {
+				cost[v.to] = c
+				heap.Push(&pq, &DijkstraNode{v.to, c})
+			}
+		}
+	}
+
+	return cost[t]
+}
+
+// DijkstraAll はsから全点への最短距離を返します。
+// 重みが負の辺があるときには使用できません。
+// 計算量: |V| + |E|log|V|
+func (g *Graph) DijkstraAll(s int) []int {
+	n := len(g.list)
+	pq := make(DijkstraPriorityQueue, 0)
+	cost := make([]int, n)
+	for i := 0; i < n; i++ {
+		var c int
+		if i == s {
+			c = 0
+		} else {
+			c = INF18
+		}
+		cost[i] = c
+		heap.Push(&pq, &DijkstraNode{i, c})
+	}
+
+	for pq.Len() > 0 {
+		u := heap.Pop(&pq).(*DijkstraNode)
+		for i := 0; i < len(g.list[u.node]); i++ {
+			v := g.list[u.node][i]
+			c := cost[u.node] + v.weight
+			if cost[v.to] > c {
+				cost[v.to] = c
+				heap.Push(&pq, &DijkstraNode{v.to, c})
+			}
+		}
+	}
+
+	return cost
+}
+
+// BellmanFord はsからtへの最短ルートを返します。
+func (g *Graph) BellmanFord(s, t int) {
+}
+
+// WarshallFloyd は全点対の最短ルートを返します。
+func (g *Graph) WarshallFloyd() [][]int {
+	n := len(g.list)
+	d := make([][]int, n)
+	for i := 0; i < n; i++ {
+		d[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			if i == j {
+				d[i][j] = 0
+			} else {
+				d[i][j] = INF18
+			}
+		}
+		for j := 0; j < len(g.list[i]); j++ {
+			k := g.list[i][j]
+			d[i][k.to] = k.weight
+		}
+	}
+
+	for k := 0; k < n; k++ {
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				d[i][j] = min(d[i][j], d[i][k]+d[k][j])
+			}
+		}
+	}
+
+	return d
 }
 
 // ==================================================
