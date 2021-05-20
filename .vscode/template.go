@@ -23,7 +23,6 @@ var out *Out
 
 func calc() {
 
-	fmt.Println()
 }
 
 func main() {
@@ -321,7 +320,21 @@ func isUpper(b byte) bool {
 
 // ==================================================
 // 配列
-// ==================================================0
+// ==================================================
+// NewIntInt は数値の二次元配列を作成します。
+func NewIntInt(rows, cols, val int) [][]int {
+	a := make([][]int, rows)
+	for i := 0; i < rows; i++ {
+		a[i] = make([]int, cols)
+
+		for j := 0; j < cols; j++ {
+			a[i][j] = val
+		}
+	}
+
+	return a
+}
+
 func reverse(arr *[]interface{}) {
 	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
 		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
