@@ -36,10 +36,11 @@ func solve(t, k int) int {
 	}
 
 	ans := INF18
-	for u := t; u > 0; u-- {
+	// 部分集合の列挙
+	// t: もとの集合, u: 部分集合, v: 補集合
+	for u := t; u >= 0; u-- {
 		u &= t
 		v := (^u) & t
-		// debug(fmt.Sprintf("%010b %010b %010b", t, u, v))
 		c := max(mdist[u], solve(v, k-1))
 		ans = min(ans, c)
 	}
