@@ -38,7 +38,7 @@ func solve(t, k int) int {
 	ans := INF18
 	// 部分集合の列挙
 	// t: もとの集合, u: 部分集合, v: 補集合
-	for u := t; u >= 0; u-- {
+	for u := t; u > 0; u-- {
 		u &= t
 		v := (^u) & t
 		c := max(mdist[u], solve(v, k-1))
