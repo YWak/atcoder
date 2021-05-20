@@ -25,7 +25,7 @@ func calc() {
 	n, q := in.NextInt2()
 	a := in.NextInts(n)
 
-	k := n * 10
+	k := n * (q + 1)
 
 	for i := 0; i < q; i++ {
 		t, x, y := in.NextInt3()
