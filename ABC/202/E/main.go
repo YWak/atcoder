@@ -21,46 +21,69 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
-var graph [][]int
-
-func solve(u, d int) int {
-	// debug(u, d)
-	if d < 0 {
-		return 0
-	}
-	if d == 0 {
-		return 1
-	}
-	if d == 1 {
-		return len(graph[u])
-	}
-
-	c := 0
-	for _, v := range graph[u] {
-		c += solve(v, d-1)
-	}
-	return c
+type Q struct {
+	u, d, ans int
 }
+
+var graph [][]int
+var level []int
+var count []int
+
+var queries map[int][]*Q = map[int][]*Q{}
+
+func dfs(curr int) {
+	// debug(curr, "+", level[curr], count)
+	for _, q := range queries[curr] {
+		if q.d < len(count) {
+			q.ans -= count[q.d]
+		}
+	}
+
+	count[level[curr]]++
+	for _, v := range graph[curr] {
+		dfs(v)
+	}
+
+	// debug(curr, "-", level[curr], count)
+	for _, q := range queries[curr] {
+		if q.d < len(count) {
+			q.ans += count[q.d]
+		}
+	}
+}
+
 func calc() {
 	n := in.NextInt()
 	graph = make([][]int, n)
-	level := make([]int, n)
+	level = make([]int, n)
 	ml := 0
 
 	for i := 0; i < n-1; i++ {
 		c := i + 1
 		p := in.NextInt() - 1
 		lv := level[p] + 1
-
 		level[c] = lv
 		graph[p] = append(graph[p], c)
 		ml = max(ml, lv)
 	}
+	count = make([]int, ml+1)
+
 	q := in.NextInt()
+	qq := make([]Q, q)
+
 	for i := 0; i < q; i++ {
 		u, d := in.NextInt2d(-1, 0)
-		// debug("----", u, d, d-level[u])
-		out.Println(solve(u, d-level[u]))
+		qq[i].u, qq[i].d = u, d
+		queue, exists := queries[u]
+		if !exists {
+			queue = []*Q{}
+		}
+		queries[u] = append(queue, &(qq[i]))
+	}
+	dfs(0)
+
+	for i := 0; i < q; i++ {
+		out.Println(qq[i].ans)
 	}
 }
 
