@@ -27,61 +27,29 @@ func (a bytes) Len() int           { return len(a) }
 func (a bytes) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a bytes) Less(i, j int) bool { return a[i] < a[j] }
 
-var n int
-var a1 = make([]int, 26)
-var a2 = make([]int, 26)
-var a3 = make([]int, 26)
-
-type arg struct {
-	a, b, c int
-}
-
-var memo = map[arg]bool{}
-
-func dfs(a, b, c int) bool {
-	key := arg{a, b, c}
-	v, found := memo[key]
-	if found {
-		return v
-	}
-
-	if c == 26 {
-		return a == n && b == n
-	}
-
-	ok := false
-	if a <= n && b <= n && a1[c]+a2[c] >= a3[c] {
-		for v1 := 0; v1 <= a1[c]; v1++ {
-			v2 := a3[c] - v1
-			if v2 > a2[c] || v2 < 0 {
-				continue
-			}
-			ok = dfs(a+v1, b+v2, c+1)
-			if ok {
-				break
-			}
-		}
-	}
-	memo[key] = ok
-	return ok
-}
-
 func calc() {
+	var a1 = make([]int, 26)
+	var a2 = make([]int, 26)
+	var a3 = make([]int, 26)
+
 	s1 := in.NextString()
 	s2 := in.NextString()
 	s3 := in.NextString()
 
-	n = len(s1) / 2
+	n := len(s1) / 2
 
 	for i := 0; i < len(s1); i++ {
 		a1[s1[i]-'A']++
 		a2[s2[i]-'A']++
 		a3[s3[i]-'A']++
 	}
-	// debug(a1)
-	// debug(a2)
-	// debug(a3)
-	out.YesNo(dfs(0, 0, 0))
+	l, r := 0, 0
+	for i := 0; i < 26; i++ {
+		l += max(0, a3[i]-a2[i]) // s1から抽出できる文字数の最小値
+		r += min(a1[i], a3[i])   // s1から抽出できる文字数の最大値
+	}
+
+	out.YesNo(l <= n && n <= r)
 }
 
 func main() {
