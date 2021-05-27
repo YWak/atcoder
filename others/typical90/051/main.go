@@ -48,34 +48,48 @@ func calc() {
 		m1, m2 = m2, m1
 	}
 
-	len1, len2 := len(m1), len(m2)+1
-	m2 = append(m2, pair{INF9, INF9}, pair{-INF9, INF9})
+	m2 = append(m2, pair{-INF18, INF18}, pair{INF18, INF18})
 	sort.Sort(m1)
-	sort.Sort(sort.Reverse(m2))
+	sort.Sort(m2)
 
 	ans := 0
-	l, r := 0, 0
 
-	for i := 0; i < len1; i++ {
+	for i := 0; i < len(m1); i++ {
 		n1, p1 := m1[i].a, m1[i].b
 		if n1 > k {
 			break
 		}
-		// r は m2[r].a == k-m1[i].a の右端
-		for r < len2 {
-			if m2[r+1].a+n1 < k {
-				break
-			}
-			r++
+		if p1 > p {
+			continue
 		}
-		for l < r {
-			if m2[l].b+p1 <= p {
-				break
+		// a + n1 == k かつ b + p1 <= pとなる最小のインデックス
+		lng, l := -1, len(m2)
+		for abs(l-lng) > 1 {
+			m := (l + lng) / 2
+			n2 := m2[m].a
+			if n1+n2 >= k {
+				l = m
+			} else {
+				lng = m
 			}
-			l++
 		}
-		if m2[l].a+n1 == k && m2[r-1].a+n1 == k {
-			ans += r - l + 1
+		r, rng := -1, len(m2)
+		for abs(r-rng) > 1 {
+			m := (r + rng) / 2
+			n2, p2 := m2[m].a, m2[m].b
+			if n1+n2 < k || n1+n2 == k && p1+p2 <= p {
+				r = m
+			} else {
+				rng = m
+			}
+		}
+		if l <= r {
+			nl, pl := m2[l].a, m2[l].b
+			nr, pr := m2[r].a, m2[r].b
+
+			if nl+n1 == k && pl+p1 <= p && nr+n1 == k && pr+p1 <= p {
+				ans += r - l + 1
+			}
 		}
 	}
 
