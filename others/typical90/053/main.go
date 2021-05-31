@@ -39,17 +39,17 @@ func solve() bool {
 
 	ans := -INF18
 	for i := 0; i < n; i++ {
-		fmt.Printf("? %d\n", i+1)
+		out.Printf("? %d\n", i+1)
 		a := in.NextInt()
 		ans = max(ans, a)
 	}
-	fmt.Printf("! %d\n", ans)
+	out.Printf("! %d\n", ans)
 
 	return true
 }
 
 func main() {
-	in, out = InitIo(true)
+	in, out = InitIo(false)
 	defer out.Flush()
 
 	calc()
@@ -62,71 +62,46 @@ func debug(args ...interface{}) {
 // ==================================================
 // 入出力操作
 // ==================================================
-type Reader interface {
-	ReadString() string
+type In struct {
+	// NextString は 次の入力を文字列として読み込んで返します。
+	NextString func() string
 }
 
-type In struct {
-	reader Reader
-}
 type Out struct {
 	writer io.Writer
 	Flush  func()
 }
 
-type BufferedReader struct {
-	delegate *bufio.Scanner
-}
-
-func (br *BufferedReader) ReadString() string {
-	br.delegate.Scan()
-	return br.delegate.Text()
-}
-
-type UnbufferedReader struct {
-	delegate *os.File
-}
-
-func (ubr *UnbufferedReader) ReadString() string {
-	var s string
-	_, e := fmt.Scanf("%s", &s)
-	if e != nil {
-		panic(e)
-	}
-	return s
-}
-
 // InitIo は inとoutを初期化します。
 func InitIo(buffer bool) (*In, *Out) {
-	var in Reader
+	bufsize := 4 * 1024 * 1024 // 4MB
+
+	// 入力はずっとバッファーでいいらしい。ほんとう？
+	// TODO バッファなしfmt.Fscanf(os.Stdin)だとTLEだった。要調査
+	_in := bufio.NewScanner(os.Stdin)
+	_in.Split(bufio.ScanWords)
+	_in.Buffer(make([]byte, bufsize), bufsize)
+	in := func() string {
+		_in.Scan()
+		return _in.Text()
+	}
+
+	// 出力はバッファon/offが必要
 	var out io.Writer
 	var flush func()
 
 	if buffer {
-		bufsize := 4 * 1024 * 1024 // 1 MB
-
-		_in := bufio.NewScanner(os.Stdin)
-		_in.Split(bufio.ScanWords)
-		_in.Buffer(make([]byte, bufsize), bufsize)
-
 		_out := bufio.NewWriterSize(os.Stdout, bufsize)
-		in = &BufferedReader{_in}
 		out = _out
 		flush = func() {
 			_out.Flush()
 		}
 	} else {
-		in = &UnbufferedReader{os.Stdin}
 		out = os.Stdout
 		flush = func() {}
 	}
 
 	return &In{in}, &Out{out, flush}
-}
-
-// NextString は 次の入力を文字列として読み込んで返します。
-func (in *In) NextString() string {
-	return in.reader.ReadString()
 }
 
 // NextBytes は 次の入力をbyteの配列として読み込んで返します。
