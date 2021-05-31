@@ -23,7 +23,29 @@ var in *In
 var out *Out
 
 func calc() {
+	t := in.NextInt()
+	for i := 0; i < t; i++ {
+		if !solve() {
+			return
+		}
+	}
+}
 
+func solve() bool {
+	n := in.NextInt()
+	if n == -1 {
+		return false
+	}
+
+	ans := -INF18
+	for i := 0; i < n; i++ {
+		fmt.Printf("? %d\n", i+1)
+		a := in.NextInt()
+		ans = max(ans, a)
+	}
+	fmt.Printf("! %d\n", ans)
+
+	return true
 }
 
 func main() {
@@ -75,7 +97,6 @@ func (ubr *UnbufferedReader) ReadString() string {
 }
 
 // InitIo は inとoutを初期化します。
-// bufferは入出力をバッファリングするかどうかを表します。
 func InitIo(buffer bool) (*In, *Out) {
 	var in Reader
 	var out io.Writer
