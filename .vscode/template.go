@@ -27,7 +27,8 @@ func calc() {
 }
 
 func main() {
-	in, out = InitIo(false)
+	// interactiveならfalseにすること。
+	in, out = InitIo(true)
 	defer out.Flush()
 
 	calc()
