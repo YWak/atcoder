@@ -31,19 +31,65 @@ func calc() {
 	}
 }
 
-func solve() bool {
+func read() int {
 	n := in.NextInt()
 	if n == -1 {
-		return false
+		panic("")
+	}
+	return n
+}
+
+func readn(n int) int {
+	out.Printf("? %d\n", n)
+	return read()
+}
+
+func solve() bool {
+	n := read()
+	m := map[int]int{}
+	l := 1
+	r := n
+	for l+2 < r {
+		x := l + (r-l)/3
+		y := r - (r-l)/3
+
+		m[x] = readn(x)
+		m[y] = readn(y)
+
+		if m[x] < m[y] {
+			l = x
+		} else {
+			r = y
+		}
+	}
+	for i := l; i <= r; i++ {
+		_, ok := m[i]
+		if !ok {
+			m[i] = readn(i)
+		}
+	}
+	var ans int
+	if l == r {
+		ans = l
+	}
+	if l+1 == r {
+		if m[l] > m[r] {
+			ans = l
+		} else {
+			ans = r
+		}
+	}
+	if l+2 == r {
+		if m[l] > m[l+1] {
+			ans = l
+		} else if m[l+1] > m[r] {
+			ans = l + 1
+		} else {
+			ans = r
+		}
 	}
 
-	ans := -INF18
-	for i := 0; i < n; i++ {
-		out.Printf("? %d\n", i+1)
-		a := in.NextInt()
-		ans = max(ans, a)
-	}
-	out.Printf("! %d\n", ans)
+	out.Printf("! %d\n", m[ans])
 
 	return true
 }
