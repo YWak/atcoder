@@ -23,37 +23,27 @@ var in *In
 var out *Out
 
 var a []int
-var arr = [5]int{-1, -1, -1, -1, -1}
 
-func dfs(n, k, p, q int) int {
-	// debug(n, k, n+5-k, len(a), arr)
-	if n+5-k > len(a) {
-		return 0
-	}
+func dfs(n, k, m, p, q int) int {
 	if k == 5 {
-		sum := 1
-		for i := 0; i < 5; i++ {
-			sum *= arr[i]
-		}
-		if sum%p == q {
+		if m == q {
 			return 1
+		} else {
+			return 0
 		}
+	}
+	if n == len(a) {
 		return 0
 	}
 
-	ans := dfs(n+1, k, p, q)
-	arr[k] = a[n]
-	ans += dfs(n+1, k+1, p, q)
-	arr[k] = -1
-
-	return ans
+	return dfs(n+1, k, m, p, q) + dfs(n+1, k+1, (m*a[n])%p, p, q)
 }
 
 func calc() {
 	n, p, q := in.NextInt3()
 	a = in.NextInts(n)
 
-	out.Println(dfs(0, 0, p, q))
+	out.Println(dfs(0, 0, 1, p, q))
 }
 
 func main() {
