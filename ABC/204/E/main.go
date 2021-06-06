@@ -23,37 +23,38 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
-var div = map[int][]int{}
-
 func calc() {
 	n, m := in.NextInt2()
 	g := NewGraph(n)
 	for i := 0; i < m; i++ {
 		a, b, c, d := in.NextInt4()
-		if a == b {
-			continue
-		}
 		a--
 		b--
-		g.AddEdge(a, b, c, d)
 
-		_, e := div[d]
-		if e {
-			continue
-		}
-		v := []int{}
-		for j := 1; j*j <= d; j++ {
-			if d%j == 0 {
-				v = append(v, j, d/j)
+		l, r := 0, d
+		for r-l > 1 {
+			mid := (l + r) / 2
+			if mid*mid < d {
+				l = mid
+			} else {
+				r = mid
 			}
 		}
-		div[d] = v
+		var t int
+		if abs(d-l*l) < abs(d-r*r) {
+			t = l
+		} else {
+			t = r
+		}
+		g.AddWeightedEdge(a, b, c, d, t-1)
+		g.AddWeightedEdge(b, a, c, d, t-1)
 	}
 
 	ans := g.Dijkstra(0, n-1)
 	if ans == INF18 {
 		ans = -1
 	}
+
 	out.Println(ans)
 }
 
@@ -76,6 +77,7 @@ type Edge struct {
 	to int
 	c  int
 	d  int
+	t  int
 }
 
 // NewGraph はグラフを作成します
@@ -83,9 +85,9 @@ func NewGraph(n int) *Graph {
 	return &(Graph{make([][]Edge, n)})
 }
 
-// AddEdge は辺を追加します
-func (g *Graph) AddEdge(s, t, c, d int) {
-	g.list[s] = append(g.list[s], Edge{t, c, d})
+// AddWeightedEdge は重み付きの辺を追加します。
+func (g *Graph) AddWeightedEdge(s, t, c, d, tt int) {
+	g.list[s] = append(g.list[s], Edge{t, c, d, tt})
 }
 
 // DijkstraNode は ダイクストラ法を使用するときに使うノード
@@ -121,32 +123,29 @@ func (g *Graph) Dijkstra(s, t int) int {
 	pq := make(DijkstraPriorityQueue, 0)
 	cost := make([]int, n)
 	for i := 0; i < n; i++ {
-		var c int
-		if i == s {
-			c = 0
-		} else {
-			c = INF18
-		}
-		cost[i] = c
-		heap.Push(&pq, &DijkstraNode{i, c})
+		cost[i] = INF18
 	}
+	cost[s] = 0
+	heap.Push(&pq, &DijkstraNode{s, 0})
 
 	for pq.Len() > 0 {
 		u := heap.Pop(&pq).(*DijkstraNode)
 		if u.node == t {
 			break
 		}
+		if u.cost != cost[u.node] {
+			continue
+		}
+
 		for i := 0; i < len(g.list[u.node]); i++ {
 			v := g.list[u.node][i]
-			// 最速でいくコストを探す。
-			c := INF18
-			for _, d := range div[v.d] {
-				if cost[u.node] > d {
-					continue
-				}
-				cc := d + v.c + v.d/(d+1)
-				c = min(c, cc)
+			var t int
+			if u.cost < v.t {
+				t = v.t
+			} else {
+				t = u.cost
 			}
+			c := t + v.c + v.d/(t+1)
 			if cost[v.to] > c {
 				cost[v.to] = c
 				heap.Push(&pq, &DijkstraNode{v.to, c})
