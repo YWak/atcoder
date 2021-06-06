@@ -38,7 +38,6 @@ func dfs(curr, prev int, h map[int]bool) int {
 
 		h[next] = true
 		ans += dfs(next, curr, h)
-		h[next] = false
 	}
 
 	return ans
