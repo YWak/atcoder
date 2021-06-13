@@ -41,7 +41,7 @@ func calc() {
 		a = append(a, pair{prev, v})
 		prev = v
 	}
-	a = append(a, pair{prev, INF18 + 1})
+	a = append(a, pair{prev, INF18 * 2})
 	l := make([]int, len(a)+1)
 	for i := 0; i < len(a); i++ {
 		l[i+1] = l[i] + a[i].b - a[i].a - 1
@@ -49,7 +49,7 @@ func calc() {
 	for i := 0; i < q; i++ {
 		k := in.NextInt()
 
-		ok, ng := len(l), -1
+		ok, ng := len(l), 0
 		for abs(ok-ng) > 1 {
 			m := (ok + ng) / 2
 			if l[m] >= k {
@@ -59,7 +59,6 @@ func calc() {
 			}
 		}
 		j := ok - 1
-		// debug(j, a[j], l[j])
 		out.Println(a[j].a + k - l[j])
 	}
 }
