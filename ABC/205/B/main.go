@@ -29,7 +29,7 @@ func calc() {
 
 	ok := true
 	for i := 0; i < n; i++ {
-		if a[i] != 1+1 {
+		if a[i] != i+1 {
 			ok = false
 			break
 		}
