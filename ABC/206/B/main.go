@@ -24,7 +24,7 @@ var out *Out
 
 func calc() {
 	n := in.NextInt()
-	for i := 1; i < n; i++ {
+	for i := 1; i < INF18; i++ {
 		if i*(i+1)/2 >= n {
 			out.Println(i)
 			return
