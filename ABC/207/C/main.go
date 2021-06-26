@@ -22,18 +22,40 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
+type pair struct {
+	l, r int
+}
+
 func calc() {
-	a, b, c, d := in.NextInt4()
+	n := in.NextInt()
+	pairs := make([]pair, 0, n)
+	ans := 0
 
-	l := d*c - b
-	r := a
+	for i := 0; i < n; i++ {
+		t, l, r := in.NextInt3()
+		if t == 1 {
+			r++
+		} else if t == 3 {
+			l++
+			r++
+		} else if t == 4 {
+			l++
+		}
 
-	if l == 0 {
-		out.Println(-1)
-	} else {
-		n := divceil(r, l)
-		out.Println(max(n, -1))
+		p := pair{l, r}
+
+		for j := 0; j < i; j++ {
+			q := pairs[j]
+			cross := !(p.r <= q.l || p.l >= q.r)
+			// debug(p, q, cross)
+			if cross {
+				ans++
+			}
+		}
+		pairs = append(pairs, p)
 	}
+
+	out.Println(ans)
 }
 
 func main() {
