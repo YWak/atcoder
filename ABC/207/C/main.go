@@ -34,20 +34,24 @@ func calc() {
 	for i := 0; i < n; i++ {
 		t, l, r := in.NextInt3()
 		if t == 1 {
-			r++
+			l = l * 10
+			r = r * 10
+		} else if t == 2 {
+			l = l * 10
+			r = r*10 - 1
 		} else if t == 3 {
-			l++
-			r++
+			l = l*10 + 1
+			r = r * 10
 		} else if t == 4 {
-			l++
+			l = l*10 + 1
+			r = r*10 - 1
 		}
 
 		p := pair{l, r}
 
 		for j := 0; j < i; j++ {
 			q := pairs[j]
-			cross := !(p.r <= q.l || p.l >= q.r)
-			// debug(p, q, cross)
+			cross := !(p.r < q.l || q.r < p.l)
 			if cross {
 				ans++
 			}
