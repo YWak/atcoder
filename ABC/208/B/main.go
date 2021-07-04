@@ -23,8 +23,23 @@ var in *In
 var out *Out
 
 func calc() {
-	a, b := in.NextInt2()
-	out.YesNo(a <= b && a*6 >= b)
+	p := in.NextInt()
+	c := 1
+	a := 1
+	for c < p {
+		a++
+		c *= a
+	}
+	ans := 0
+
+	for p > 0 {
+		ans += p / c
+		p %= c
+		c /= a
+		a--
+	}
+
+	out.Println(ans)
 }
 
 func main() {
