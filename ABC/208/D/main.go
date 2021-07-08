@@ -26,44 +26,29 @@ type edge struct{ t, w int }
 
 func calc() {
 	n, m := in.NextInt2()
-	graph := make([][]edge, n)
+	d := NewIntInt(n, n, INF18)
+
 	for i := 0; i < m; i++ {
 		a, b, c := in.NextInt3d(-1, -1, 0)
-		graph[a] = append(graph[a], edge{b, c})
+		d[a][b] = c
 	}
-	ans := 0
-	for k := 0; k < n; k++ {
-		for s := 0; s < n; s++ {
-			//bfs
-			cost := make([]int, n)
-			for i := 0; i < n; i++ {
-				cost[i] = INF18
-			}
-			cost[s] = 0
-			queue := []int{s}
-			for len(queue) > 0 {
-				q := queue[0]
-				queue = queue[1:]
-				if q != s && q > k {
-					continue
-				}
-				for _, r := range graph[q] {
-					if cost[q]+r.w < cost[r.t] {
-						queue = append(queue, r.t)
-						cost[r.t] = cost[q] + r.w
-					}
-				}
-			}
-			for i := 0; i < n; i++ {
-				if cost[i] == INF18 {
-					cost[i] = 0
-				}
-				ans += cost[i]
-				// debug("f(", s+1, i+1, k+1, ") =", cost[i])
-			}
-		}
+	for i := 0; i < n; i++ {
+		d[i][i] = 0
 	}
 
+	ans := 0
+	for k := 0; k < n; k++ {
+		next := NewIntInt(n, n, 0)
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				next[i][j] = min(d[i][j], d[i][k]+d[k][j])
+				if next[i][j] < INF18 {
+					ans += next[i][j]
+				}
+			}
+		}
+		d = next
+	}
 	out.Println(ans)
 }
 
