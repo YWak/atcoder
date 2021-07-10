@@ -27,7 +27,7 @@ func calc() {
 	c := 0
 	for i := 0; i < n; i++ {
 		a := in.NextInt()
-		if i%2 == 0 {
+		if i%2 == 1 {
 			a--
 		}
 		c += a
