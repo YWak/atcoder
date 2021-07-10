@@ -43,7 +43,11 @@ func calc() {
 			if a > b {
 				break
 			}
-			if a*b < k && k%(a*b) == 0 && k/(a*b) >= b {
+			if b > k/a {
+				break
+			}
+			ab := a * b
+			if k%ab == 0 && k/ab >= b {
 				ans++
 			}
 		}
