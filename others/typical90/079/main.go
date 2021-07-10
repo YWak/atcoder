@@ -28,17 +28,35 @@ func calc() {
 	for i := 0; i < h; i++ {
 		a[i] = in.NextInts(w)
 	}
-	s := 0
+	b := make([][]int, h)
 	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
-			b := in.NextInt()
-			s += abs(a[i][j] - b)
+		b[i] = in.NextInts(w)
+	}
+
+	c := 0
+	for i := 0; i < h-1; i++ {
+		for j := 0; j < w-1; j++ {
+			diff := b[i][j] - a[i][j]
+			b[i][j] -= diff
+			b[i][j+1] -= diff
+			b[i+1][j] -= diff
+			b[i+1][j+1] -= diff
+			c += abs(diff)
 		}
 	}
-	if s%4 != 0 {
-		out.Println(-1)
-	} else {
-		out.Println(s / 4)
+	// 答え合わせ
+	ok := true
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			if b[i][j] != a[i][j] {
+				ok = false
+			}
+		}
+	}
+
+	out.YesNo(ok)
+	if ok {
+		out.Println(c)
 	}
 }
 
