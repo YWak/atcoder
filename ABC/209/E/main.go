@@ -45,11 +45,11 @@ func calc() {
 		add(tails[i])
 	}
 	N := len(words)
-	g := make([][]int, N)
+	edges := make([]int, N)
 	rg := make([][]int, N)
 	for i := 0; i < n; i++ {
 		h, t := words[heads[i]], words[tails[i]]
-		g[h] = append(g[h], t)
+		edges[h]++
 		rg[t] = append(rg[t], h)
 	}
 
@@ -57,10 +57,7 @@ func calc() {
 
 	// 現在の辺の数
 	queue := []int{}
-	edges := make([]int, N)
 	for i := 0; i < N; i++ {
-		edges[i] = len(g[i])
-
 		if edges[i] == 0 {
 			wins[i] = 2 // 負け
 			queue = append(queue, i)
@@ -68,18 +65,23 @@ func calc() {
 	}
 
 	for len(queue) > 0 {
-		u := queue[0]
+		i := queue[0]
 		queue = queue[1:]
 
-		for _, v := range rg[u] {
+		for _, v := range rg[i] {
+			edges[v]--
 			if wins[v] != 0 {
+				// 決まっているならもうqueueに入っているはず。
 				continue
 			}
-			edges[v]--
-			if wins[u] == 2 {
+			if wins[i] == 2 {
+				// 子に負けのノードが一つでもあれば勝ちにできる。
+				// 親ノードは勝ち確定で進める
 				wins[v] = 1
 				queue = append(queue, v)
 			} else if edges[v] == 0 {
+				// 子が全部勝ちであることがわかれば負けになる。
+				// 親ノードは負け確定で進める
 				wins[v] = 2
 				queue = append(queue, v)
 			}
