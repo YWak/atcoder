@@ -22,90 +22,33 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
-func count(n int) mint {
-	ans := mint(0)
-	for t, c := 1, 1; c <= 18; t, c = t*10, c+1 {
-		if n < t {
-			break
-		}
-		// c桁の文字がk文字書かれる。
-		s := mint(c).div(2)
-		if n >= t*10 {
-			// 初項t, 末項t*10-1, 項数 t*10 - t + 1
-			// debug(n, c, "a0 =", t, ", al =", t*10-1, t*10-t)
-			s = s.mul(mint(t + t*10 - 1)).mul(mint(t*10 - t))
-		} else {
-			// 初項t, 末項n, 項数 n - t + 1
-			// debug(n, c, "a0 =", t, ", al =", n, n-t+1)
-			s = s.mul(mint(t + n)).mul(mint(n - t + 1))
-		}
-		ans = ans.add(s)
-	}
-	if n == int(1e18) {
-		s := mint(n).mul(mint(19))
-		ans = ans.add(s)
-	}
-
-	return ans
-}
-
 func calc() {
-	l, r := in.NextInt2()
-	out.Println(count(r).sub(count(l - 1)))
-}
+	n, q := in.NextInt2()
+	a := in.NextInts(n)
 
-type mint int
-
-const mod = mint(1e9 + 7)
-
-// add は a + bを返します
-func (a mint) add(b mint) mint {
-	return (a + b) % mod
-}
-
-// sub は a - bを返します
-func (a mint) sub(b mint) mint {
-	return (a - b + mod) % mod
-}
-
-// mul は a * bを返します
-func (a mint) mul(b mint) mint {
-	return ((a % mod) * (b % mod)) % mod
-}
-
-// div は a/bを返します
-func (a mint) div(b mint) mint {
-	return a.mul(b.inv())
-}
-
-// inv は aの逆元を返します
-func (a mint) inv() mint {
-	// 拡張ユークリッドの互除法
-	b := mod
-	u := mint(1)
-	v := mint(0)
-	for b > 0 {
-		t := a / b
-		a -= t * b
-		a, b = b, a
-		u -= t * v
-		u, v = v, u
+	ans := 0
+	for i := 1; i < n; i++ {
+		ans += abs(a[i-1] - a[i])
 	}
-	return (u + mod) % mod
-}
 
-// pow は a ^ bを返します
-func (a mint) pow(b mint) mint {
-	ans := mint(1)
-
-	for b > 0 {
-		if b&1 == 1 {
-			ans = ans.mul(a)
+	for i := 0; i < q; i++ {
+		l, r, v := in.NextInt3d(-1, -1, 0)
+		dl := 0
+		dr := 0
+		if l > 0 {
+			dl = abs(a[l-1]-(a[l]+v)) - abs(a[l-1]-a[l])
 		}
-		a = a.mul(a)
-		b = b >> 1
+		if r < n-1 {
+			dr = abs(a[r]+v-a[r+1]) - abs(a[r]-a[r+1])
+		}
+		debug(ans, dl, dr)
+		ans += dl + dr
+		// a[l] += v
+		// if l != r {
+		// 	a[r] += v
+		// }
+		out.Println(ans)
 	}
-	return ans
 }
 
 func main() {
