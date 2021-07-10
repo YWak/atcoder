@@ -25,28 +25,25 @@ var out *Out
 func calc() {
 	n, q := in.NextInt2()
 	a := in.NextInts(n)
-
+	b := make([]int, n-1)
 	ans := 0
-	for i := 1; i < n; i++ {
-		ans += abs(a[i-1] - a[i])
+	for i := 0; i < n-1; i++ {
+		b[i] = a[i] - a[i+1]
+		ans += abs(b[i])
 	}
 
 	for i := 0; i < q; i++ {
 		l, r, v := in.NextInt3d(-1, -1, 0)
-		dl := 0
-		dr := 0
 		if l > 0 {
-			dl = abs(a[l-1]-(a[l]+v)) - abs(a[l-1]-a[l])
+			ans -= abs(b[l-1])
+			b[l-1] -= v
+			ans += abs(b[l-1])
 		}
 		if r < n-1 {
-			dr = abs(a[r]+v-a[r+1]) - abs(a[r]-a[r+1])
+			ans -= abs(b[r])
+			b[r] += v
+			ans += abs(b[r])
 		}
-		debug(ans, dl, dr)
-		ans += dl + dr
-		// a[l] += v
-		// if l != r {
-		// 	a[r] += v
-		// }
 		out.Println(ans)
 	}
 }
