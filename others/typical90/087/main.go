@@ -16,8 +16,8 @@ import (
 // INF18 は最大値を表す数
 const INF18 = int(1e18)
 
-// INF11 は最大値を表す数
-const INF11 = int(1e11)
+// INF は最大値を表す数
+const INF = int(1e12)
 
 var in *In
 var out *Out
@@ -62,7 +62,7 @@ func calc() {
 	}
 
 	// okは組がk個になるxの値の最大値
-	ng1, ok1 := 0, INF11
+	ng1, ok1 := 0, INF
 	for abs(ng1-ok1) > 1 {
 		m := (ng1 + ok1) / 2
 		if count(m) < k {
@@ -72,7 +72,7 @@ func calc() {
 		}
 	}
 
-	ok2, ng2 := INF11, 0
+	ok2, ng2 := INF, 0
 	for abs(ng2-ok2) > 1 {
 		m := (ng2 + ok2) / 2
 		if count(m) > k {
@@ -82,7 +82,7 @@ func calc() {
 		}
 	}
 	// debug(ok1, ok2)
-	if ok1 == INF11 {
+	if ok1 == INF && ok2 != INF {
 		out.Println("Infinity")
 	} else {
 		out.Println(max(0, ok1-ok2))
