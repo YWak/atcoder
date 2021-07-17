@@ -12,7 +12,7 @@
             "",
             "func (a pairs) Len() int           { return len(a) }",
             "func (a pairs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }",
-            "func (a pairs) Less(i, j int) bool { return a[i].a < a[j].a || a[i].a == a[j].a && a[i].b < a[j] }",
+            "func (a pairs) Less(i, j int) bool { return a[i].a < a[j].a || a[i].a == a[j].a && a[i].b < a[j].b }",
         ]
     },
     "Treap": {
