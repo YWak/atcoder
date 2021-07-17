@@ -25,7 +25,7 @@ var out *Out
 func calc() {
 	n, a, x, y := in.NextInt4()
 
-	out.Println(x*n + max(n-a, 0)*y)
+	out.Println(x*min(n, a) + max(n-a, 0)*y)
 }
 
 func main() {
