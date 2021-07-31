@@ -1,21 +1,23 @@
-#!/bin/sh
+#!/bin/sh -x
 
 if [ "$1" = "" ]; then
     echo "$0 dirname" >&1
 fi
+target=$(readlink -f $1)
+base=$(dirname $(readlink -f $0))
 
-mkdir -p "$1"
-! [ -f "$1/main.go" ] && cat ./.vscode/template.go > "$1/main.go"
+mkdir -p "$target"
+! [ -f "$target/main.go" ] && cat "$base/.vscode/template.go" > "$target/main.go"
 
-touch "$1/ex1.txt"
-touch "$1/ex2.txt"
-touch "$1/ex3.txt"
-touch "$1/ex4.txt"
-touch "$1/ex5.txt"
-touch "$1/ans1.txt"
-touch "$1/ans2.txt"
-touch "$1/ans3.txt"
-touch "$1/ans4.txt"
-touch "$1/ans5.txt"
+touch "$target/ex1.txt"
+touch "$target/ex2.txt"
+touch "$target/ex3.txt"
+touch "$target/ex4.txt"
+touch "$target/ex5.txt"
+touch "$target/ans1.txt"
+touch "$target/ans2.txt"
+touch "$target/ans3.txt"
+touch "$target/ans4.txt"
+touch "$target/ans5.txt"
 
-code -r $1/main.go
+code -r $target/main.go
