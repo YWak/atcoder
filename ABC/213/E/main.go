@@ -41,38 +41,6 @@ func calc() {
 	isout := func(x, y int) bool {
 		return x < 0 || x >= h || y < 0 || y >= w
 	}
-	dir1 := []Point{
-		{+1, +0},
-		{-1, -0},
-		{+0, +1},
-		{-0, -1},
-	}
-	dir2 := []Point{
-		{+1, +0},
-		{-1, -0},
-		{+0, +1},
-		{-0, -1},
-		{+1, +1},
-		{-1, -1},
-		{+1, +1},
-		{-1, -1},
-		{+1, -1},
-		{-1, +1},
-		{-1, +1},
-		{+1, -1},
-		{+2, +1},
-		{+2, +0},
-		{+2, -1},
-		{-2, +1},
-		{-2, +0},
-		{-2, -1},
-		{+1, +2},
-		{+0, +2},
-		{-1, +2},
-		{+1, -2},
-		{+0, -2},
-		{-1, -2},
-	}
 
 	for len(*queue.queue) > 0 {
 		p := queue.Pop()
@@ -80,19 +48,29 @@ func calc() {
 			continue
 		}
 		c0 := p.c
-		for _, d := range dir1 {
-			x, y := p.x+d.x, p.y+d.y
-			if !isout(x, y) && field[x][y] == '.' && c0 < cost[x][y] {
-				cost[x][y] = c0
-				queue.Push(&Pointc{x, y, c0})
+		for dx := -1; dx <= 1; dx++ {
+			for dy := -1; dy <= 1; dy++ {
+				if abs(dx)+abs(dy) != 1 {
+					continue
+				}
+				x, y := p.x+dx, p.y+dy
+				if !isout(x, y) && field[x][y] == '.' && c0 < cost[x][y] {
+					cost[x][y] = c0
+					queue.Push(&Pointc{x, y, c0})
+				}
 			}
 		}
 		c1 := p.c + 1
-		for _, d := range dir2 {
-			x, y := p.x+d.x, p.y+d.y
-			if !isout(x, y) && c1 < cost[x][y] {
-				cost[x][y] = c1
-				queue.Push(&Pointc{x, y, c1})
+		for dx := -2; dx <= 2; dx++ {
+			for dy := -2; dy <= 2; dy++ {
+				if abs(dx)+abs(dy) > 3 {
+					continue
+				}
+				x, y := p.x+dx, p.y+dy
+				if !isout(x, y) && c1 < cost[x][y] {
+					cost[x][y] = c1
+					queue.Push(&Pointc{x, y, c1})
+				}
 			}
 		}
 	}
