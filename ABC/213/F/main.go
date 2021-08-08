@@ -3,7 +3,6 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"io"
 	"math"
@@ -24,154 +23,36 @@ var in *In
 var out *Out
 
 func calc() {
-	h, w := in.NextInt2()
+	n := in.NextInt()
+	s := in.NextString()
 
-	field := make([]string, h)
-	cost := NewIntInt(h, w, INF18)
-	cost[0][0] = 0
+	// z algorithm
+	z := make([]int, n)
+	z[0] = n
 
-	for i := 0; i < h; i++ {
-		field[i] = in.NextString()
-	}
+	i := 1
+	j := 0
+	for i < n {
+		for i+j < n && s[i] == s[i+j] {
+			j++
+		}
+		z[i] = j
 
-	ans := &(cost[h-1][w-1])
-	queue := pqNew()
-	queue.Push(&Pointc{0, 0, 0})
-
-	isout := func(x, y int) bool {
-		return x < 0 || x >= h || y < 0 || y >= w
-	}
-	dir1 := []Point{
-		{+1, +0},
-		{-1, -0},
-		{+0, +1},
-		{-0, -1},
-	}
-	dir2 := []Point{
-		{+1, +0},
-		{-1, -0},
-		{+0, +1},
-		{-0, -1},
-		{+1, +1},
-		{-1, -1},
-		{+1, +1},
-		{-1, -1},
-		{+1, -1},
-		{-1, +1},
-		{-1, +1},
-		{+1, -1},
-		{+2, +1},
-		{+2, +0},
-		{+2, -1},
-		{-2, +1},
-		{-2, +0},
-		{-2, -1},
-		{+1, +2},
-		{+0, +2},
-		{-1, +2},
-		{+1, -2},
-		{+0, -2},
-		{-1, -2},
-	}
-
-	for len(*queue.queue) > 0 {
-		p := queue.Pop()
-		if cost[p.x][p.y] < p.c {
+		if j == 0 {
+			i++
 			continue
 		}
-		c0 := p.c
-		for _, d := range dir1 {
-			x, y := p.x+d.x, p.y+d.y
-			if !isout(x, y) && field[x][y] == '.' && c0 < cost[x][y] {
-				cost[x][y] = c0
-				queue.Push(&Pointc{x, y, c0})
-			}
+		k := 1
+		for k < j && k+z[k] < j {
+			z[i+k] = z[k]
+			k++
 		}
-		c1 := p.c + 1
-		for _, d := range dir2 {
-			x, y := p.x+d.x, p.y+d.y
-			if !isout(x, y) && c1 < cost[x][y] {
-				cost[x][y] = c1
-				queue.Push(&Pointc{x, y, c1})
-			}
-		}
+		i += k
+		j -= k
 	}
-
-	out.Println(*ans)
-}
-
-type Pointc struct {
-	x, y, c int
-}
-
-// PQItem は優先度付きキューに保存される要素
-type PQItem *Pointc
-
-// PQList は 優先度付きキューの本体
-type PQList []PQItem
-
-// prior は pq[i]の方が優先度が高いかどうかを判断します。
-func (pq PQList) prior(i, j int) bool {
-	pi := pq[i]
-	pj := pq[j]
-	if pi.c != pj.c {
-		return pi.c < pj.c // 小さいもの優先とする
+	for i := 0; i < n; i++ {
+		out.Println(z[i])
 	}
-	return pi.x+pi.y > pj.x+pj.y
-}
-
-// PriorityQueue は優先度付きキューを表す
-type PriorityQueue struct {
-	queue *PQList
-}
-
-func pqNew() PriorityQueue {
-	l := make(PQList, 0, 100)
-	return PriorityQueue{queue: &l}
-}
-
-// Push は優先度付きキューに要素を一つ追加します。
-func (pq PriorityQueue) Push(value PQItem) {
-	heap.Push(pq.queue, value)
-}
-
-// Pop は優先度付きキューから要素を一つ取り出します。
-func (pq PriorityQueue) Pop() PQItem {
-	return heap.Pop(pq.queue).(PQItem)
-}
-
-// Empty は優先度付きキューが空かどうかを判断します。
-func (pq PriorityQueue) Empty() bool {
-	return len(*pq.queue) == 0
-}
-
-// Swap は要素を交換します。
-func (pq PQList) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-}
-
-// Less は要素を比較し、pq[i] < pq[j]かどうかを判断します
-func (pq PQList) Less(i, j int) bool {
-	return pq.prior(i, j)
-}
-
-// Len は要素の数を返します。
-func (pq PQList) Len() int {
-	return len(pq)
-}
-
-// Pop は要素を取り出して返します。
-func (pq *PQList) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	*pq = old[:n-1]
-	return item
-}
-
-// Push は要素を追加します。
-func (pq *PQList) Push(item interface{}) {
-	*pq = append(*pq, item.(PQItem))
 }
 
 func main() {
