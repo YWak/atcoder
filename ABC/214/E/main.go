@@ -3,6 +3,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"io"
 	"math"
@@ -40,16 +41,89 @@ func solve() bool {
 		ranges = append(ranges, p)
 	}
 	sort.Sort(ranges)
-	c := 1 // おいていい一番左のマス
-	for _, p := range ranges {
-		// debug(c, p.l, p.r)
-		if p.r < c {
-			return false
+	pq := pqNew()
+
+	i := 0
+	c := 1
+	for i < n {
+		k := 0
+		l := ranges[i].l
+		for l == ranges[i].l {
+			pq.Push(PQItem(ranges[i].r))
+			i++
+			k++
 		}
-		c = max(c, p.l) + 1
+		for j := 0; j < k; j++ {
+			r := int(pq.Pop())
+		}
 	}
 
 	return true
+}
+
+//PQItem は優先度付きキューに保存される要素
+type PQItem int
+
+// PQList は 優先度付きキューの本体
+type PQList []PQItem
+
+// prior は pq[i]の方が優先度が高いかどうかを判断します。
+func (pq PQList) prior(i, j int) bool {
+	return pq[i] > pq[j] // 大きいもの優先とする
+}
+
+// PriorityQueue は優先度付きキューを表す
+type PriorityQueue struct {
+	queue *PQList
+}
+
+func pqNew() PriorityQueue {
+	l := make(PQList, 0, 100)
+	return PriorityQueue{queue: &l}
+}
+
+// Push は優先度付きキューに要素を一つ追加します。
+func (pq PriorityQueue) Push(value PQItem) {
+	heap.Push(pq.queue, value)
+}
+
+// Pop は優先度付きキューから要素を一つ取り出します。
+func (pq PriorityQueue) Pop() PQItem {
+	return heap.Pop(pq.queue).(PQItem)
+}
+
+// Empty は優先度付きキューが空かどうかを判断します。
+func (pq PriorityQueue) Empty() bool {
+	return len(*pq.queue) == 0
+}
+
+// Swap は要素を交換します。
+func (pq PQList) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+
+// Less は要素を比較し、pq[i] < pq[j]かどうかを判断します
+func (pq PQList) Less(i, j int) bool {
+	return pq.prior(i, j)
+}
+
+// Len は要素の数を返します。
+func (pq PQList) Len() int {
+	return len(pq)
+}
+
+// Pop は要素を取り出して返します。
+func (pq *PQList) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[:n-1]
+	return item
+}
+
+// Push は要素を追加します。
+func (pq *PQList) Push(item interface{}) {
+	*pq = append(*pq, item.(PQItem))
 }
 
 func calc() {
