@@ -19,55 +19,56 @@ const INF18 = int(1e18)
 const INF9 = int(1e9)
 
 func main() {
-	s1 := nextString()
-	s2 := nextString()
-	s3 := nextString()
-	cm := map[byte]bool{}
-
-	for i := 0; i < len(s1); i++ {
-		cm[s1[i]] = true
-	}
-	for i := 0; i < len(s2); i++ {
-		cm[s2[i]] = true
-	}
-	for i := 0; i < len(s3); i++ {
-		cm[s3[i]] = true
-	}
-	chars := map[byte]int{}
-	c := 0
-	for k := range cm {
-		chars[k] = c
-		c++
-	}
-	if len(chars) > 10 {
-		fmt.Println("UNSOLVABLE")
-		return
-	}
-	p := make(Permutation, 10)
-	for i := 0; i < 10; i++ {
-		p[i] = i
+	s := [][]byte{
+		nextBytes(),
+		nextBytes(),
+		nextBytes(),
 	}
 
-	num := func(s string) int {
-		n := 0
-		for i := 0; i < len(s); i++ {
-			n = n*10 + p[chars[s[i]]]
-		}
-		return n
-	}
+	index := 0
+	c2i := map[byte]int{}
+	for _, ss := range s {
+		for _, c := range ss {
+			_, exists := c2i[c]
 
-	ok := true
-	for ok {
-		if p[chars[s1[0]]] != 0 && p[chars[s2[0]]] != 0 && p[chars[s3[0]]] != 0 {
-			if num(s1)+num(s2) == num(s3) {
-				fmt.Println(num(s1))
-				fmt.Println(num(s2))
-				fmt.Println(num(s3))
-				return
+			if !exists {
+				c2i[c] = index
+				index++
 			}
 		}
-		// 順列生成
-		ok = p.next()
+	}
+
+	if len(c2i) <= 10 {
+		p := make(Permutation, 10)
+		for i := 0; i < 10; i++ {
+			p[i] = i
+		}
+
+		num := func(s []byte) int {
+			n := 0
+			for _, c := range s {
+				n = n*10 + p[c2i[c]]
+			}
+			return n
+		}
+
+		for {
+			leading := false
+			n0, n1, n2 := num(s[0]), num(s[1]), num(s[2])
+			for i := 0; i < 3; i++ {
+				leading = leading || p[c2i[s[i][0]]] == 0
+			}
+			if !leading && n0+n1 == n2 {
+				fmt.Println(n0)
+				fmt.Println(n1)
+				fmt.Println(n2)
+				return
+			}
+
+			if !p.next() {
+				break
+			}
+		}
 	}
 
 	fmt.Println("UNSOLVABLE")
