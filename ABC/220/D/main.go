@@ -38,8 +38,8 @@ func calc() {
 		for j := 0; j < 10; j++ {
 			f := (a[i] + j) % 10
 			g := (a[i] * j) % 10
-			dp[i][f] += dp[i-1][j]
-			dp[i][g] += dp[i-1][j]
+			dp[i][f] = (dp[i][f] + dp[i-1][j]) % mod
+			dp[i][g] = (dp[i][g] + dp[i-1][j]) % mod
 		}
 	}
 	for i := 0; i < 10; i++ {
