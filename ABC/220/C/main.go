@@ -25,27 +25,24 @@ var out *Out
 func calc() {
 	n := in.NextInt()
 	a := make([]int, n)
-	s := make([]int, n+1)
+	s := 0
 
 	for i := 0; i < n; i++ {
 		a[i] = in.NextInt()
-		s[i+1] = a[i] + s[i]
+		s += a[i]
 	}
 
 	x := in.NextInt()
 
-	ans := (x / s[n]) * n
-	if ans == 0 {
-		ans++
-	}
+	ans := (x / s) * n
 
-	x %= s[n]
+	x %= s
 
-	for i := 1; i <= n; i++ {
+	for i := 0; i < n; i++ {
 		if x < 0 {
 			break
 		}
-		x -= s[i]
+		x -= a[i]
 		ans++
 	}
 	out.Println(ans)
