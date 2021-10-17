@@ -30,19 +30,19 @@ func solve(x, y, a, b, c int) bool {
 	for i := 0; i < 3; i++ {
 		x1 := x
 		// 一番大きく囲むパターン
-		x1 -= max(a/2-y, 1)
+		x1 -= divceil(a, y)
 
 		// pattern 1 全部横に並べる
 		x2 := x1
-		x2 -= max(b/2-y, 1)
-		x2 -= max(c/2-y, 1)
+		x2 -= divceil(b, y)
+		x2 -= divceil(c, y)
 		if x2 >= 0 {
 			return true
 		}
 		// pettern 2
 		y2 := y
-		y2 -= max(a/2-x1, 1)
-		y2 -= max(c/2-x1, 1)
+		y2 -= divceil(b, x1)
+		y2 -= divceil(c, x1)
 		if y2 >= 0 {
 			return true
 		}
