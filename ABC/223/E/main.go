@@ -39,6 +39,9 @@ func solve(x, y, a, b, c int) bool {
 		if x2 >= 0 {
 			return true
 		}
+		if x1 == 0 {
+			return false
+		}
 		// pettern 2
 		y2 := y
 		y2 -= divceil(b, x1)
