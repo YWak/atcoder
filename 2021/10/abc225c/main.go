@@ -31,8 +31,14 @@ func calc() {
 
 	ok := true
 	j0 := b[0][0] % 7
+	if j0 == 0 {
+		j0 = 7
+	}
 	i0 := (b[0][0]-j0)/7 + 1
 
+	if j0+m-1 > 7 {
+		ok = false
+	}
 	for i := 0; i < n; i++ {
 		for j := 0; j < m; j++ {
 			if b[i][j] != (i0+i-1)*7+(j0+j) {
