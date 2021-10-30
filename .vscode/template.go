@@ -187,20 +187,25 @@ func (out *Out) Printf(format string, a ...interface{}) {
 
 // PrintStringsln は文字列配列の各要素をスペース区切りで出力し、最後に改行を出力します。
 func (out *Out) PrintStringsln(a []string) {
-	b := make([]interface{}, len(a))
-	for i, v := range a {
-		b[i] = v
-	}
-	out.Println(b...)
+	out.Println(strings.Join(a, " "))
 }
 
 // PrintIntsLn は整数配列の各要素をスペース区切りで出力し、最後に改行を出力します。
 func (out *Out) PrintIntsLn(a []int) {
-	b := make([]interface{}, len(a))
+	b := make([]string, len(a))
 	for i, v := range a {
-		b[i] = v
+		b[i] = fmt.Sprint(v)
 	}
-	out.Println(b...)
+	out.Println(strings.Join(b, " "))
+}
+
+func (out *Out) PrintLenAndIntsLn(a []int) {
+	b := make([]string, len(a)+1)
+	b[0] = fmt.Sprint(len(a))
+	for i, v := range a {
+		b[i+1] = fmt.Sprint(v)
+	}
+	out.Println(strings.Join(b, " "))
 }
 
 // YesNo は condが真ならYes, 偽ならNoを出力します。

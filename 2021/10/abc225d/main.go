@@ -53,11 +53,15 @@ func calc() {
 			for head.head != nil {
 				head = head.head
 			}
-			ans := make([]int, 0, n)
+			ans := make([]string, 1)
+			ans[0] = ""
+
 			for t := head; t != nil; t = t.tail {
-				ans = append(ans, t.n)
+				ans = append(ans, fmt.Sprint(t.n))
 			}
-			out.PrintIntsLn(len(ans), ans)
+			ans[0] = fmt.Sprint(len(ans) - 1)
+
+			out.Println(strings.Join(ans, " "))
 		}
 	}
 }
