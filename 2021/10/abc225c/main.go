@@ -46,6 +46,11 @@ func calc() {
 			}
 		}
 	}
+	// 範囲チェック
+	if b[0][0]%7+m > 7 {
+		ok = false
+	}
+
 	out.YesNo(ok)
 }
 
