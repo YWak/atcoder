@@ -29,19 +29,13 @@ func calc() {
 		b[i] = in.NextInts(m)
 	}
 
-	i0 := b[0][0] / 7
-	j0 := b[0][0] % 7
-
 	ok := true
+	j0 := b[0][0] % 7
+	i0 := (b[0][0]-j0)/7 + 1
+
 	for i := 0; i < n; i++ {
 		for j := 0; j < m; j++ {
-			ii := b[i][j] / 7
-			jj := b[i][j] % 7
-
-			if ii-i0 != i {
-				ok = false
-			}
-			if jj-j0 != j {
+			if b[i][j] != (i0+i-1)*7+(j0+j) {
 				ok = false
 			}
 		}
