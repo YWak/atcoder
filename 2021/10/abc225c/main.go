@@ -29,26 +29,22 @@ func calc() {
 		b[i] = in.NextInts(m)
 	}
 
+	i0 := b[0][0] / 7
+	j0 := b[0][0] % 7
+
 	ok := true
-	for i := 1; i < n; i++ {
-		for j := 0; j < m; j++ {
-			if b[i-1][j]+7 != b[i][j] {
-				ok = false
-				break
-			}
-		}
-	}
 	for i := 0; i < n; i++ {
-		for j := 1; j < m; j++ {
-			if b[i][j-1]+1 != b[i][j] {
+		for j := 0; j < m; j++ {
+			ii := b[i][j] / 7
+			jj := b[i][j] % 7
+
+			if ii-i0 != i {
 				ok = false
-				break
+			}
+			if jj-j0 != j {
+				ok = false
 			}
 		}
-	}
-	// 範囲チェック
-	if b[0][0]%7+m > 7 {
-		ok = false
 	}
 
 	out.YesNo(ok)
