@@ -50,6 +50,9 @@ func calc() {
 		ans += t[v]
 		t[v] = 0
 		for _, u := range a[v] {
+			if t[u] == 0 {
+				continue
+			}
 			queue = append(queue, u)
 		}
 	}
