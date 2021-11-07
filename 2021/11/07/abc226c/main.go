@@ -26,19 +26,6 @@ var memo []int
 var t []int
 var a [][]int
 
-func solve(n int) int {
-	if memo[n] == -1 {
-		c := t[n]
-		for _, v := range a[n] {
-			c += solve(v)
-		}
-
-		memo[n] = c
-	}
-
-	return memo[n]
-}
-
 func calc() {
 	n := in.NextInt()
 	memo = make([]int, n)
@@ -54,8 +41,20 @@ func calc() {
 		}
 		memo[i] = -1
 	}
+	ans := 0
+	queue := make([]int, 0, n)
+	queue = append(queue, n-1)
+	for len(queue) > 0 {
+		v := queue[0]
+		queue = queue[1:]
+		ans += t[v]
+		t[v] = 0
+		for _, u := range a[v] {
+			queue = append(queue, u)
+		}
+	}
 
-	out.Println(solve(n - 1))
+	out.Println(ans)
 }
 
 func main() {
