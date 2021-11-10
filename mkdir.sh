@@ -1,13 +1,12 @@
 #!/bin/sh -e
 
-
 if [ "$1" = "" ]; then
     echo "$0 dirname" >&1
 fi
 
 # cd $(dirname $(readlin -f $0)) || exit
 
-target=$(readlink -f $1)
+target=$(dirname "$(pwd)/$1/a")
 base=$(dirname $(readlink -f $0))
 mkdir -p "$target"
 ! [ -f "$target/main.go" ] && cat "$base/.vscode/template.go" > "$target/main.go"
