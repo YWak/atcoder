@@ -28,7 +28,7 @@ func calc() {
 	if s > t {
 		t += 24
 	}
-	out.YesNo(s <= x && x <= t)
+	out.YesNo(s <= x && x < t)
 }
 
 func main() {
