@@ -43,15 +43,15 @@ func calc() {
 		c += counts[i]
 		scores[i] = c
 	}
-	// debug(scores)
+	// debug(pp)
 	for i := 0; i < n; i++ {
 		ok := false
 		// この人がすでにk位以内である
-		if scores[pp[i]] <= k {
+		if scores[pp[i]+1]+1 <= k {
 			ok = true
 		}
 		// 今はランク外だけどこの人だけ満点取ったらk位以内である
-		if scores[pp[i]+300] <= k {
+		if scores[pp[i]+300+1] <= k {
 			ok = true
 		}
 		out.YesNo(ok)
