@@ -24,34 +24,33 @@ var out *Out
 
 func calc() {
 	n, k := in.NextInt2()
-	pp := make([]int, n)
-	p := make(sort.IntSlice, n)
+	p := make([]int, n)
 	for i := 0; i < n; i++ {
 		for j := 0; j < 3; j++ {
 			p[i] += in.NextInt()
 		}
-		pp[i] = p[i]
 	}
-	sort.Sort(p)
-	counts := make([]int, 2000) // counts[i]はi点とった人の数
-	scores := make([]int, 2000) // scores[i]はi点以上とった人の数
-	for i := n - 1; i >= 0; i-- {
-		counts[p[i]]++
+	counts := make([]int, 1202) // counts[i]はi点とった人の数
+	for _, v := range p {
+		counts[v]++
 	}
+
 	c := 0
-	for i := 1999; i >= 0; i-- {
+	scores := make([]int, 1202) // scores[i]はi点以上とった人の数
+	for i := len(counts) - 1; i >= 0; i-- {
 		c += counts[i]
 		scores[i] = c
 	}
-	// debug(pp)
+	rank := func(s int) int {
+		// s点より高い人の数+1
+		return scores[s+1] + 1
+	}
+	// debug(p)
+	// debug(scores)
 	for i := 0; i < n; i++ {
 		ok := false
-		// この人がすでにk位以内である
-		if scores[pp[i]+1]+1 <= k {
-			ok = true
-		}
 		// 今はランク外だけどこの人だけ満点取ったらk位以内である
-		if scores[pp[i]+300+1] <= k {
+		if rank(p[i]+300) <= k {
 			ok = true
 		}
 		out.YesNo(ok)
