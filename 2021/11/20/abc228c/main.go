@@ -31,11 +31,10 @@ func calc() {
 			p[i] += in.NextInt()
 		}
 		pp[i] = p[i]
-		p[i] += 300 // 4回目満点とったことにしておく
 	}
 	sort.Sort(p)
-	counts := make([]int, 2000)
-	scores := make([]int, 2000)
+	counts := make([]int, 2000) // counts[i]はi点とった人の数
+	scores := make([]int, 2000) // scores[i]はi点以上とった人の数
 	for i := n - 1; i >= 0; i-- {
 		counts[p[i]]++
 	}
@@ -44,15 +43,16 @@ func calc() {
 		c += counts[i]
 		scores[i] = c
 	}
-
 	// debug(scores)
 	for i := 0; i < n; i++ {
 		ok := false
-		for s := 0; s <= 600; s++ {
-			if scores[pp[i]+s] <= k {
-				ok = true
-				break
-			}
+		// この人がすでにk位以内である
+		if scores[pp[i]] <= k {
+			ok = true
+		}
+		// 今はランク外だけどこの人だけ満点取ったらk位以内である
+		if scores[pp[i]+300] <= k {
+			ok = true
 		}
 		out.YesNo(ok)
 	}
