@@ -23,7 +23,25 @@ var in *In
 var out *Out
 
 func calc() {
+	n, x := in.NextInt2()
+	x--
+	a := make([]int, n)
+	for i := 0; i < n; i++ {
+		a[i] = in.NextInt() - 1
+	}
 
+	know := make([]bool, n)
+	for !know[x] {
+		know[x] = true
+		x = a[x]
+	}
+	ans := 0
+	for i := 0; i < n; i++ {
+		if know[i] {
+			ans++
+		}
+	}
+	out.Println(ans)
 }
 
 func main() {
