@@ -53,7 +53,7 @@ func calc() {
 
 	i := 0
 	for _, q := range query {
-		for i < n {
+		for i < m {
 			e := edges[i]
 			if e.y <= q.w {
 				break
