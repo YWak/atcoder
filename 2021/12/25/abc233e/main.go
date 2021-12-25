@@ -22,9 +22,12 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
-func calc() {
-	x := in.NextLongIntAsArray()
+func solve(x []int) string {
 	n := len(x)
+	if n == 1 {
+		return fmt.Sprint(x[0])
+	}
+
 	st := make(SegmentTree, n)
 	st.Init()
 	for i := 0; i < n; i++ {
@@ -48,18 +51,24 @@ func calc() {
 	}
 
 	leading := true
+	s := make([]string, 0, len(ans))
 	for i := 0; i < len(ans); i++ {
 		v := ans[len(ans)-1-i]
 		if v == 0 && leading {
 			continue
 		}
 		leading = false
-		out.Printf("%d", v)
+		s = append(s, fmt.Sprintf("%d", v))
 	}
 	if leading {
-		out.Printf("%d", 0)
+		s = append(s, "0")
 	}
-	out.Println()
+	return strings.Join(s, "")
+}
+
+func calc() {
+	x := in.NextLongIntAsArray()
+	out.Println(solve(x))
 }
 
 type SegmentTree []int
@@ -118,6 +127,24 @@ func main() {
 	in, out = InitIo(true)
 	defer out.Flush()
 
+	// for i := 1; i < 200000; i++ {
+	// 	s := fmt.Sprint(i)
+	// 	arr := make([]int, len(s))
+	// 	for i := 0; i < len(s); i++ {
+	// 		arr[i] = int(s[i] - '0')
+	// 	}
+
+	// 	ans1 := solve(arr)
+	// 	ans2 := 0
+	// 	a := i
+	// 	for a > 0 {
+	// 		ans2 += a
+	// 		a /= 10
+	// 	}
+	// 	if ans1 != fmt.Sprint(ans2) {
+	// 		debug(s, ans1, ans2)
+	// 	}
+	// }
 	calc()
 }
 
