@@ -26,17 +26,16 @@ func calc() {
 	l, r := in.NextInt2d(-1, -1)
 	s := in.NextString()
 
-	b := make([]byte, len(s))
 	for i := 0; i < l; i++ {
-		b = append(b, s[i])
+		out.Printf("%c", s[i])
 	}
 	for i := l; i <= r; i++ {
-		b = append(b, s[r+l-i])
+		out.Printf("%c", s[r+l-i])
 	}
 	for i := r + 1; i < len(s); i++ {
-		b = append(b, s[i])
+		out.Printf("%c", s[i])
 	}
-	out.Println(string(b))
+	out.Println()
 }
 
 func main() {
