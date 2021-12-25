@@ -48,21 +48,18 @@ func calc() {
 	}
 
 	leading := true
-	done := false
 	for i := 0; i < len(ans); i++ {
 		v := ans[len(ans)-1-i]
 		if v == 0 && leading {
 			continue
 		}
 		leading = false
-		done = true
 		out.Printf("%d", v)
 	}
-	if done {
-		out.Println()
-	} else {
-		out.Println(0)
+	if leading {
+		out.Printf("%d", 0)
 	}
+	out.Println()
 }
 
 type SegmentTree []int
@@ -83,7 +80,7 @@ func (st *SegmentTree) Init() {
 	*st = arr
 }
 
-// Get は セグメントツリーの i 番目の値を value に設定します。
+// Get は セグメントツリーの i 番目の値を 取得します。
 func (st SegmentTree) Get(i int) int {
 	i += len(st)/2 - 1
 	v := 0
