@@ -278,8 +278,12 @@ func divfloor(a, b int) int {
 
 // powmod は (x^n) mod m を返します。
 func powmod(x, n, m int) int {
-	ans := 1
 	x = x % m
+	if x == 0 {
+		return 0
+	}
+
+	ans := 1
 	for n > 0 {
 		if n%2 == 1 {
 			ans = (ans * x) % m
