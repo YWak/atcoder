@@ -48,15 +48,21 @@ func calc() {
 	}
 
 	leading := true
+	done := false
 	for i := 0; i < len(ans); i++ {
 		v := ans[len(ans)-1-i]
 		if v == 0 && leading {
 			continue
 		}
 		leading = false
+		done = true
 		out.Printf("%d", v)
 	}
-	out.Println()
+	if done {
+		out.Println()
+	} else {
+		out.Println(0)
+	}
 }
 
 type SegmentTree []int
