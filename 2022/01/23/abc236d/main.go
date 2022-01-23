@@ -22,79 +22,44 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
-type pair struct {
-	group, score int
-}
-
-var gs = map[int][]pair{}
+var a [][]int
 var n2 int
-var ans int
 
-func dfs(b, score int) {
+func dfs(b, score int) int {
 	if popcount(b) == n2 {
-		ans = max(ans, score)
-		return
+		return score
 	}
-
-	for _, g := range gs[b] {
-		if b&g.group != 0 {
+	s := 0
+	for i := 0; i < n2; i++ {
+		if nthbit(b, i) == 1 {
 			continue
 		}
-		dfs(b|g.group, score^g.score)
+		b1 := b | (1 << i)
+		for j := i + 1; j < n2; j++ {
+			if nthbit(b, j) == 0 {
+				ii, jj := i, j
+				if i > j {
+					ii, jj = jj, ii
+				}
+				s = max(dfs(b1|(1<<jj), score^a[ii][jj]), s)
+			}
+		}
+		return s
 	}
+	return -1
 }
 
 func calc() {
 	n := in.NextInt()
 	n2 = n * 2
-	a := make([][]int, n2)
+	a = make([][]int, n2)
 	for i := 0; i < n2; i++ {
 		a[i] = make([]int, n2)
 		for j := i + 1; j < n2; j++ {
 			a[i][j] = in.NextInt()
 		}
 	}
-
-	pairs := make([]int, 0)
-
-	for b := 0; b < (1 << n2); b++ {
-		if popcount(b) == 2 {
-			pairs = append(pairs, b)
-		}
-	}
-	for group := 0; group < (1 << n2); group++ {
-		if popcount(group)%2 == 1 {
-			continue
-		}
-		list, e := gs[group]
-		if !e {
-			list = make([]pair, 0)
-		}
-
-		for _, p := range pairs {
-			if group&p != 0 {
-				continue
-			}
-			ok := true
-			for i := 0; i < n2 && ok; i++ {
-				if nthbit(p, i) == 0 {
-					continue
-				}
-				for j := i + 1; j < n2; j++ {
-					if nthbit(p, j) == 0 {
-						continue
-					}
-					list = append(list, pair{p, a[i][j]})
-					ok = false
-					break
-				}
-			}
-		}
-		gs[group] = list
-	}
-
-	dfs(0, 0)
-	out.Println(ans)
+	out.Println(dfs(0, 0))
 }
 
 func main() {
