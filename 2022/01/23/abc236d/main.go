@@ -26,7 +26,7 @@ type pair struct {
 	group, score int
 }
 
-var groups []pair
+var gs = map[int][]pair{}
 var n2 int
 var ans int
 
@@ -36,7 +36,7 @@ func dfs(b, score int) {
 		return
 	}
 
-	for _, g := range groups {
+	for _, g := range gs[b] {
 		if b&g.group != 0 {
 			continue
 		}
@@ -55,22 +55,42 @@ func calc() {
 		}
 	}
 
-	groups = make([]pair, 0)
+	pairs := make([]int, 0)
 
 	for b := 0; b < (1 << n2); b++ {
 		if popcount(b) == 2 {
-			for i := 0; i < n2; i++ {
-				if nthbit(b, i) == 0 {
+			pairs = append(pairs, b)
+		}
+	}
+	for group := 0; group < (1 << n2); group++ {
+		if popcount(group)%2 == 1 {
+			continue
+		}
+		list, e := gs[group]
+		if !e {
+			list = make([]pair, 0)
+		}
+
+		for _, p := range pairs {
+			if group&p != 0 {
+				continue
+			}
+			ok := true
+			for i := 0; i < n2 && ok; i++ {
+				if nthbit(p, i) == 0 {
 					continue
 				}
 				for j := i + 1; j < n2; j++ {
-					if nthbit(b, j) == 0 {
+					if nthbit(p, j) == 0 {
 						continue
 					}
-					groups = append(groups, pair{b, a[i][j]})
+					list = append(list, pair{p, a[i][j]})
+					ok = false
+					break
 				}
 			}
 		}
+		gs[group] = list
 	}
 
 	dfs(0, 0)
