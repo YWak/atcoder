@@ -22,33 +22,94 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
-const mod = 998244353
+func sum(l, r int) mint {
+	n := mint(r-l+1) % mod
+	a1 := mint(1) % mod
+	an := mint(r-l+1) % mod
+	return a1.add(an).mul(n).div(2)
+}
 
-func sum(n int) int {
-	n %= mod
-	if n%2 == 0 {
-		return n / 2 * (1 + n + mod) % mod
+func solve(n int) mint {
+	l := 1
+	r := 10
+
+	ans := mint(0)
+
+	// 前半部
+	for r <= n {
+		a := sum(l, r-1)
+		ans = ans.add(a)
+		l *= 10
+		r *= 10
 	}
-	return n * ((1+n)/2 + mod) % mod
+
+	debug(l, n, r)
+	if l == n {
+		ans = ans.add(mint(1))
+	} else {
+		ans = ans.add(sum(l, n))
+	}
+
+	return ans
 }
 
 func calc() {
 	n := in.NextInt()
-	l := 1
-	r := 10
-	ans := 0
+	out.Println(solve(n))
+}
 
-	// 前半部
-	for r < n {
-		a := sum(r - l)
-		ans = (ans + a) % mod
-		l = r
-		r *= 10
+type mint int
+
+const mod = mint(998244353)
+
+// add は a + bを返します
+func (a mint) add(b mint) mint {
+	return (a + b) % mod
+}
+
+// sub は a - bを返します
+func (a mint) sub(b mint) mint {
+	return (a - b + mod) % mod
+}
+
+// mul は a * bを返します
+func (a mint) mul(b mint) mint {
+	return (a * (b % mod)) % mod
+}
+
+// div は a/bを返します
+func (a mint) div(b mint) mint {
+	return a.mul(b.inv())
+}
+
+// inv は aの逆元を返します
+func (a mint) inv() mint {
+	// 拡張ユークリッドの互除法
+	b := mod
+	u := mint(1)
+	v := mint(0)
+	for b > 0 {
+		t := a / b
+		a -= t * b
+		a, b = b, a
+		u -= t * v
+		u, v = v, u
 	}
+	return (u + mod) % mod
+}
 
-	a := sum(n - l + 1)
-	ans = (ans + a) % mod
-	out.Println(ans)
+// pow は a ^ bを返します
+func (a mint) pow(b mint) mint {
+	ans := mint(1)
+
+	for b > 0 {
+		if b&1 == 1 {
+			ans = ans.mul(a)
+		}
+		a = a.mul(a)
+		b = b >> 1
+	}
+	return ans
 }
 
 func main() {
