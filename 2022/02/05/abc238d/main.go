@@ -23,35 +23,7 @@ var in *In
 var out *Out
 
 func solve(a, s int) bool {
-	u := 0 // 繰り上がり, 1, 0, -1
-	n := 62
-	for (s >> n) == 0 {
-		n--
-	}
-
-	for k := 0; k <= n; k++ {
-		if nthbit(a, k) == 1 {
-			// どっちも1になる
-			u11 := nthbit(s, k) == 1 && (u == 1 || u == -1) // 繰り上がって1
-			u00 := nthbit(s, k) == 0 && (u == 0 || u == -1) // 繰り上がらず1
-			if u11 && u00 {
-				u = -1
-			} else if u11 {
-				u = 1
-			} else if u00 {
-				u = 0
-			} else {
-				return false
-			}
-		} else if nthbit(s, k) == 1 {
-			// 00, 10, 01で1が立つなら繰り上がりはない
-			u = 0
-		} else {
-			// 00, 10, 01で0になるなら、繰り上がりの有無がそのままになる
-		}
-	}
-	// 繰り上がりがなくなっている
-	return u != 1
+	return (s-a*2)&a == 0 && a*2 <= s
 }
 
 func calc() {
