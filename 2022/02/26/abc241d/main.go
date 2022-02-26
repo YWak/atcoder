@@ -31,18 +31,18 @@ func calc() {
 
 	for q := 0; q < Q; q++ {
 		t := in.NextInt()
+		x := in.NextInt()
+
 		if t == 1 {
-			x := in.NextInt()
 			m.Put(x, 1)
 			n++
 			continue
 		}
 
 		var kth int
+		k := in.NextInt()
+		k--
 		if t == 2 {
-			x := in.NextInt()
-			k := in.NextInt()
-
 			// 二分探索でx以下の要素が何番目か求める
 			ok, ng := 0, n+1 // okはxが何番目か
 			for abs(ok-ng) > 1 {
@@ -54,11 +54,8 @@ func calc() {
 					ng = mid
 				}
 			}
-			kth = ok - k - 1
+			kth = ok - k
 		} else {
-			x := in.NextInt()
-			k := in.NextInt()
-
 			// 二分探索でx以上の要素が何番目か求める
 			ok, ng := n+1, 0 // okはxが何番目か
 			for abs(ok-ng) > 1 {
@@ -70,14 +67,18 @@ func calc() {
 					ng = mid
 				}
 			}
-			kth = ok + k - 1
+			kth = ok + k
 		}
-		a, _ := m.GetKth(kth)
-		debug(kth, a)
-		if kth <= 0 || kth > n {
+		v, _ := m.GetKth(kth)
+		// debug("t =", t, "x =", x, "k =", k+1, "m =", kth-(2*t-5)*k, "kth =", kth, v)
+		// for i := 1; i <= n; i++ {
+		// 	v, _ := m.GetKth(i)
+		// 	debug(i, v)
+		// }
+
+		if kth <= 0 || kth > n || v == nil {
 			out.Println(-1)
 		} else {
-			v, _ := m.GetKth(kth)
 			out.Println(v)
 		}
 	}
@@ -163,28 +164,6 @@ func (t *Treap) GetKth(k int) (interface{}, interface{}) {
 	t.root = t._merge(a, b)
 
 	return p.key, p.value
-}
-
-func (t *Treap) Find(key interface{}) interface{} {
-	n := t.root
-	var ans *node
-
-	for n != nil {
-		c := t.comparator(key, n.key)
-		if c == 0 {
-			return key
-		} else if c < 0 {
-			ans = n
-			n = n.left
-		} else {
-			n = n.right
-		}
-	}
-
-	if ans == nil {
-		return nil
-	}
-	return ans.key
 }
 
 func (t *Treap) Put(key interface{}, value interface{}) interface{} {
