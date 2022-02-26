@@ -22,47 +22,56 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
-func solve1(n int, s []string, x, y func(i, a int) int) bool {
-	out := func(t int) bool {
-		return t < 0 || t >= n
+func solve(n int, s []string) bool {
+	arr := make([][][]int, 4)
+	for t := 0; t < 4; t++ {
+		arr[t] = make([][]int, n)
+		for i := 0; i < n; i++ {
+			arr[t][i] = make([]int, n)
+		}
 	}
-	debug("------")
+
+	ok := func(i, j int) bool {
+		return i >= 0 && i < n && j >= 0 && j < n
+	}
+	dir := [][]int{
+		{-1, 0},
+		{0, -1},
+		{-1, -1},
+		{-1, +1},
+	}
+
 	for i := 0; i < n; i++ {
-		k := 0
-		for a := 0; a < n; a++ {
-			ii := x(i, a)
-			jj := y(i, a)
-			if out(ii) || out(jj) {
-				break
-			}
-			// debug(ii, jj)
-			if s[ii][jj] == '#' {
-				k++
-			}
-			if a >= 6 {
-				ii6 := x(i, a-6)
-				jj6 := y(i, a-6)
-
-				if !out(ii6) && !out(jj6) && s[ii6][jj6] == '#' {
-					k--
+		for j := 0; j < n; j++ {
+			for t := 0; t < 4; t++ {
+				if s[i][j] == '#' {
+					arr[t][i][j]++
 				}
-			}
-
-			if k >= 4 {
-				return true
+				d := dir[t]
+				i1, j1 := i+d[0], j+d[1]
+				i5, j5 := i+d[0]*5, j+d[1]*5
+				i6, j6 := i+d[0]*6, j+d[1]*6
+				if ok(i1, j1) {
+					arr[t][i][j] += arr[t][i1][j1]
+				}
+				if ok(i6, j6) {
+					if s[i6][j6] == '#' {
+						arr[t][i][j]--
+					}
+				}
+				if ok(i5, j5) && arr[t][i][j] >= 4 {
+					return true
+				}
 			}
 		}
 	}
+	// for t := 0; t < 4; t++ {
+	// 	debug("----")
+	// 	for i := 0; i < n; i++ {
+	// 		debug(arr[t][i])
+	// 	}
+	// }
 	return false
-}
-
-func solve(n int, s []string) bool {
-	return solve1(n, s, func(i, a int) int { return i }, func(i, a int) int { return a }) ||
-		solve1(n, s, func(i, a int) int { return a }, func(i, a int) int { return i }) ||
-		solve1(n, s, func(i, a int) int { return i + a }, func(i, a int) int { return i + a }) ||
-		solve1(n, s, func(i, a int) int { return n - 1 - i - a }, func(i, a int) int { return n - 1 - i - a }) ||
-		solve1(n, s, func(i, a int) int { return n - 1 - i - a }, func(i, a int) int { return a }) ||
-		solve1(n, s, func(i, a int) int { return a }, func(i, a int) int { return n - 1 - i - a })
 }
 
 func calc() {
