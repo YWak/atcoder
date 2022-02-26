@@ -68,11 +68,11 @@ func calc() {
 			kth = ok + k
 		}
 		v, _ := m.GetKth(kth)
-		debug("t =", t, "x =", x, "k =", k+1, "m =", kth-(2*t-5)*k, "kth =", kth, v)
-		for i := 1; i <= m.Len(); i++ {
-			v, _ := m.GetKth(i)
-			debug(i, v)
-		}
+		// debug("t =", t, "x =", x, "k =", k+1, "m =", kth-(2*t-5)*k, "kth =", kth, v)
+		// for i := 1; i <= m.Len(); i++ {
+		// 	v, _ := m.GetKth(i)
+		// 	debug(i, v)
+		// }
 
 		if kth <= 0 || kth > m.Len() || v == nil {
 			out.Println(-1)
@@ -177,21 +177,12 @@ func (t *Treap) _put(n *node, key, value interface{}, pri int) (*node, interface
 		return &node{key, value, pri, 1, nil, nil}, nil
 	}
 	c := t.comparator(key, n.key)
-	if c == 0 {
-		if t.allowDup {
-			// 複数可
-			n = &node{key, value, pri, 1, n, nil}
-			if n.left != nil && n.left.pri < n.pri {
-				n = t._rotatel(n)
-			}
-			return t._update(n), nil
-		} else {
-			v := n.value
-			n.value = value
-			return n, v
-		}
+	if c == 0 && !t.allowDup {
+		v := n.value
+		n.value = value
+		return n, v
 	}
-	if c < 0 {
+	if c < 0 || c == 0 && t.allowDup {
 		nn, v := t._put(n.left, key, value, pri)
 		n.left = nn
 		if n.left.pri < n.pri {
