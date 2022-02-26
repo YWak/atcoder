@@ -27,7 +27,6 @@ func calc() {
 	Q := in.NextInt()
 	m := NewIntTreap()
 	m.allowDup = true
-	n := 0
 
 	for q := 0; q < Q; q++ {
 		t := in.NextInt()
@@ -35,7 +34,6 @@ func calc() {
 
 		if t == 1 {
 			m.Put(x, 1)
-			n++
 			continue
 		}
 
@@ -44,7 +42,7 @@ func calc() {
 		k--
 		if t == 2 {
 			// 二分探索でx以下の要素が何番目か求める
-			ok, ng := 0, n+1 // okはxが何番目か
+			ok, ng := 0, m.Len()+1 // okはxが何番目か
 			for abs(ok-ng) > 1 {
 				mid := (ok + ng) / 2
 				v, _ := m.GetKth(mid)
@@ -57,7 +55,7 @@ func calc() {
 			kth = ok - k
 		} else {
 			// 二分探索でx以上の要素が何番目か求める
-			ok, ng := n+1, 0 // okはxが何番目か
+			ok, ng := m.Len()+1, 0 // okはxが何番目か
 			for abs(ok-ng) > 1 {
 				mid := (ok + ng) / 2
 				v, _ := m.GetKth(mid)
@@ -70,13 +68,13 @@ func calc() {
 			kth = ok + k
 		}
 		v, _ := m.GetKth(kth)
-		// debug("t =", t, "x =", x, "k =", k+1, "m =", kth-(2*t-5)*k, "kth =", kth, v)
-		// for i := 1; i <= n; i++ {
-		// 	v, _ := m.GetKth(i)
-		// 	debug(i, v)
-		// }
+		debug("t =", t, "x =", x, "k =", k+1, "m =", kth-(2*t-5)*k, "kth =", kth, v)
+		for i := 1; i <= m.Len(); i++ {
+			v, _ := m.GetKth(i)
+			debug(i, v)
+		}
 
-		if kth <= 0 || kth > n || v == nil {
+		if kth <= 0 || kth > m.Len() || v == nil {
 			out.Println(-1)
 		} else {
 			out.Println(v)
