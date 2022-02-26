@@ -11,7 +11,6 @@ EXE="./main"
 TEMPFILE1=$(mktemp)
 TEMPFILE2=$(mktemp)
 
-go version
 go build -o $EXE main.go
 
 trap 'rm -rf main $TEMPFILE1 $TEMPFILE2 $EXE' 0

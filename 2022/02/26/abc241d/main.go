@@ -35,7 +35,11 @@ func calc() {
 			x := in.NextInt()
 			m.Put(x, 1)
 			n++
-		} else if t == 2 {
+			continue
+		}
+
+		var kth int
+		if t == 2 {
 			x := in.NextInt()
 			k := in.NextInt()
 
@@ -50,18 +54,12 @@ func calc() {
 					ng = mid
 				}
 			}
-			ok -= k - 1
-			v, _ := m.GetKth(ok)
-			if ok < 0 || v == nil {
-				out.Println(-1)
-			} else {
-				out.Println(v)
-			}
-		} else if t == 3 {
+			kth = ok - k - 1
+		} else {
 			x := in.NextInt()
 			k := in.NextInt()
 
-			// 二分探索でx以下の要素が何番目か求める
+			// 二分探索でx以上の要素が何番目か求める
 			ok, ng := n+1, 0 // okはxが何番目か
 			for abs(ok-ng) > 1 {
 				mid := (ok + ng) / 2
@@ -72,14 +70,15 @@ func calc() {
 					ng = mid
 				}
 			}
-			ok += k - 1
-			v, _ := m.GetKth(ok)
-
-			if ok > n || v == nil {
-				out.Println(-1)
-			} else {
-				out.Println(v)
-			}
+			kth = ok + k - 1
+		}
+		a, _ := m.GetKth(kth)
+		debug(kth, a)
+		if kth <= 0 || kth > n {
+			out.Println(-1)
+		} else {
+			v, _ := m.GetKth(kth)
+			out.Println(v)
 		}
 	}
 }
