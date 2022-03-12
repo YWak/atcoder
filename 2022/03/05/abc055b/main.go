@@ -34,6 +34,8 @@ func calc() {
 }
 
 type Mod struct {
+	modulo int
+
 	// normはaをmod mの値に変換します
 	norm func(a int) int
 
@@ -123,13 +125,14 @@ func NewMod(m int) *Mod {
 	}
 
 	return &Mod{
-		norm: norm,
-		add:  add,
-		sub:  sub,
-		mul:  mul,
-		pow:  pow,
-		inv:  inv,
-		div:  div,
+		modulo: m,
+		norm:   norm,
+		add:    add,
+		sub:    sub,
+		mul:    mul,
+		pow:    pow,
+		inv:    inv,
+		div:    div,
 	}
 }
 
