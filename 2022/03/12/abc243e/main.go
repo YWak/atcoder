@@ -22,58 +22,52 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
+type edge struct{ a, b, c int }
+
 func calc() {
 	n, m := in.NextInt2()
 
-	g := make([][]int, n)
-	edges := make([][]int, n)
-	prev := make([][]int, n)
+	cost := make([][]int, n)
+	edges := make([]*edge, m)
 
 	for i := 0; i < n; i++ {
-		g[i] = make([]int, n)
-		edges[i] = make([]int, n)
-		prev[i] = make([]int, n)
+		cost[i] = make([]int, n)
 
 		for j := 0; j < n; j++ {
-			g[i][j] = INF18
-			prev[i][j] = i
+			cost[i][j] = INF18
 		}
-		// g[i][i] = 0
 	}
 	for i := 0; i < m; i++ {
 		a, b, c := in.NextInt3d(-1, -1, 0)
-		g[a][b] = c
-		g[b][a] = c
-		edges[a][b] = i
-		edges[b][a] = i
+		cost[a][b] = c
+		cost[b][a] = c
+		edges[i] = &edge{a, b, c}
 	}
 
 	// ワーシャルフロイト
 	for k := 0; k < n; k++ {
 		for i := 0; i < n; i++ {
 			for j := 0; j < n; j++ {
-				if g[i][j] > g[i][k]+g[k][j] {
-					g[i][j] = g[i][k] + g[k][j]
-					prev[i][j] = prev[k][j]
+				if cost[i][j] > cost[i][k]+cost[k][j] {
+					cost[i][j] = cost[i][k] + cost[k][j]
 				}
 			}
 		}
 	}
-	// for i := 0; i < n; i++ {
-	// 	debug(g[i])
-	// }
-	use := map[int]bool{}
-	for i := 0; i < n; i++ {
-		for j := i + 1; j < n; j++ {
-			// debug(j+1, "->", i+1)
-			// iからjへの経路
-			for curr := j; curr != i; curr = prev[i][curr] {
-				// debug(curr)
-				use[edges[prev[i][curr]][curr]] = true
+
+	ans := 0
+	for _, e := range edges {
+		used := false
+		for k := 0; k < n; k++ {
+			if cost[e.a][k]+cost[k][e.b] <= e.c {
+				used = true
 			}
 		}
+		if used {
+			ans++
+		}
 	}
-	out.Println(m - len(use))
+	out.Println(ans)
 }
 
 func main() {
