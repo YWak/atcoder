@@ -28,9 +28,6 @@ func calc() {
 
 	N := n * 2
 	g := make([][]int, N)
-	for i := 0; i < N; i++ {
-		g[i] = make([]int, N)
-	}
 
 	for i := 0; i < m; i++ {
 		u, v := in.NextInt2d(-1, -1)
@@ -39,55 +36,32 @@ func calc() {
 		}
 		if u == x {
 			// xに入る方はそのまま、xから出るときだけ裏
-			g[u+0][v+n] = 1
-			g[u+n][v+0] = 1
-
-			g[v+n][u+n] = 1
-			g[v+0][u+0] = 1
+			g[u+0] = append(g[u+0], v+n)
+			g[u+n] = append(g[u+n], v+0)
 		} else {
 			// そうでなければそれぞれの世界を移動する
-			g[u+0][v+0] = 1
-			g[v+0][u+0] = 1
-
-			g[u+n][v+n] = 1
-			g[v+n][u+n] = 1
+			g[u+0] = append(g[u+0], v+0)
+			g[u+n] = append(g[u+n], v+n)
 		}
+		g[v+0] = append(g[v+0], u+0)
+		g[v+n] = append(g[v+n], u+n)
 	}
 
 	mod := NewMod998244353()
+	dp := make([]int, N)
+	dp[s] = 1
 
-	// (g^k)[s][t]が求める
-	mat_mul := func(a, b [][]int) [][]int {
-		res := make([][]int, N)
+	for k := 0; k < K; k++ {
+		dp1 := make([]int, N)
 		for i := 0; i < N; i++ {
-			res[i] = make([]int, N)
-		}
-		for i := 0; i < N; i++ {
-			for j := 0; j < N; j++ {
-				for k := 0; k < N; k++ {
-					res[i][j] = mod.add(res[i][j], mod.mul(a[i][k], b[k][j]))
-				}
+			for _, v := range g[i] {
+				dp1[v] = mod.add(dp1[v], dp[i])
 			}
 		}
-		return res
+		dp = dp1
 	}
-	mat_pow := func(a [][]int, p int) [][]int {
-		res := make([][]int, N)
-		for i := 0; i < N; i++ {
-			res[i] = make([]int, N)
-			res[i][i] = 1
-		}
-		for p > 0 {
-			if p%2 == 1 {
-				res = mat_mul(a, res)
-			}
-			a = mat_mul(a, a)
-			p >>= 1
-		}
-		return res
-	}
-	g = mat_pow(g, K)
-	out.Println(g[s][t])
+
+	out.Println(dp[t])
 }
 
 type Mod struct {
