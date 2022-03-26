@@ -2,7 +2,7 @@
     "Priority Queue": {
         "scope": "go",
         "description": "グラフの実装",
-        "prefix": ["graph"],
+        "prefix": ["_graph"],
         "body": [
             "// Graph はグラフを表現する構造です",
             "type Graph struct {",

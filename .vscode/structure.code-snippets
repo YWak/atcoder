@@ -2,7 +2,7 @@
     "Pair": {
         "scope": "go",
         "description": "ペアの実装",
-        "prefix": "pair",
+        "prefix": "_pair",
         "body":[
             "type pair struct {",
             "    a, b int",
@@ -18,7 +18,7 @@
     "Treap": {
         "scope": "go",
         "description": "平衝二分探索木によるマップ。",
-        "prefix": ["sortedmap", "treap", "treemap"],
+        "prefix": ["_sortedmap", "_treap", "_treemap"],
         "body": [
             "type Treap struct {",
             "     root       *node",
@@ -282,7 +282,7 @@
     "Priority Queue": {
         "scope": "go",
         "description": "優先度付きキューの実装",
-        "prefix": ["priorityqueue"],
+        "prefix": ["_priorityqueue"],
         "body": [
             "// PriorityQueue は優先度付きキューを表す",
             "type PriorityQueue struct {",
@@ -347,7 +347,7 @@
     "Union-Find": {
         "scope": "go",
         "description": "Union-Find",
-        "prefix": ["unionfind"],
+        "prefix": ["_unionfind"],
         "body": [
             "// UnionFind : UnionFind構造を保持する構造体",
             "type UnionFind struct {",
@@ -407,7 +407,7 @@
     "SegmentTree": {
         "scope": "go",
         "description": "segment tree",
-        "prefix": ["segmenttree"],
+        "prefix": ["_segmenttree"],
         "body": [
             "type ${1:SegmentTree} []${2:int}",
             "",
@@ -470,7 +470,7 @@
     },
     "binary indexed tree": {
         "scope": "go",
-        "prefix": "binaryindexedtree",
+        "prefix": "_binaryindexedtree",
         "description": "Binary Indexed Treeの実装",
         "body": [
             "// BinaryIndexedTree は 1点加算とa1 + a2 + ... + aiを求める",
@@ -497,7 +497,7 @@
     "deque": {
         "description": "dequeueの実装",
         "scope": "go",
-        "prefix": "dequeue",
+        "prefix": "_dequeue",
         "body": [
             "// ${1:Deque}Node は${1}の各要素を保持するstruct",
             "type ${1}Node struct {",

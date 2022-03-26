@@ -2,7 +2,7 @@
     "line": {
         "scope": "go",
         "description": "直線の式",
-        "prefix": ["line handling"],
+        "prefix": ["_line handling"],
         "body": [
             "// Line は 直線をあらわす型",
             "type Line struct {",

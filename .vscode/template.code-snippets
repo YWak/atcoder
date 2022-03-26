@@ -1,7 +1,7 @@
 {
     "field read": {
         "scope": "go",
-        "prefix": "fieldreading",
+        "prefix": "_fieldreading",
         "description": "フィールドを読み込みます",
         "body": [
             "${1:field} := make([]string, ${2:H})",
@@ -12,7 +12,7 @@
     },
     "subgroup": {
         "scope": "go",
-        "prefix": "subgroup",
+        "prefix": "_subgroup",
         "description": "部分集合の列挙",
         "body": [
             "// 部分集合の列挙",
