@@ -28,14 +28,15 @@ func calc() {
 	b := make([]int, m+1)
 	c := in.NextInts(n + m + 1)
 
-	for i := 0; i <= m; i++ {
-		b[i] = c[i]
-		for j := i; j > 0; j-- {
-			if j <= n {
-				b[i] -= a[j] * b[i-1]
+	for i := m; i >= 0; i-- {
+		b[i] = c[n+i]
+		for j := 0; j <= m; j++ {
+			k := n + i - j
+			if 0 <= k && k < n {
+				b[i] -= a[k] * b[j]
 			}
 		}
-		b[i] /= a[0]
+		b[i] /= a[n]
 	}
 	out.PrintIntsLn(b)
 }
