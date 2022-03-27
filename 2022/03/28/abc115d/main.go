@@ -22,26 +22,26 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
+var size []int
+var pats []int
+
 func calc() {
 	n, x := in.NextInt2()
-	size := make([]int, 51)
-	pats := make([]int, 51)
-	size[0] = 1
-	pats[0] = 1
-	for i := 1; i < len(size); i++ {
-		size[i] = 1 + size[i-1] + 1 + size[i-1] + 1
-		pats[i] = 0 + pats[i-1] + 1 + pats[i-1]
-	}
 
 	ans := 0
 	for i := n; i > 0; i-- {
 		bottom := 1 + size[i-1] // レベルiの下半分は パン + size[i-1]
-		if x > bottom {
-			// 下半分の大きさを超える場合は、そこにレベルi-1の分のパティが含まれるのでそれを引く
-			ans += 1 + pats[i-1]
-			x -= bottom + 1
+		if x >= bottom {
+			if x >= bottom+1 {
+				// レベルiの真ん中のパティが含まれる場合はそれを勘定に入れる
+				ans++
+				x--
+			}
+			// 下半分には レベルi-1の分のパティが含まれる
+			ans += pats[i-1]
+			x -= bottom
 		} else {
-			// 下半分だけ考えればいいのでパンの分を引く
+			// 下半分だけ考えればいいのでレベルiの下側のパンの分を引く
 			x--
 		}
 	}
@@ -53,6 +53,16 @@ func main() {
 	// interactiveならfalseにすること。
 	in, out = InitIo(true)
 	defer out.Flush()
+
+	// 初期化
+	size = make([]int, 51)
+	pats = make([]int, 51)
+	size[0] = 1
+	pats[0] = 1
+	for i := 1; i < len(size); i++ {
+		size[i] = 1 + size[i-1] + 1 + size[i-1] + 1
+		pats[i] = 0 + pats[i-1] + 1 + pats[i-1]
+	}
 
 	calc()
 }
