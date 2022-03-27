@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"math/bits"
+	"math/rand"
 	"os"
 	"sort"
 	"strconv"
@@ -22,48 +23,322 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
-var checked = make([]bool, 220000)
-var loop = make([]bool, 220000)
+type pair struct {
+	a, b int
+}
 
-var g [][]int
-var rg [][]int
+type pairs []pair
+
+func (a pairs) Len() int           { return len(a) }
+func (a pairs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a pairs) Less(i, j int) bool { return a[i].a > a[j].a || a[i].a == a[j].a && a[i].b > a[j].b }
 
 func calc() {
+	// 上げ底
 	n, m := in.NextInt2()
-	refs := make([]int, n)
-
-	g = make([][]int, n)
-	rg = make([][]int, n)
-	for i := 0; i < m; i++ {
-		u, v := in.NextInt2d(-1, -1)
-		g[u] = append(g[u], v)
-		rg[v] = append(rg[v], u)
-		refs[u]++
-	}
-
-	queue := make([]int, 0)
+	a := in.NextInts(n)
+	b := in.NextInts(n)
+	c := in.NextInts(m)
+	d := in.NextInts(m)
+	cho := make(pairs, 0, n)
 	for i := 0; i < n; i++ {
-		if refs[i] == 0 {
-			queue = append(queue, i)
+		cho = append(cho, pair{a[i], b[i]})
+	}
+	sort.Sort(cho)
+
+	offset := 1000000
+	box := make(pairs, 0, m)
+	for i := 0; i < m; i++ {
+		box = append(box, pair{c[i]*offset + i, d[i]*offset + i}) // c, dともに同一値がなくなる
+	}
+	sort.Sort(box)
+	rest := NewTreap(func(a, b interface{}) int {
+		aa, bb := a.(pair), b.(pair)
+		if aa.b == bb.b {
+			return 0
+		} else if aa.b < bb.b {
+			return -1
+		} else {
+			return +1
+		}
+	})
+	// debug(cho)
+	// debug(box)
+	for _, c := range cho {
+		for len(box) != 0 && box[0].a/offset >= c.a {
+			// debug("add", box[0])
+			rest.Put(box[0], true)
+			box = box[1:]
+		}
+		key := pair{0, c.b * offset}
+		b := rest.Find(key)
+		// debug("find", key, "found", b)
+		if b == nil {
+			out.Println("No")
+			return
+		}
+		rest.Remove(b)
+	}
+
+	out.Println("Yes")
+}
+
+type Treap struct {
+	root *node
+	// allowDup は、このTreapのキーとして重複を許すかどうか
+	allowDup   bool
+	comparator func(a, b interface{}) int
+}
+
+type node struct {
+	key   interface{}
+	value interface{}
+	pri   int
+	cnt   int
+	left  *node
+	right *node
+}
+
+func NewTreap(comparator func(a, b interface{}) int) *Treap {
+	return &Treap{nil, false, comparator}
+}
+
+// NewIntTreap は、int型のキーを使用し、昇順に保存するTreapを作成して返します。
+func NewIntTreap() *Treap {
+	return NewTreap(func(a, b interface{}) int {
+		aa, bb := a.(int), b.(int)
+		if aa == bb {
+			return 0
+		}
+		if aa < bb {
+			return -1
+		}
+		return +1
+	})
+}
+
+// NewRevIntTreap は、int型のキーを使用し、降順に保存するTreapを作成して返します。
+func NewRevIntTreap() *Treap {
+	return NewTreap(func(a, b interface{}) int {
+		aa, bb := a.(int), b.(int)
+		if aa == bb {
+			return 0
+		}
+		if aa < bb {
+			return +1
+		}
+		return -1
+	})
+}
+
+// Len は、このTreapに含まれる要素の数を返します。
+func (t *Treap) Len() int {
+	return t._count(t.root)
+}
+
+// Get は、keyに対応する値を探して返します。 存在しない場合はnilを返します。
+func (t *Treap) Get(key interface{}) interface{} {
+	n := t.root
+	for n != nil {
+		c := t.comparator(key, n.key)
+		if c == 0 {
+			return n.value
+		} else if c < 0 {
+			n = n.left
+		} else {
+			n = n.right
 		}
 	}
-	ans := n
 
-	for len(queue) > 0 {
-		u := queue[0]
-		queue = queue[1:]
-		ans--
+	return nil
+}
 
-		for _, v := range rg[u] {
-			refs[v]--
-			if refs[v] == 0 {
-				queue = append(queue, v)
-			}
+// GetKthは k (1-indexed)番目のキーと対応する値を返します。
+// 該当する要素が存在しない場合は (nil, nil) を返します。
+func (t *Treap) GetKth(k int) (interface{}, interface{}) {
+	if k < 0 || t.Len() < k {
+		return nil, nil
+	}
+	a, b := t._split(t.root, k)
+
+	n := a
+	var p *node = nil
+	for n != nil {
+		p = n
+		n = n.right
+	}
+	if p == nil {
+		return nil, nil
+	}
+	t.root = t._merge(a, b)
+
+	return p.key, p.value
+}
+
+// Find は、key以下で最大のキーを返します。
+// 対応するキーがなければnilを返します。
+func (t *Treap) Find(key interface{}) interface{} {
+	n := t.root
+	var ans *node
+
+	for n != nil {
+		c := t.comparator(key, n.key)
+		if c == 0 {
+			return key
+		} else if c < 0 {
+			ans = n
+			n = n.left
+		} else {
+			n = n.right
 		}
 	}
 
-	// debug(nodes)
-	out.Println(ans)
+	if ans == nil {
+		return nil
+	}
+	return ans.key
+}
+
+// Put は、keyとそれに対応するvalueを保存し、古い値を返します。
+// すでにキーが登録されている場合、allowDupがtrueなら挿入、falseなら上書きされます。
+func (t *Treap) Put(key interface{}, value interface{}) interface{} {
+	n, v := t._put(t.root, key, value, rand.Intn(1<<60))
+	t.root = n
+	t._update(t.root)
+
+	return v
+}
+
+func (t *Treap) _put(n *node, key, value interface{}, pri int) (*node, interface{}) {
+	if n == nil {
+		return &node{key, value, pri, 1, nil, nil}, nil
+	}
+	c := t.comparator(key, n.key)
+	if c == 0 && !t.allowDup {
+		v := n.value
+		n.value = value
+		return n, v
+	}
+	if c <= 0 {
+		nn, v := t._put(n.left, key, value, pri)
+		n.left = nn
+		if n.left.pri < n.pri {
+			n = t._rotatel(n)
+		}
+
+		return t._update(n), v
+	} else {
+		nn, v := t._put(n.right, key, value, pri)
+		n.right = nn
+		if n.right.pri < n.pri {
+			n = t._rotater(n)
+		}
+		return t._update(n), v
+	}
+}
+
+func (t *Treap) _rotatel(n *node) *node {
+	result := n.left
+	x := result.right
+	result.right = n
+	n.left = x
+	t._update(n)
+	t._update(result)
+	return result
+}
+
+func (t *Treap) _rotater(n *node) *node {
+	result := n.right
+	x := result.left
+	result.left = n
+	n.right = x
+	t._update(n)
+	t._update(result)
+	return result
+}
+
+func (t *Treap) Remove(key interface{}) interface{} {
+	n, v := t._remove(t.root, key)
+	t.root = t._update(n)
+	return v
+}
+
+func (t *Treap) _remove(n *node, key interface{}) (*node, interface{}) {
+	if n == nil {
+		return nil, nil
+	}
+	c := t.comparator(key, n.key)
+	if c == 0 {
+		// このノードを削除する
+		v := n.value
+		n = t._merge(n.left, n.right)
+		t._update(n)
+		return n, v
+	}
+	if c < 0 {
+		r := n
+		nn, v := t._remove(n.left, key)
+		r.left = nn
+		if r.left != nil && r.left.pri < r.pri {
+			r = t._rotatel(r)
+		}
+		return t._update(r), v
+	} else {
+		r := n
+		nn, v := t._remove(n.right, key)
+		r.right = nn
+		if r.right != nil && r.right.pri < r.pri {
+			r = t._rotater(r)
+		}
+		return t._update(r), v
+	}
+}
+
+func (t *Treap) _count(n *node) int {
+	if n == nil {
+		return 0
+	}
+	return n.cnt
+}
+
+func (t *Treap) _update(n *node) *node {
+	if n != nil {
+		n.cnt = t._count(n.left) + t._count(n.right) + 1
+	}
+
+	return n
+}
+
+func (t *Treap) _merge(l, r *node) *node {
+	if l == nil || r == nil {
+		if r == nil {
+			return l
+		} else {
+			return r
+		}
+	}
+	if l.pri < r.pri {
+		l.right = t._merge(l.right, r)
+		return t._update(l)
+	} else {
+		r.left = t._merge(l, r.left)
+		return t._update(r)
+	}
+}
+
+func (t *Treap) _split(n *node, nth int) (*node, *node) {
+	if n == nil {
+		return nil, nil
+	}
+	if nth <= t._count(n.left) {
+		a, b := t._split(n.left, nth)
+		n.left = b
+		return a, t._update(n)
+	} else {
+		a, b := t._split(n.right, nth-t._count(n.left)-1)
+		n.right = a
+		return t._update(n), b
+	}
 }
 
 func main() {
