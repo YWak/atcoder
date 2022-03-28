@@ -24,7 +24,7 @@ var out *Out
 
 func calc() {
 	n := in.NextInt()
-	seats := make([]string, n)
+	seats := make([]string, n+1)
 	for i := 0; i < n; i++ {
 		seats[i] = "unknown"
 	}
@@ -38,11 +38,9 @@ func calc() {
 	if read(0) == "Vacant" {
 		return
 	}
-	if read(n-1) == "Vacant" {
-		return
-	}
+	seats[n] = seats[0]
 
-	l, r := 0, n-1
+	l, r := 0, n
 	for i := 1; i < 20; i++ {
 		m := (l + r) / 2
 		s := read(m)
