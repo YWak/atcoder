@@ -24,13 +24,16 @@ var out *Out
 
 func calc() {
 	n := in.NextInt()
+
 	s := 0
 	for i := 1; i*i <= n; i++ {
 		if n%i != 0 {
 			continue
 		}
 
-		s += i
+		if n != 1 {
+			s += i
+		}
 		if i*i != n && i != 1 {
 			s += (n / i)
 		}
