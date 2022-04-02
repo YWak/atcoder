@@ -24,35 +24,26 @@ var out *Out
 
 func calc() {
 	n, l := in.NextInt2()
-	s := make([][]int, n)
+	s := make([]int, n)
 	for i := 0; i < n; i++ {
 		ss := in.NextString()
-		s[i] = make([]int, len(ss))
-		for j, c := range ss {
-			s[i][j] = int(byte(c) - 'a')
+		for _, c := range ss {
+			s[i] += 1 << (byte(c) - 'a')
 		}
 	}
 	// 重複を調べる
 	// same[i]はパターンiで重複する文字の数
 	same := make([]int, 1<<n)
 
-	for i := 0; i < (1 << n); i++ {
-		no := map[int]bool{}
+	for i := 1; i < (1 << n); i++ {
+		ok := (1 << 26) - 1
 		for j := 0; j < n; j++ {
 			if nthbit(i, j) == 0 {
 				continue
 			}
-			exists := make([]bool, 26)
-			for _, c := range s[j] {
-				exists[c] = true
-			}
-			for c, ok := range exists {
-				if !ok {
-					no[c] = true
-				}
-			}
+			ok = ok & s[j]
 		}
-		same[i] = 26 - len(no)
+		same[i] = popcount(ok)
 	}
 
 	mod := NewMod998244353()
