@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"math/bits"
+	"math/rand"
 	"os"
 	"sort"
 	"strconv"
@@ -22,204 +23,300 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
+type pair struct {
+	a, b int
+}
+
 func calc() {
-	mod := NewMod998244353()
+	n, x, y := in.NextInt3()
+	a := in.NextInts(n)
 
-	dp := make([][]int, 200001)
-	for i := 0; i < len(dp); i++ {
-		dp[i] = make([]int, 2)
+	ng := make([]bool, n)
+	e := make([]int, 0, n)
+
+	for i, v := range a {
+		if v > x || v < y {
+			ng[i] = true
+		}
+		if v == x || v == y {
+			e = append(e, i)
+		}
 	}
-	dp[0][1] = 1
-	dp[1][0] = 1
-	dp[1][1] = 1
+	l := e[0]
+	for i := 1; i < len(e); i++ {
+		r := e[i]
 
-	for i := 2; i < len(dp); i++ {
-		dp[i][0] = dp[i-1][1]
-		dp[i][1] = mod.add(dp[i-1][1], dp[i-1][0])
-	}
+		ok := true
+		for j := l + 1; j < r; j++ {
+			if ng[j] {
+				ok = false
+				break
+			}
+		}
 
-	n := in.NextInt()
-	p := in.NextInts(n)
-	q := in.NextInts(n)
-
-	uf := ufNew(n)
-	for i := 0; i < n; i++ {
-		uf.Unite(p[i]-1, q[i]-1)
-	}
-
-	used := map[int]bool{}
-	ans := 1
-
-	for i := 0; i < n; i++ {
-		root := uf.Root(i)
-		if used[root] {
+		if !ok {
+			l = r
 			continue
 		}
-		used[root] = true
-
-		// dpはi個まで見たときに直前の要素をj (1:選んだ, 0:選んでない)場合の数
-		s := uf.Size(i)
-		c := mod.add(dp[s][0], dp[s][1])
-		ans = mod.mul(ans, c)
 	}
-
-	out.Println(ans)
 }
 
-type Mod struct {
-	modulo int
-
-	// normはaをmod mの値に変換します
-	norm func(a int) int
-
-	// addはa + b (mod m)を返します。
-	add func(a, b int) int
-
-	// subはa - b (mod m)を返します。
-	sub func(a, b int) int
-
-	// mulはa * b (mod m)を返します。
-	mul func(a, b int) int
-
-	// powはa ^ b (mod m)を返します。
-	pow func(a, b int) int
-
-	// invはmod mにおけるaの逆元を返します。
-	inv func(a int) int
-
-	// divはa / b (mod m)を返します。
-	div func(a, b int) int
+type Treap struct {
+	root *node
+	// allowDup は、このTreapのキーとして重複を許すかどうか
+	allowDup   bool
+	comparator func(a, b interface{}) int
 }
 
-func NewMod1000000007() *Mod {
-	mod := NewMod(1000000007)
-	return mod
+type node struct {
+	key   interface{}
+	value interface{}
+	pri   int
+	cnt   int
+	left  *node
+	right *node
 }
 
-func NewMod998244353() *Mod {
-	mod := NewMod(998244353)
-	return mod
+func NewTreap(comparator func(a, b interface{}) int) *Treap {
+	return &Treap{nil, false, comparator}
 }
 
-func NewMod(m int) *Mod {
-	norm := func(a int) int {
-		if a < 0 || a >= m {
-			a %= m
+// NewIntTreap は、int型のキーを使用し、昇順に保存するTreapを作成して返します。
+func NewIntTreap() *Treap {
+	return NewTreap(func(a, b interface{}) int {
+		aa, bb := a.(int), b.(int)
+		if aa == bb {
+			return 0
 		}
-		if a < 0 {
-			a += m
+		if aa < bb {
+			return -1
 		}
-		return a
-	}
-	add := func(a, b int) int {
-		ab := a + b
-		if ab >= m {
-			ab %= m
+		return +1
+	})
+}
+
+// NewRevIntTreap は、int型のキーを使用し、降順に保存するTreapを作成して返します。
+func NewRevIntTreap() *Treap {
+	return NewTreap(func(a, b interface{}) int {
+		aa, bb := a.(int), b.(int)
+		if aa == bb {
+			return 0
 		}
-		return ab
-	}
-	sub := func(a, b int) int {
-		ab := a - b + m
-		if ab < 0 {
-			ab += m
+		if aa < bb {
+			return +1
 		}
-		return ab
-	}
-	mul := func(a, b int) int {
-		return (a * b) % m
-	}
-	pow := func(a, b int) int {
-		ans := 1
+		return -1
+	})
+}
 
-		for b > 0 {
-			if b&1 == 1 {
-				ans = mul(ans, a)
-			}
-			a = mul(a, a)
-			b = b >> 1
+// Len は、このTreapに含まれる要素の数を返します。
+func (t *Treap) Len() int {
+	return t._count(t.root)
+}
+
+// Get は、keyに対応する値を探して返します。 存在しない場合はnilを返します。
+func (t *Treap) Get(key interface{}) interface{} {
+	n := t.root
+	for n != nil {
+		c := t.comparator(key, n.key)
+		if c == 0 {
+			return n.value
+		} else if c < 0 {
+			n = n.left
+		} else {
+			n = n.right
+		}
+	}
+
+	return nil
+}
+
+// GetKthは k (1-indexed)番目のキーと対応する値を返します。
+// 該当する要素が存在しない場合は (nil, nil) を返します。
+func (t *Treap) GetKth(k int) (interface{}, interface{}) {
+	if k < 0 || t.Len() < k {
+		return nil, nil
+	}
+	a, b := t._split(t.root, k)
+
+	n := a
+	var p *node = nil
+	for n != nil {
+		p = n
+		n = n.right
+	}
+	if p == nil {
+		return nil, nil
+	}
+	t.root = t._merge(a, b)
+
+	return p.key, p.value
+}
+
+// Find は、key以下で最大のキーを返します。
+// 対応するキーがなければnilを返します。
+func (t *Treap) Find(key interface{}) interface{} {
+	n := t.root
+	var ans *node
+
+	for n != nil {
+		c := t.comparator(key, n.key)
+		if c == 0 {
+			return key
+		} else if c < 0 {
+			ans = n
+			n = n.left
+		} else {
+			n = n.right
+		}
+	}
+
+	if ans == nil {
+		return nil
+	}
+	return ans.key
+}
+
+// Put は、keyとそれに対応するvalueを保存し、古い値を返します。
+// すでにキーが登録されている場合、allowDupがtrueなら挿入、falseなら上書きされます。
+func (t *Treap) Put(key interface{}, value interface{}) interface{} {
+	n, v := t._put(t.root, key, value, rand.Intn(1<<60))
+	t.root = n
+	t._update(t.root)
+
+	return v
+}
+
+func (t *Treap) _put(n *node, key, value interface{}, pri int) (*node, interface{}) {
+	if n == nil {
+		return &node{key, value, pri, 1, nil, nil}, nil
+	}
+	c := t.comparator(key, n.key)
+	if c == 0 && !t.allowDup {
+		v := n.value
+		n.value = value
+		return n, v
+	}
+	if c <= 0 {
+		nn, v := t._put(n.left, key, value, pri)
+		n.left = nn
+		if n.left.pri < n.pri {
+			n = t._rotatel(n)
 		}
 
-		return ans
-	}
-	inv := func(a int) int {
-		// 拡張ユークリッドの互除法
-		b, u, v := m, 1, 0
-		for b > 0 {
-			t := a / b
-			a -= t * b
-			a, b = b, a
-			u -= t * v
-			u, v = v, u
+		return t._update(n), v
+	} else {
+		nn, v := t._put(n.right, key, value, pri)
+		n.right = nn
+		if n.right.pri < n.pri {
+			n = t._rotater(n)
 		}
-		return norm(u)
-	}
-	div := func(a, b int) int {
-		return mul(a, inv(b))
-	}
-
-	return &Mod{
-		modulo: m,
-		norm:   norm,
-		add:    add,
-		sub:    sub,
-		mul:    mul,
-		pow:    pow,
-		inv:    inv,
-		div:    div,
+		return t._update(n), v
 	}
 }
 
-// UnionFind : UnionFind構造を保持する構造体
-type UnionFind struct {
-	par []int // i番目のノードに対応する親
+func (t *Treap) _rotatel(n *node) *node {
+	result := n.left
+	x := result.right
+	result.right = n
+	n.left = x
+	t._update(n)
+	t._update(result)
+	return result
 }
 
-// [0, n)のノードを持つUnion-Findを作る
-func ufNew(n int) UnionFind {
-	uf := UnionFind{par: make([]int, n)}
+func (t *Treap) _rotater(n *node) *node {
+	result := n.right
+	x := result.left
+	result.left = n
+	n.right = x
+	t._update(n)
+	t._update(result)
+	return result
+}
 
-	for i := 0; i < n; i++ {
-		uf.par[i] = -1
+func (t *Treap) Remove(key interface{}) interface{} {
+	n, v := t._remove(t.root, key)
+	t.root = t._update(n)
+	return v
+}
+
+func (t *Treap) _remove(n *node, key interface{}) (*node, interface{}) {
+	if n == nil {
+		return nil, nil
+	}
+	c := t.comparator(key, n.key)
+	if c == 0 {
+		// このノードを削除する
+		v := n.value
+		n = t._merge(n.left, n.right)
+		t._update(n)
+		return n, v
+	}
+	if c < 0 {
+		r := n
+		nn, v := t._remove(n.left, key)
+		r.left = nn
+		if r.left != nil && r.left.pri < r.pri {
+			r = t._rotatel(r)
+		}
+		return t._update(r), v
+	} else {
+		r := n
+		nn, v := t._remove(n.right, key)
+		r.right = nn
+		if r.right != nil && r.right.pri < r.pri {
+			r = t._rotater(r)
+		}
+		return t._update(r), v
+	}
+}
+
+func (t *Treap) _count(n *node) int {
+	if n == nil {
+		return 0
+	}
+	return n.cnt
+}
+
+func (t *Treap) _update(n *node) *node {
+	if n != nil {
+		n.cnt = t._count(n.left) + t._count(n.right) + 1
 	}
 
-	return uf
+	return n
 }
 
-// Root はxのルートを得る
-func (uf *UnionFind) Root(x int) int {
-	if uf.par[x] < 0 {
-		return x
+func (t *Treap) _merge(l, r *node) *node {
+	if l == nil || r == nil {
+		if r == nil {
+			return l
+		} else {
+			return r
+		}
 	}
-	uf.par[x] = uf.Root(uf.par[x])
-	return uf.par[x]
-}
-
-// Unite はxとyを併合する。集合の構造が変更された(== 呼び出し前は異なる集合だった)かどうかを返す
-func (uf *UnionFind) Unite(x, y int) bool {
-	rx := uf.Root(x)
-	ry := uf.Root(y)
-
-	if rx == ry {
-		return false
+	if l.pri < r.pri {
+		l.right = t._merge(l.right, r)
+		return t._update(l)
+	} else {
+		r.left = t._merge(l, r.left)
+		return t._update(r)
 	}
-	if uf.par[rx] > uf.par[ry] {
-		rx, ry = ry, rx
+}
+
+func (t *Treap) _split(n *node, nth int) (*node, *node) {
+	if n == nil {
+		return nil, nil
 	}
-	uf.par[rx] += uf.par[ry]
-	uf.par[ry] = rx
-	return true
-}
-
-// Same はxとyが同じノードにいるかを判断する
-func (uf *UnionFind) Same(x, y int) bool {
-	rx := uf.Root(x)
-	ry := uf.Root(y)
-	return rx == ry
-}
-
-// Size は xの集合のサイズを返します。
-func (uf *UnionFind) Size(x int) int {
-	return -uf.par[uf.Root(x)]
+	if nth <= t._count(n.left) {
+		a, b := t._split(n.left, nth)
+		n.left = b
+		return a, t._update(n)
+	} else {
+		a, b := t._split(n.right, nth-t._count(n.left)-1)
+		n.right = a
+		return t._update(n), b
+	}
 }
 
 func main() {

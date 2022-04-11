@@ -3,6 +3,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"io"
 	"math"
@@ -41,93 +42,212 @@ func calc() {
 		s[i] = in.NextString()
 	}
 
-	cost := make([][]int, n)
-	for i := 0; i < n; i++ {
-		cost[i] = make([]int, n)
-		for j := 0; j < n; j++ {
-			cost[i][j] = INF18
-		}
-	}
 	dirs := [][]int{
 		{+1, +1},
-		{-1, -1},
 		{+1, -1},
+		{-1, -1},
 		{-1, +1},
 	}
 
-	var head *node
-	var tail *node
-	c := 0
-
-	pushfront := func(item *q) {
-		c++
-		n := node{item, nil, head}
-		if head == nil {
-			tail = &n
-		} else {
-			head.prev = &n
-		}
-		head = &n
+	g := NewGraph(n * n * 4)
+	p := func(x, y, d int) int {
+		return n*n*d + n*x + y
 	}
-	pushback := func(item *q) {
-		c++
-		n := node{item, tail, nil}
-		if tail == nil {
-			head = &n
-		} else {
-			tail.next = &n
-		}
-		tail = &n
-	}
-	popfront := func() *q {
-		c--
-		n := head
-		if head.next == nil {
-			tail = nil
-		} else {
-			head.next.prev = nil
-		}
-		head = head.next
-		n.next = nil
-		return n.value
+	ok := func(x, y int) bool {
+		return x >= 0 && x < n && y >= 0 && y < n && s[x][y] != '#'
 	}
 
-	cost[ax][ay] = 0
-	pushfront(&q{ax, ay, -1})
-
-	for c > 0 {
-		item := popfront()
-		// debug(item.x, item.y, item.dir)
-		for d, dir := range dirs {
-			x, y := item.x+dir[0], item.y+dir[1]
-			if x < 0 || x >= n || y < 0 || y >= n {
-				break
-			}
-			if s[x][y] == '#' {
-				break
-			}
-			curr := cost[item.x][item.y]
-			if d == item.dir {
-				if cost[x][y] > curr {
-					pushfront(&q{x, y, d})
-					cost[x][y] = curr
-					debug("push front", x, y, d)
+	for x1 := 0; x1 < n; x1++ {
+		for y1 := 0; y1 < n; y1++ {
+			for d1, dir := range dirs {
+				x2, y2 := x1+dir[0], y1+dir[1]
+				if !ok(x2, y2) {
+					continue
 				}
-			} else {
-				if cost[x][y] > curr+1 {
-					pushback(&q{x, y, d})
-					cost[x][y] = curr + 1
-					debug("push back", x, y, d)
+				for d2 := range dirs {
+					p1 := p(x1, y1, d1)
+					p2 := p(x2, y2, d2)
+					if d1 == d2 {
+						g.AddWeightedEdge(p1, p2, 0)
+						g.AddWeightedEdge(p2, p1, 0)
+					} else {
+						g.AddWeightedEdge(p1, p2, 1)
+						g.AddWeightedEdge(p2, p1, 1)
+					}
 				}
 			}
 		}
 	}
+	ans := INF18
+	m := map[int]int{}
+	for d := range dirs {
+		m[p(bx, by, d)] = 1
+	}
+	for d := range dirs {
+		ans = min(ans, g.Dijkstra(p(ax, ay, d), m))
+	}
 
-	if cost[bx][by] == INF18 {
+	if ans == INF18 {
 		out.Println(-1)
 	} else {
-		out.Println(cost[bx][by])
+		out.Println(ans + 1)
 	}
+}
+
+// Graph はグラフを表現する構造です
+type Graph struct {
+	// 隣接リスト
+	list [][]Edge
+}
+
+// Edge は辺を表現する構造体です
+type Edge struct {
+	to     int
+	weight int
+}
+
+// NewGraph はグラフを作成します
+func NewGraph(n int) *Graph {
+	return &(Graph{make([][]Edge, n)})
+}
+
+// AddEdge は辺を追加します
+func (g *Graph) AddEdge(s, t int) {
+	g.AddWeightedEdge(s, t, 1)
+}
+
+// AddWeightedEdge は重み付きの辺を追加します。
+func (g *Graph) AddWeightedEdge(s, t, w int) {
+	g.list[s] = append(g.list[s], Edge{t, w})
+}
+
+// DijkstraNode は ダイクストラ法を使用するときに使うノード
+type DijkstraNode struct {
+	node int
+	cost int
+}
+
+// DijkstraPriorityQueue はダイクストラ法を使用するときに使う優先度付きキュー
+type DijkstraPriorityQueue []*DijkstraNode
+
+func (pq DijkstraPriorityQueue) Len() int           { return len(pq) }
+func (pq DijkstraPriorityQueue) Less(i, j int) bool { return pq[i].cost < pq[j].cost }
+func (pq DijkstraPriorityQueue) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
+
+// Push はpqに要素を追加する
+func (pq *DijkstraPriorityQueue) Push(x interface{}) { *pq = append(*pq, x.(*DijkstraNode)) }
+
+// Pop はpqから要素を取得する
+func (pq *DijkstraPriorityQueue) Pop() interface{} {
+	o := *pq
+	n := len(o) - 1
+	item := o[n]
+	*pq = o[0:n]
+	return item
+}
+
+// Dijkstra はsからtへの最短距離を返します。
+// 重みが負の辺があるときには使用できません。
+// 計算量: |V| + |E|log|V|
+func (g *Graph) Dijkstra(s int, m map[int]int) int {
+	n := len(g.list)
+	pq := make(DijkstraPriorityQueue, 0)
+	cost := make([]int, n)
+	for i := 0; i < n; i++ {
+		var c int
+		if i == s {
+			c = 0
+		} else {
+			c = INF18
+		}
+		cost[i] = c
+		heap.Push(&pq, &DijkstraNode{i, c})
+	}
+
+	t := -1
+	for pq.Len() > 0 {
+		u := heap.Pop(&pq).(*DijkstraNode)
+		if _, e := m[u.node]; e {
+			t = u.node
+			break
+		}
+		for i := 0; i < len(g.list[u.node]); i++ {
+			v := g.list[u.node][i]
+			c := cost[u.node] + v.weight
+			if cost[v.to] > c {
+				cost[v.to] = c
+				heap.Push(&pq, &DijkstraNode{v.to, c})
+			}
+		}
+	}
+
+	if t == -1 {
+		return INF18
+	}
+	return cost[t]
+}
+
+// DijkstraAll はsから全点への最短距離を返します。
+// 重みが負の辺があるときには使用できません。
+// 計算量: |V| + |E|log|V|
+func (g *Graph) DijkstraAll(s int) []int {
+	n := len(g.list)
+	pq := make(DijkstraPriorityQueue, 0)
+	cost := make([]int, n)
+	for i := 0; i < n; i++ {
+		var c int
+		if i == s {
+			c = 0
+		} else {
+			c = INF18
+		}
+		cost[i] = c
+		heap.Push(&pq, &DijkstraNode{i, c})
+	}
+
+	for pq.Len() > 0 {
+		u := heap.Pop(&pq).(*DijkstraNode)
+		for i := 0; i < len(g.list[u.node]); i++ {
+			v := g.list[u.node][i]
+			c := cost[u.node] + v.weight
+			if cost[v.to] > c {
+				cost[v.to] = c
+				heap.Push(&pq, &DijkstraNode{v.to, c})
+			}
+		}
+	}
+
+	return cost
+}
+
+// WarshallFloyd は全点対の最短ルートを返します。
+func (g *Graph) WarshallFloyd() [][]int {
+	n := len(g.list)
+	d := make([][]int, n)
+	for i := 0; i < n; i++ {
+		d[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			if i == j {
+				d[i][j] = 0
+			} else {
+				d[i][j] = INF18
+			}
+		}
+		for j := 0; j < len(g.list[i]); j++ {
+			k := g.list[i][j]
+			d[i][k.to] = k.weight
+		}
+	}
+
+	for k := 0; k < n; k++ {
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				d[i][j] = min(d[i][j], d[i][k]+d[k][j])
+			}
+		}
+	}
+
+	return d
 }
 
 func main() {
