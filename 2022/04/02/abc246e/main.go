@@ -3,7 +3,6 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"io"
 	"math"
@@ -27,12 +26,6 @@ type q struct {
 	x, y, dir int
 }
 
-type node struct {
-	value *q
-	prev  *node
-	next  *node
-}
-
 func calc() {
 	n := in.NextInt()
 	ax, ay := in.NextInt2d(-1, -1)
@@ -49,207 +42,200 @@ func calc() {
 		{-1, +1},
 	}
 
-	g := NewGraph(n * n * 4)
-	p := func(x, y, d int) int {
-		return n*n*d + n*x + y
+	cost := make([][][]int, n)
+	for i := 0; i < n; i++ {
+		cost[i] = make([][]int, n)
+		for j := 0; j < n; j++ {
+			cost[i][j] = []int{INF18, INF18, INF18, INF18}
+		}
 	}
 	ok := func(x, y int) bool {
 		return x >= 0 && x < n && y >= 0 && y < n && s[x][y] != '#'
 	}
+	queue := NewDeque()
 
-	for x1 := 0; x1 < n; x1++ {
-		for y1 := 0; y1 < n; y1++ {
-			for d1, dir := range dirs {
-				x2, y2 := x1+dir[0], y1+dir[1]
-				if !ok(x2, y2) {
-					continue
-				}
-				for d2 := range dirs {
-					p1 := p(x1, y1, d1)
-					p2 := p(x2, y2, d2)
-					if d1 == d2 {
-						g.AddWeightedEdge(p1, p2, 0)
-						g.AddWeightedEdge(p2, p1, 0)
-					} else {
-						g.AddWeightedEdge(p1, p2, 1)
-						g.AddWeightedEdge(p2, p1, 1)
-					}
-				}
+	for d, dir := range dirs {
+		cost[ax][ay][d] = 1
+		x, y := ax+dir[0], ay+dir[1]
+		if ok(x, y) {
+			queue.PushFront(&q{ax, ay, d})
+		}
+	}
+	for queue.Len() > 0 {
+		item := queue.PopFront()
+		// debug(item.x, item.y, item.dir)
+		if item.x == bx && item.y == by {
+			out.Println(cost[item.x][item.y][item.dir])
+			return
+		}
+
+		for d1, dir := range dirs {
+			x, y := item.x+dir[0], item.y+dir[1]
+			if !ok(x, y) {
+				continue
+			}
+
+			if d1 == item.dir && cost[x][y][d1] > cost[item.x][item.y][item.dir] {
+				queue.PushFront(&q{x, y, d1})
+				cost[x][y][d1] = cost[item.x][item.y][item.dir]
+			} else if cost[x][y][d1] > cost[item.x][item.y][item.dir] {
+				queue.PushBack(&q{x, y, d1})
+				cost[x][y][d1] = cost[item.x][item.y][item.dir] + 1
 			}
 		}
 	}
-	ans := INF18
-	m := map[int]int{}
-	for d := range dirs {
-		m[p(bx, by, d)] = 1
-	}
-	for d := range dirs {
-		ans = min(ans, g.Dijkstra(p(ax, ay, d), m))
-	}
 
-	if ans == INF18 {
-		out.Println(-1)
+	out.Println(-1)
+}
+
+// DequeNode はDequeの各要素を保持するstruct
+type DequeNode struct {
+	value *q
+	prev  *DequeNode
+	next  *DequeNode
+}
+
+// Deque は両端の操作が可能なキューです
+type Deque struct {
+	head     *DequeNode
+	tail     *DequeNode
+	length   int
+	reversed bool
+}
+
+// NewDeque はDequeを作成します
+func NewDeque() Deque {
+	return Deque{nil, nil, 0, false}
+}
+
+// Len はDequeに含まれる要素の数を取得します
+func (deque *Deque) Len() int {
+	return deque.length
+}
+
+// PushFront はDequeの先頭に値を追加します。
+func (deque *Deque) PushFront(value *q) {
+	if deque.reversed {
+		deque.pushBackInternal(value)
 	} else {
-		out.Println(ans + 1)
+		deque.pushFrontInternal(value)
 	}
 }
 
-// Graph はグラフを表現する構造です
-type Graph struct {
-	// 隣接リスト
-	list [][]Edge
-}
-
-// Edge は辺を表現する構造体です
-type Edge struct {
-	to     int
-	weight int
-}
-
-// NewGraph はグラフを作成します
-func NewGraph(n int) *Graph {
-	return &(Graph{make([][]Edge, n)})
-}
-
-// AddEdge は辺を追加します
-func (g *Graph) AddEdge(s, t int) {
-	g.AddWeightedEdge(s, t, 1)
-}
-
-// AddWeightedEdge は重み付きの辺を追加します。
-func (g *Graph) AddWeightedEdge(s, t, w int) {
-	g.list[s] = append(g.list[s], Edge{t, w})
-}
-
-// DijkstraNode は ダイクストラ法を使用するときに使うノード
-type DijkstraNode struct {
-	node int
-	cost int
-}
-
-// DijkstraPriorityQueue はダイクストラ法を使用するときに使う優先度付きキュー
-type DijkstraPriorityQueue []*DijkstraNode
-
-func (pq DijkstraPriorityQueue) Len() int           { return len(pq) }
-func (pq DijkstraPriorityQueue) Less(i, j int) bool { return pq[i].cost < pq[j].cost }
-func (pq DijkstraPriorityQueue) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
-
-// Push はpqに要素を追加する
-func (pq *DijkstraPriorityQueue) Push(x interface{}) { *pq = append(*pq, x.(*DijkstraNode)) }
-
-// Pop はpqから要素を取得する
-func (pq *DijkstraPriorityQueue) Pop() interface{} {
-	o := *pq
-	n := len(o) - 1
-	item := o[n]
-	*pq = o[0:n]
-	return item
-}
-
-// Dijkstra はsからtへの最短距離を返します。
-// 重みが負の辺があるときには使用できません。
-// 計算量: |V| + |E|log|V|
-func (g *Graph) Dijkstra(s int, m map[int]int) int {
-	n := len(g.list)
-	pq := make(DijkstraPriorityQueue, 0)
-	cost := make([]int, n)
-	for i := 0; i < n; i++ {
-		var c int
-		if i == s {
-			c = 0
-		} else {
-			c = INF18
-		}
-		cost[i] = c
-		heap.Push(&pq, &DijkstraNode{i, c})
+// PushBack はDequeの末尾に値を追加します。
+func (deque *Deque) PushBack(value *q) {
+	if deque.reversed {
+		deque.pushFrontInternal(value)
+	} else {
+		deque.pushBackInternal(value)
 	}
+}
 
-	t := -1
-	for pq.Len() > 0 {
-		u := heap.Pop(&pq).(*DijkstraNode)
-		if _, e := m[u.node]; e {
-			t = u.node
-			break
+// PopFront はDequeの先頭から値を取得し、値を除去します。
+func (deque *Deque) PopFront() *q {
+	if deque.reversed {
+		return deque.popBackInternal()
+	}
+	return deque.popFrontInternal()
+}
+
+// PopBack はDequeの末尾から値を取得し、値を除去します。
+func (deque *Deque) PopBack() *q {
+	if deque.reversed {
+		return deque.popFrontInternal()
+	}
+	return deque.popBackInternal()
+}
+
+// Front はDequeの先頭の値を取得します。
+func (deque *Deque) Front() *q {
+	if deque.reversed {
+		return deque.tail.value
+	}
+	return deque.head.value
+}
+
+// Back はDequeの末尾の値を取得します。
+func (deque *Deque) Back() *q {
+	if deque.reversed {
+		return deque.head.value
+	}
+	return deque.tail.value
+}
+
+// Reverse はDequeの順序を逆転します。
+func (deque *Deque) Reverse() {
+	deque.reversed = !deque.reversed
+}
+
+// ToArray はDequeを配列化します。
+func (deque *Deque) ToArray() []*q {
+	ret := make([]*q, 0, deque.Len())
+
+	if deque.reversed {
+		for p := deque.tail; p != nil; p = p.prev {
+			ret = append(ret, p.value)
 		}
-		for i := 0; i < len(g.list[u.node]); i++ {
-			v := g.list[u.node][i]
-			c := cost[u.node] + v.weight
-			if cost[v.to] > c {
-				cost[v.to] = c
-				heap.Push(&pq, &DijkstraNode{v.to, c})
-			}
+	} else {
+		for p := deque.head; p != nil; p = p.next {
+			ret = append(ret, p.value)
 		}
 	}
-
-	if t == -1 {
-		return INF18
-	}
-	return cost[t]
+	return ret
 }
 
-// DijkstraAll はsから全点への最短距離を返します。
-// 重みが負の辺があるときには使用できません。
-// 計算量: |V| + |E|log|V|
-func (g *Graph) DijkstraAll(s int) []int {
-	n := len(g.list)
-	pq := make(DijkstraPriorityQueue, 0)
-	cost := make([]int, n)
-	for i := 0; i < n; i++ {
-		var c int
-		if i == s {
-			c = 0
-		} else {
-			c = INF18
-		}
-		cost[i] = c
-		heap.Push(&pq, &DijkstraNode{i, c})
+func (deque *Deque) pushBackInternal(value *q) {
+	node := DequeNode{value, deque.tail, nil}
+	if deque.tail == nil {
+		deque.head = &node
+	} else {
+		deque.tail.next = &node
 	}
-
-	for pq.Len() > 0 {
-		u := heap.Pop(&pq).(*DijkstraNode)
-		for i := 0; i < len(g.list[u.node]); i++ {
-			v := g.list[u.node][i]
-			c := cost[u.node] + v.weight
-			if cost[v.to] > c {
-				cost[v.to] = c
-				heap.Push(&pq, &DijkstraNode{v.to, c})
-			}
-		}
-	}
-
-	return cost
+	deque.tail = &node
+	deque.length++
 }
 
-// WarshallFloyd は全点対の最短ルートを返します。
-func (g *Graph) WarshallFloyd() [][]int {
-	n := len(g.list)
-	d := make([][]int, n)
-	for i := 0; i < n; i++ {
-		d[i] = make([]int, n)
-		for j := 0; j < n; j++ {
-			if i == j {
-				d[i][j] = 0
-			} else {
-				d[i][j] = INF18
-			}
-		}
-		for j := 0; j < len(g.list[i]); j++ {
-			k := g.list[i][j]
-			d[i][k.to] = k.weight
-		}
+func (deque *Deque) pushFrontInternal(value *q) {
+	node := DequeNode{value, nil, deque.head}
+	if deque.head == nil {
+		deque.tail = &node
+	} else {
+		deque.head.prev = &node
 	}
-
-	for k := 0; k < n; k++ {
-		for i := 0; i < n; i++ {
-			for j := 0; j < n; j++ {
-				d[i][j] = min(d[i][j], d[i][k]+d[k][j])
-			}
-		}
-	}
-
-	return d
+	deque.head = &node
+	deque.length++
 }
 
+func (deque *Deque) popFrontInternal() *q {
+	node := deque.head
+	deque.head = node.next
+	if deque.head == nil {
+		deque.tail = nil
+	} else {
+		deque.head.prev = nil
+	}
+
+	node.prev = nil
+	node.next = nil
+	deque.length--
+	return node.value
+}
+
+func (deque *Deque) popBackInternal() *q {
+	node := deque.tail
+	deque.tail = node.prev
+	if deque.tail == nil {
+		deque.head = nil
+	} else {
+		deque.tail.next = nil
+	}
+
+	node.next = nil
+	node.prev = nil
+	deque.length--
+
+	return node.value
+}
 func main() {
 	// interactiveならfalseにすること。
 	in, out = InitIo(true)
