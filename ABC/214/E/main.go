@@ -74,6 +74,7 @@ func solve() {
 	out.YesNo(ans)
 }
 
+// PriorityQueueListは優先度付きキューのリストを表す
 type PriorityQueueList struct {
 	values []int
 	prior  func(a, b int) bool
@@ -114,6 +115,7 @@ func (pq PriorityQueue) Pop() int {
 	return heap.Pop(pq.list).(int)
 }
 
+// Top は優先度つきキューの先頭要素を返します。
 func (pq PriorityQueue) Top() int {
 	v := heap.Pop(pq.list).(int)
 	heap.Push(pq.list, v)
