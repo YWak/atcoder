@@ -25,17 +25,11 @@ var out *Out
 func calc() {
 	mod := NewMod998244353()
 
-	dp := make([][]int, 200001)
-	for i := 0; i < len(dp); i++ {
-		dp[i] = make([]int, 2)
-	}
-	dp[0][1] = 1
-	dp[1][0] = 1
-	dp[1][1] = 1
-
+	dp := make([]int, 200001)
+	dp[0] = 2
+	dp[1] = 1
 	for i := 2; i < len(dp); i++ {
-		dp[i][0] = dp[i-1][1]
-		dp[i][1] = mod.add(dp[i-1][1], dp[i-1][0])
+		dp[i] = mod.add(dp[i-2], dp[i-1])
 	}
 
 	n := in.NextInt()
@@ -57,10 +51,8 @@ func calc() {
 		}
 		used[root] = true
 
-		// dpはi個まで見たときに直前の要素をj (1:選んだ, 0:選んでない)場合の数
 		s := uf.Size(i)
-		c := mod.add(dp[s][0], dp[s][1])
-		ans = mod.mul(ans, c)
+		ans = mod.mul(ans, dp[s])
 	}
 
 	out.Println(ans)
