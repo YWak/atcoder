@@ -27,109 +27,138 @@ type pair struct {
 	l, r int
 }
 
-type pairs []pair
-
-func (a pairs) Len() int           { return len(a) }
-func (a pairs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a pairs) Less(i, j int) bool { return a[i].l < a[j].l || a[i].l == a[j].l && a[i].r < a[j].r }
-
-func solve() bool {
+func solve() {
 	n := in.NextInt()
-	ranges := make(pairs, 0, n)
+	lr := map[int][]int{}
+
 	for i := 0; i < n; i++ {
-		p := pair{in.NextInt(), in.NextInt()}
-		ranges = append(ranges, p)
+		l, r := in.NextInt2()
+		lr[l] = append(lr[l], r)
 	}
-	sort.Sort(ranges)
-	pq := pqNew()
+	keys := make(sort.IntSlice, 0)
+	for l := range lr {
+		keys = append(keys, l)
+	}
+	sort.Sort(keys)
+	keys = append(keys, INF18)
+	pq := NewIntPriorityQueue(Smaller)
 
-	i := 0
-	c := 1
-	for i < n {
-		k := 0
-		l := ranges[i].l
-		for l == ranges[i].l {
-			pq.Push(PQItem(ranges[i].r))
-			i++
-			k++
+	next := func(l int) int {
+		ok, ng := len(keys), -1
+		for abs(ok-ng) > 1 {
+			mid := (ok + ng) / 2
+			if keys[mid] >= l {
+				ok = mid
+			} else {
+				ng = mid
+			}
 		}
-		for j := 0; j < k; j++ {
-			r := int(pq.Pop())
+		return keys[ok]
+	}
+	ans := true
+	for c := keys[0]; c <= pow(10, 9); {
+		for _, r := range lr[c] {
+			pq.Push(r)
+		}
+		pq.Pop()
+		if pq.Empty() {
+			c = next(c + 1)
+		} else if pq.Top() <= c {
+			break
+		} else {
+			c++
 		}
 	}
+	ans = ans && pq.Empty()
 
-	return true
+	out.YesNo(ans)
 }
 
-//PQItem は優先度付きキューに保存される要素
-type PQItem int
-
-// PQList は 優先度付きキューの本体
-type PQList []PQItem
-
-// prior は pq[i]の方が優先度が高いかどうかを判断します。
-func (pq PQList) prior(i, j int) bool {
-	return pq[i] > pq[j] // 大きいもの優先とする
+type PriorityQueueList struct {
+	values []int
+	prior  func(a, b int) bool
 }
 
 // PriorityQueue は優先度付きキューを表す
 type PriorityQueue struct {
-	queue *PQList
+	list *PriorityQueueList
 }
 
-func pqNew() PriorityQueue {
-	l := make(PQList, 0, 100)
-	return PriorityQueue{queue: &l}
+// Smaller は aがbより小さいかどうかを判断します。
+func Smaller(a, b int) bool {
+	return a < b
+}
+
+// Bigger は aがbより大きいかどうかを判断します。
+func Bigger(a, b int) bool {
+	return b < a
+}
+
+// NewIntPriorityQueue は 優先度をpriorで判断する優先度付きキューを返します。
+func NewIntPriorityQueue(prior func(a, b int) bool) PriorityQueue {
+	return PriorityQueue{
+		&PriorityQueueList{
+			make([]int, 0, 100),
+			prior,
+		},
+	}
 }
 
 // Push は優先度付きキューに要素を一つ追加します。
-func (pq PriorityQueue) Push(value PQItem) {
-	heap.Push(pq.queue, value)
+func (pq PriorityQueue) Push(value int) {
+	heap.Push(pq.list, value)
 }
 
 // Pop は優先度付きキューから要素を一つ取り出します。
-func (pq PriorityQueue) Pop() PQItem {
-	return heap.Pop(pq.queue).(PQItem)
+func (pq PriorityQueue) Pop() int {
+	return heap.Pop(pq.list).(int)
+}
+
+func (pq PriorityQueue) Top() int {
+	v := heap.Pop(pq.list).(int)
+	heap.Push(pq.list, v)
+	return v
 }
 
 // Empty は優先度付きキューが空かどうかを判断します。
 func (pq PriorityQueue) Empty() bool {
-	return len(*pq.queue) == 0
+	return pq.list.Len() == 0
 }
 
 // Swap は要素を交換します。
-func (pq PQList) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
+func (list PriorityQueueList) Swap(i, j int) {
+	list.values[i], list.values[j] = list.values[j], list.values[i]
 }
 
-// Less は要素を比較し、pq[i] < pq[j]かどうかを判断します
-func (pq PQList) Less(i, j int) bool {
-	return pq.prior(i, j)
+// Less は要素を比較し、優先度が低いかどうかを判断します
+func (list PriorityQueueList) Less(i, j int) bool {
+	return list.prior(list.values[i], list.values[j])
 }
 
 // Len は要素の数を返します。
-func (pq PQList) Len() int {
-	return len(pq)
+func (list PriorityQueueList) Len() int {
+	return len(list.values)
 }
 
 // Pop は要素を取り出して返します。
-func (pq *PQList) Pop() interface{} {
-	old := *pq
+func (list *PriorityQueueList) Pop() interface{} {
+	old := list.values
 	n := len(old)
 	item := old[n-1]
-	*pq = old[:n-1]
+	values := old[:n-1]
+	list.values = values
 	return item
 }
 
 // Push は要素を追加します。
-func (pq *PQList) Push(item interface{}) {
-	*pq = append(*pq, item.(PQItem))
+func (list *PriorityQueueList) Push(item interface{}) {
+	list.values = append(list.values, item.(int))
 }
 
 func calc() {
 	t := in.NextInt()
 	for i := 0; i < t; i++ {
-		out.YesNo(solve())
+		solve()
 	}
 }
 
@@ -294,20 +323,25 @@ func (out *Out) Printf(format string, a ...interface{}) {
 
 // PrintStringsln は文字列配列の各要素をスペース区切りで出力し、最後に改行を出力します。
 func (out *Out) PrintStringsln(a []string) {
-	b := make([]interface{}, len(a))
-	for i, v := range a {
-		b[i] = v
-	}
-	out.Println(b...)
+	out.Println(strings.Join(a, " "))
 }
 
 // PrintIntsLn は整数配列の各要素をスペース区切りで出力し、最後に改行を出力します。
 func (out *Out) PrintIntsLn(a []int) {
-	b := make([]interface{}, len(a))
+	b := make([]string, len(a))
 	for i, v := range a {
-		b[i] = v
+		b[i] = fmt.Sprint(v)
 	}
-	out.Println(b...)
+	out.Println(strings.Join(b, " "))
+}
+
+func (out *Out) PrintLenAndIntsLn(a []int) {
+	b := make([]string, len(a)+1)
+	b[0] = fmt.Sprint(len(a))
+	for i, v := range a {
+		b[i+1] = fmt.Sprint(v)
+	}
+	out.Println(strings.Join(b, " "))
 }
 
 // YesNo は condが真ならYes, 偽ならNoを出力します。
@@ -380,6 +414,11 @@ func divfloor(a, b int) int {
 
 // powmod は (x^n) mod m を返します。
 func powmod(x, n, m int) int {
+	x = x % m
+	if x == 0 {
+		return 0
+	}
+
 	ans := 1
 	for n > 0 {
 		if n%2 == 1 {
