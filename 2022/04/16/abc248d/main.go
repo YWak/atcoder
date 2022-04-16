@@ -32,17 +32,20 @@ func calc() {
 	Q := in.NextInt()
 	qs := make([]*query, Q)
 	for i := 0; i < Q; i++ {
-		l, r, x := in.NextInt3d(-1, -1, 0)
+		l, r, x := in.NextInt3d(-1, 0, 0)
 		qs[i] = &query{l, r, x, i, -1}
 	}
 
 	bs := n / min(n, int(math.Sqrt(float64(Q))))
 
 	sort.Slice(qs, func(i, j int) bool {
-		if qs[i].l != qs[j].l {
-			return qs[i].l < qs[j].l
+		bi := qs[i].l / bs
+		bj := qs[j].l / bs
+		if bi != bj {
+			return bi < bj
 		}
-		if (qs[i].l % bs) == 0 {
+
+		if bi%2 == 0 {
 			return qs[i].r < qs[j].r
 		} else {
 			return qs[i].r > qs[j].r
