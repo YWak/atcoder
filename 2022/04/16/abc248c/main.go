@@ -23,9 +23,132 @@ var in *In
 var out *Out
 
 func calc() {
+	n, m, k := in.NextInt3()
+	s := map[int]int{}
+	s[0] = 1
 
+	mod := NewMod998244353()
+
+	for i := 0; i < n; i++ {
+		ss := map[int]int{}
+		for v, c := range s {
+			for j := 1; j <= m; j++ {
+				if v+j <= k {
+					ss[v+j] = mod.add(ss[v+j], c)
+				}
+			}
+		}
+		s = ss
+	}
+	ans := 0
+	for _, c := range s {
+		ans = mod.add(ans, c)
+	}
+	out.Println(ans)
 }
 
+type Mod struct {
+	modulo int
+
+	// normはaをmod mの値に変換します
+	norm func(a int) int
+
+	// addはa + b (mod m)を返します。
+	add func(a, b int) int
+
+	// subはa - b (mod m)を返します。
+	sub func(a, b int) int
+
+	// mulはa * b (mod m)を返します。
+	mul func(a, b int) int
+
+	// powはa ^ b (mod m)を返します。
+	pow func(a, b int) int
+
+	// invはmod mにおけるaの逆元を返します。
+	inv func(a int) int
+
+	// divはa / b (mod m)を返します。
+	div func(a, b int) int
+}
+
+func NewMod1000000007() *Mod {
+	mod := NewMod(1000000007)
+	return mod
+}
+
+func NewMod998244353() *Mod {
+	mod := NewMod(998244353)
+	return mod
+}
+
+func NewMod(m int) *Mod {
+	norm := func(a int) int {
+		if a < 0 || a >= m {
+			a %= m
+		}
+		if a < 0 {
+			a += m
+		}
+		return a
+	}
+	add := func(a, b int) int {
+		ab := a + b
+		if ab >= m {
+			ab %= m
+		}
+		return ab
+	}
+	sub := func(a, b int) int {
+		ab := a - b + m
+		if ab < 0 {
+			ab += m
+		}
+		return ab
+	}
+	mul := func(a, b int) int {
+		return (a * b) % m
+	}
+	pow := func(a, b int) int {
+		ans := 1
+
+		for b > 0 {
+			if b&1 == 1 {
+				ans = mul(ans, a)
+			}
+			a = mul(a, a)
+			b = b >> 1
+		}
+
+		return ans
+	}
+	inv := func(a int) int {
+		// 拡張ユークリッドの互除法
+		b, u, v := m, 1, 0
+		for b > 0 {
+			t := a / b
+			a -= t * b
+			a, b = b, a
+			u -= t * v
+			u, v = v, u
+		}
+		return norm(u)
+	}
+	div := func(a, b int) int {
+		return mul(a, inv(b))
+	}
+
+	return &Mod{
+		modulo: m,
+		norm:   norm,
+		add:    add,
+		sub:    sub,
+		mul:    mul,
+		pow:    pow,
+		inv:    inv,
+		div:    div,
+	}
+}
 func main() {
 	// interactiveならfalseにすること。
 	in, out = InitIo(true)
