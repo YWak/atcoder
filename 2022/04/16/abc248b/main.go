@@ -23,7 +23,15 @@ var in *In
 var out *Out
 
 func calc() {
+	a, b, k := in.NextInt3()
 
+	for i := 0; true; i++ {
+		if a >= b {
+			out.Println(i)
+			return
+		}
+		a *= k
+	}
 }
 
 func main() {

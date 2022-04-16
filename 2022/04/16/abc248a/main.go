@@ -23,7 +23,18 @@ var in *In
 var out *Out
 
 func calc() {
-
+	n := in.NextLongIntAsArray()
+	for i := 0; i < 10; i++ {
+		ok := true
+		for _, t := range n {
+			if i == t {
+				ok = false
+			}
+		}
+		if ok {
+			out.Println(i)
+		}
+	}
 }
 
 func main() {
