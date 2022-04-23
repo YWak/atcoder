@@ -22,35 +22,39 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
+var mod *Mod
+
 func calc() {
 	n, p := in.NextInt2()
-	mod := NewMod(p)
+	mod = NewMod(p)
 
 	// dp[i][j]はsがi文字でtがj文字になる文字列の数
 	dp := NewIntInt(n+1, n, 0)
-	s := make([]int, 3001)
-	for i := 1; i < len(s); i++ {
-		s[i] = len(fmt.Sprint(i)) + 1
-	}
-	for i := 1; i <= n; i++ {
-		if s[i] < n {
-			dp[i][s[i]] = mod.add(dp[i][s[i]], 26)
-		}
-	}
+
 	pat := mod.mul(25, mod.inv(26))
 	for i := 1; i <= n; i++ {
+		// 一文字分
+		s := len(fmt.Sprint(i)) + 1
+		if s < n {
+			dp[i][s] = 26
+		}
+		// sum := NewIntInt(i+1, n, 0)
+
 		for j := 1; j < n; j++ {
 			// iを分割
+			d := 0
+
 			for k := 1; k < i; k++ {
 				// jを分割
 				for l := 1; l < j; l++ {
 					// 3種類以上の組み合わせ
 					// sがk文字tがl文字の文字列とsが(i-k)文字tが(j-l)文字の組み合わせ
 					c := mod.mul(dp[k][l], dp[i-k][j-l])
-					c = mod.mul(c, pat) // 先頭が重複するパターンを除外する
-					dp[i][j] = mod.add(dp[i][j], c)
+					d = mod.add(d, c)
 				}
 			}
+
+			dp[i][j] = mod.add(dp[i][j], mod.mul(d, pat))
 		}
 	}
 	for _, d := range dp {
