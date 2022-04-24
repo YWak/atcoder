@@ -30,15 +30,14 @@ func calc() {
 
 	// dp[i][j]はsがi文字でtがj文字になる文字列の数
 	dp := NewIntInt(n+1, n, 0)
-
 	pat := mod.mul(25, mod.inv(26))
+
 	for i := 1; i <= n; i++ {
 		// 一文字分
 		s := len(fmt.Sprint(i)) + 1
 		if s < n {
 			dp[i][s] = 26
 		}
-		// sum := NewIntInt(i+1, n, 0)
 
 		for j := 1; j < n; j++ {
 			// iを分割
