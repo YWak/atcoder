@@ -22,23 +22,31 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
+func tz(a int) int {
+	ans := 0
+	for a%2 == 0 {
+		ans++
+		a >>= 1
+	}
+	return ans
+}
+
 func calc() {
 	n := in.NextInt()
 	t := in.NextInts(n)
 	a := 0
-	all := (1 << 63) - 1
+	// all := (1 << 63) - 1
+
 	for i := 0; i < n; i++ {
-		if a < (1 << t[i]) {
-			a = 1 << t[i]
+		b := (a >> t[i])
+		if b%2 == 0 {
+			b++
 		} else {
-			mask := (all >> t[i]) << t[i]
-			if a&mask != a {
-				// 繰り上がりさせる
-				a = (a + (1 << (t[i]))) & mask
-			}
-			a += (1 << (t[i]))
+			b += 2
 		}
-		// debug(a, fmt.Sprintf("%b", a))
+
+		a = b << t[i]
+		// debug(i+1, a, fmt.Sprintf("%b", a), tz(a))
 	}
 	out.Println(a)
 }
