@@ -24,9 +24,9 @@ var out *Out
 
 func calc() {
 	s := in.NextString()
-	for r := 0; r < len(s)-2; r++ {
-		if s[0] == s[1] || s[1] == s[2] || s[0] == s[2] {
-			out.Println(r+1, r+3)
+	for l := 1; l < len(s)-1; l++ {
+		if s[l-1] == s[l] || s[l] == s[l+1] || s[l-1] == s[l+1] {
+			out.Println(l, l+2)
 			return
 		}
 	}
