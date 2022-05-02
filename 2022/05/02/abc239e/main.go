@@ -77,14 +77,15 @@ type WaveletMatrix struct {
 	bitsize int
 }
 
-func NewWaveletMatrix(values []int) *WaveletMatrix {
-	n := len(values)
+// NewWaveletMatrixはarrをもとにしてWaveletMatrixの実装を返します。
+func NewWaveletMatrix(arr []int) *WaveletMatrix {
+	n := len(arr)
 	values1 := make([]int, n)
 	values2 := make([]int, n)
 
 	// 1である最大のbitを取得する
 	bitsize := 0
-	for i, v := range values {
+	for i, v := range arr {
 		values1[i] = v
 		for b := 0; b < 64; b++ {
 			if (v >> b) > 0 {
@@ -151,6 +152,8 @@ func (w *WaveletMatrix) Get(k int) int {
 }
 
 // Rankは区間[0, r)に含まれるxの個数を返します。
+// tested:
+//   https://atcoder.jp/contests/abc248/tasks/abc248_d
 func (w *WaveletMatrix) Rank(x, r int) int {
 	if x > (1 << (w.bitsize + 1)) {
 		return 0
@@ -169,6 +172,8 @@ func (w *WaveletMatrix) Rank(x, r int) int {
 }
 
 // KthSmallestは区間[l, r)に含まれる要素のうちk番目(0-indexed)に小さいものを返します。
+// tested:
+//   https://judge.yosupo.jp/problem/range_kth_smallest
 func (w *WaveletMatrix) KthSmallest(l, r, k int) int {
 	if l < 0 || l >= len(w.index[0]) || r < 0 || r > len(w.index[0]) {
 		panic(fmt.Sprintf("invalid range [%d, %d)", l, r))
@@ -195,6 +200,8 @@ func (w *WaveletMatrix) KthSmallest(l, r, k int) int {
 }
 
 // KthLargestは区間[l, r)に含まれる要素のうちk番目(0-indexed)に大きいものを返します。
+// tested:
+//   https://atcoder.jp/contests/abc239/tasks/abc239_e
 func (w *WaveletMatrix) KthLargest(l, r, k int) int {
 	return w.KthSmallest(l, r, r-l-1-k)
 }
