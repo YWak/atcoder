@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"math/bits"
-	"math/rand"
 	"os"
 	"sort"
 	"strconv"
@@ -23,35 +22,15 @@ const INF9 = int(1e9)
 var in *In
 var out *Out
 
-type pair struct {
-	a, b int
-}
-
 func calc() {
-	for i := 0; i < in.NextInt(); i++ {
-		n := 10000
+	n := in.NextInt()
+	a := in.NextInts(n)
+	w := NewWaveletMatrix(a)
 
-		arr := make([]int, n)
-		for j := range arr {
-			arr[j] = rand.Intn(n / 10)
-		}
-		w := NewWaveletMatrix(arr)
-		for j := 0; j < n; j++ {
-			v := arr[j]
-			if w.Get(j) != v {
-				out.Println("No: Get")
-			}
-			x := rand.Intn(n / 10)
-			c := 0
-			for k := 0; k < j; k++ {
-				if arr[k] == x {
-					c++
-				}
-			}
-			if w.Rank(x, j) != c {
-				out.Println("No: Rank", w.Rank(x, j), c)
-			}
-		}
+	Q := in.NextInt()
+	for q := 0; q < Q; q++ {
+		l, r, x := in.NextInt3()
+		out.Println(w.Rank(x, r) - w.Rank(x, l-1))
 	}
 }
 
