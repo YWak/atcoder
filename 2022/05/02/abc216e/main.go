@@ -3,7 +3,6 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"io"
 	"math"
@@ -25,106 +24,32 @@ var out *Out
 
 func calc() {
 	n, k := in.NextInt2()
-	pq := NewIntPriorityQueue(Bigger)
+	a := in.NextInts(n)
 
-	for i := 0; i < n; i++ {
-		pq.Push(in.NextInt())
-	}
+	sort.Sort(sort.Reverse(a))
 	ans := 0
-	for i := 0; i < k; i++ {
-		a := pq.Pop()
-		if a < 0 {
+	for i, vl := range a {
+		vr := 0
+		if i < n-1 {
+			vr = a[i+1]
+		}
+		t := i + 1
+		c := (vl - vr) * t
+		if c <= k {
+			// 全部使える
+			k -= c
+			ans += (vl - vr) * t * (vl + vr + 1) / 2
+		} else {
+			// 残り
+			ans += (k / t) * (vl + vl - k/t + 1) * t / 2
+			ans += (k % t) * (vl - k/t)
 			break
 		}
-		ans += a
-		pq.Push(a - 1)
 	}
 
 	out.Println(ans)
 }
 
-// PriorityQueueListは優先度付きキューのリストを表す
-type PriorityQueueList struct {
-	values []int
-	prior  func(a, b int) bool
-}
-
-// PriorityQueue は優先度付きキューを表す
-type PriorityQueue struct {
-	list *PriorityQueueList
-}
-
-// Smaller は aがbより小さいかどうかを判断します。
-func Smaller(a, b int) bool {
-	return a < b
-}
-
-// Bigger は aがbより大きいかどうかを判断します。
-func Bigger(a, b int) bool {
-	return b < a
-}
-
-// NewIntPriorityQueue は 優先度をpriorで判断する優先度付きキューを返します。
-func NewIntPriorityQueue(prior func(a, b int) bool) PriorityQueue {
-	return PriorityQueue{
-		&PriorityQueueList{
-			make([]int, 0, 100),
-			prior,
-		},
-	}
-}
-
-// Push は優先度付きキューに要素を一つ追加します。
-func (pq PriorityQueue) Push(value int) {
-	heap.Push(pq.list, value)
-}
-
-// Pop は優先度付きキューから要素を一つ取り出します。
-func (pq PriorityQueue) Pop() int {
-	return heap.Pop(pq.list).(int)
-}
-
-// Top は優先度つきキューの先頭要素を返します。
-func (pq PriorityQueue) Top() int {
-	v := heap.Pop(pq.list).(int)
-	heap.Push(pq.list, v)
-	return v
-}
-
-// Empty は優先度付きキューが空かどうかを判断します。
-func (pq PriorityQueue) Empty() bool {
-	return pq.list.Len() == 0
-}
-
-// Swap は要素を交換します。
-func (list PriorityQueueList) Swap(i, j int) {
-	list.values[i], list.values[j] = list.values[j], list.values[i]
-}
-
-// Less は要素を比較し、優先度が低いかどうかを判断します
-func (list PriorityQueueList) Less(i, j int) bool {
-	return list.prior(list.values[i], list.values[j])
-}
-
-// Len は要素の数を返します。
-func (list PriorityQueueList) Len() int {
-	return len(list.values)
-}
-
-// Pop は要素を取り出して返します。
-func (list *PriorityQueueList) Pop() interface{} {
-	old := list.values
-	n := len(old)
-	item := old[n-1]
-	values := old[:n-1]
-	list.values = values
-	return item
-}
-
-// Push は要素を追加します。
-func (list *PriorityQueueList) Push(item interface{}) {
-	list.values = append(list.values, item.(int))
-}
 func main() {
 	// interactiveならfalseにすること。
 	in, out = InitIo(true)
