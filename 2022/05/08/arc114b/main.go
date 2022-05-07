@@ -103,17 +103,30 @@ func scc(g [][]int) Scc {
 			}
 		}
 	}
-	k := 0
 	for i := len(order) - 1; i >= 0; i-- {
 		u := order[i]
 		if _, e := s.nodes[u]; !e {
-			rdfs(u, k)
-			k++
+			rdfs(u, s.n)
+			s.n++
 		}
 	}
-	s.components = make([][]int, k)
+	s.components = make([][]int, s.n)
 	for from, to := range s.nodes {
 		s.components[to] = append(s.components[to], from)
+	}
+	s.graph = make([][]int, s.n)
+
+	type p struct {
+		u, v int
+	}
+	connected := map[p]bool{}
+	for u, l := range g {
+		for _, v := range l {
+			if s.nodes[u] != s.nodes[v] && !connected[p{u, v}] {
+				connected[p{u, v}] = true
+				s.graph[s.nodes[u]] = append(s.graph[s.nodes[u]], s.nodes[v])
+			}
+		}
 	}
 
 	return s
