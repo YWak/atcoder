@@ -23,29 +23,24 @@ var in *In
 var out *Out
 
 var ps []int
-var pm map[int]bool
 
 func calc() {
 	n := in.NextInt()
-	m := map[int]bool{}
-
+	ans := 0
 	for _, q := range ps {
 		q3 := q * q * q
-		if q3 > n {
+		if q3*2 > n {
 			break
 		}
 		for _, p := range ps {
-			if p == q {
+			if p >= q || p*q3 > n {
 				break
 			}
-			if p*q3 > n {
-				break
-			}
-			m[p*q3] = true
+			ans++
 		}
 	}
 
-	out.Println(len(m))
+	out.Println(ans)
 }
 
 func main() {
@@ -55,14 +50,12 @@ func main() {
 
 	n := make([]bool, 100001)
 	ps = []int{}
-	pm = map[int]bool{}
 
 	for i := 2; i < len(n); i++ {
 		if n[i] {
 			continue
 		}
 		ps = append(ps, i)
-		pm[i] = true
 
 		for j := i; j < len(n); j += i {
 			n[j] = true
