@@ -26,6 +26,71 @@ func calc() {
 
 }
 
+type SegmentTreeFunctions struct {
+	// 単位元を返します
+	e func() int
+
+	// 計算結果を返します
+	calc func(a, b int) int
+}
+
+type SegmentTree struct {
+	nodes []int
+	f     SegmentTreeFunctions
+}
+
+func NewSegmentTree() *SegmentTree {
+	return &SegmentTree{
+		[]int{},
+		SegmentTreeFunctions{
+			func() int { return 0 },
+			func(a, b int) int { return a + b },
+		},
+	}
+}
+
+func NewRangeMaxQuery() *SegmentTree {
+	return &SegmentTree{
+		[]int{},
+		SegmentTreeFunctions{
+			func() int { return 0 },
+			func(a, b int) int { return max(a, b) },
+		},
+	}
+}
+
+func NewRangeMinQuery() *SegmentTree {
+	return &SegmentTree{
+		[]int{},
+		SegmentTreeFunctions{
+			func() int { return 0 },
+			func(a, b int) int { return min(a, b) },
+		},
+	}
+}
+
+// initは[1, n]のsegment treeを初期化します。
+// 各要素の値は単位元となります。
+func (st *SegmentTree) init(n int) {
+
+}
+
+// initAsArrayはvalsで配列を初期化します。
+// 区間の長さはlen(vals)になります。
+func (st *SegmentTree) initAsArray(vals []int) {
+
+}
+
+// updateはi(1-indexed)番目の値をvalueに更新します。
+func (st *SegmentTree) update(i, value int) {
+
+}
+
+// queryは[l, r) (1-indexed)の計算値を返します。
+func (st *SegmentTree) query(l, r int) int {
+	return 0
+}
+
 func main() {
 	// interactiveならfalseにすること。
 	in, out = InitIo(true)
