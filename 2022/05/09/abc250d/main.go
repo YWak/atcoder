@@ -48,7 +48,7 @@ func main() {
 	in, out = InitIo(true)
 	defer out.Flush()
 
-	n := make([]bool, 100001)
+	n := make([]bool, pow(10, 6)+1)
 	ps = []int{}
 
 	for i := 2; i < len(n); i++ {
