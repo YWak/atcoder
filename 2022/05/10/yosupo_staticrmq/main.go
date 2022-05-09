@@ -23,25 +23,20 @@ var in *In
 var out *Out
 
 func calc() {
-	n, k := in.NextInt2()
+	n, Q := in.NextInt2()
 	a := in.NextInts(n)
-	st := NewRangeMaxQuery()
+	st := NewRangeMinQuery()
+	st.initAsArray(a)
 
-	m := 300001
-	st.init(m)
-	for _, v := range a {
-		l, r := max(v-k, 0), min(v+k, m)
-		now := st.query(l, r+1)
-		st.update(v, now+1)
+	for q := 0; q < Q; q++ {
+		l, r := in.NextInt2()
+		out.Println(st.query(l, r))
 	}
-
-	out.Println(st.query(0, m))
 }
 
 type SegmentTreeFunctions struct {
 	// 単位元を返します
 	e func() int
-
 	// 計算結果を返します
 	calc func(a, b int) int
 }
@@ -58,6 +53,8 @@ type SegmentTree struct {
 }
 
 // NewSegmentTreeは区間和を扱うSegmentTreeを返します。
+// tested:
+//   https://atcoder.jp/contests/abl/tasks/abl_d
 func NewSegmentTree() *SegmentTree {
 	return &SegmentTree{
 		-1,
@@ -82,12 +79,14 @@ func NewRangeMaxQuery() *SegmentTree {
 }
 
 // NewRangeMinQueryは区間最小値を扱うSegmentTreeを返します。
+// tested:
+//   https://judge.yosupo.jp/problem/staticrmq
 func NewRangeMinQuery() *SegmentTree {
 	return &SegmentTree{
 		-1,
 		[]int{},
 		SegmentTreeFunctions{
-			func() int { return 0 },
+			func() int { return INF18 },
 			func(a, b int) int { return min(a, b) },
 		},
 	}
@@ -105,7 +104,6 @@ func (st *SegmentTree) init(n int) {
 	}
 	st.n = x / 2
 	st.nodes = make([]int, x)
-
 	for i := 0; i < x; i++ {
 		st.nodes[i] = st.f.e()
 	}
@@ -113,11 +111,13 @@ func (st *SegmentTree) init(n int) {
 
 // initAsArrayはvalsで配列を初期化します。
 // 区間の長さはlen(vals)になります。
+// tested:
+//   https://judge.yosupo.jp/problem/staticrmq
 func (st *SegmentTree) initAsArray(vals []int) {
 	n := len(vals)
 	// xはn*2を超える最小の2べき
 	x := 1
-	for x/2 < n+1 {
+	for x/2 < n {
 		x *= 2
 	}
 	st.n = x / 2
@@ -143,7 +143,6 @@ func (st *SegmentTree) update(i, value int) {
 		if t == 0 {
 			break
 		}
-
 		st.nodes[t] = st.f.calc(st.nodes[t*2], st.nodes[t*2+1])
 	}
 }
