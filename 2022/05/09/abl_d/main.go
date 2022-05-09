@@ -27,15 +27,25 @@ func calc() {
 	a := in.NextInts(n)
 	st := NewRangeMaxQuery()
 
-	st.init(300000)
-
+	st.init(300001)
+	// d := make([]int, 11)
+	// for i := 0; i < len(d); i++ {
+	// 	d[i] = i - 1
+	// }
+	// debug(d[1:])
+	// 0 <= v <= 300,000 から 1 <= v <= 300,001に変換する
 	for _, v := range a {
-		l, r := max(v-k, 1), min(v+k+1, 300000)
-		now := st.query(l, r)
+		v++
+		l, r := max(v-k, 1), min(v+k, 300002)
+		now := st.query(l, r+1)
 		st.update(v, now+1)
+		// for i := 1; i < len(d); i++ {
+		// 	d[i] = st.get(i)
+		// }
+		// debug(d[1:])
 	}
 
-	out.Println(st.query(1, 300001))
+	out.Println(st.query(1, 300002))
 }
 
 type SegmentTreeFunctions struct {
