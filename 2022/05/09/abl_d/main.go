@@ -23,7 +23,23 @@ var in *In
 var out *Out
 
 func calc() {
+	n, k := in.NextInt2()
+	a := in.NextInts(n)
+	st := NewRangeMaxQuery()
 
+	st.init(300000)
+
+	d := make([]int, 10)
+	for _, v := range a {
+		l, r := max(v-k, 1), min(v+k+1, 300000)
+		now := st.query(l, r)
+		for i := 1; i < len(d); i++ {
+			d[i] = st.get(i)
+		}
+		st.update(v, now+1)
+	}
+
+	out.Println(st.query(1, 300001))
 }
 
 type SegmentTreeFunctions struct {
@@ -35,12 +51,15 @@ type SegmentTreeFunctions struct {
 }
 
 type SegmentTree struct {
+	n     int
 	nodes []int
 	f     SegmentTreeFunctions
 }
 
+// NewSegmentTreeは区間和を扱うSegmentTreeを返します。
 func NewSegmentTree() *SegmentTree {
 	return &SegmentTree{
+		-1,
 		[]int{},
 		SegmentTreeFunctions{
 			func() int { return 0 },
@@ -49,8 +68,10 @@ func NewSegmentTree() *SegmentTree {
 	}
 }
 
+// NewRangeMaxQueryは区間最大値を扱うSegmentTreeを返します。
 func NewRangeMaxQuery() *SegmentTree {
 	return &SegmentTree{
+		-1,
 		[]int{},
 		SegmentTreeFunctions{
 			func() int { return 0 },
@@ -59,8 +80,10 @@ func NewRangeMaxQuery() *SegmentTree {
 	}
 }
 
+// NewRangeMinQueryは区間最小値を扱うSegmentTreeを返します。
 func NewRangeMinQuery() *SegmentTree {
 	return &SegmentTree{
+		-1,
 		[]int{},
 		SegmentTreeFunctions{
 			func() int { return 0 },
@@ -72,23 +95,72 @@ func NewRangeMinQuery() *SegmentTree {
 // initは[1, n]のsegment treeを初期化します。
 // 各要素の値は単位元となります。
 func (st *SegmentTree) init(n int) {
+	st.n = n + 1
 
+	// xはn*2を超える最小の2べき
+	x := 1
+	for x/2 < n {
+		x *= 2
+	}
+	st.nodes = make([]int, x)
+
+	for i := 0; i < x; i++ {
+		st.nodes[i] = st.f.e()
+	}
 }
 
 // initAsArrayはvalsで配列を初期化します。
 // 区間の長さはlen(vals)になります。
 func (st *SegmentTree) initAsArray(vals []int) {
+	st.n = len(vals)
 
+	// xはn*2を超える最小の2べき
+	x := 1
+	for x/2 < st.n {
+		x *= 2
+	}
+	st.nodes = make([]int, x)
+
+	for i, v := range vals {
+		st.nodes[i+x/2] = v
+	}
+	for i := st.n; i > 0; i-- {
+		st.nodes[i] = st.f.calc(st.nodes[i*2], st.nodes[i*2+1])
+	}
 }
 
-// updateはi(1-indexed)番目の値をvalueに更新します。
+// updateはi(1-based)番目の値をvalueに更新します。
 func (st *SegmentTree) update(i, value int) {
+	t := i + len(st.nodes)/2
+	st.nodes[t] = value
+	t /= 2
 
+	for t > 0 {
+		st.nodes[t] = st.f.calc(st.nodes[t*2], st.nodes[t*2+1])
+		t /= 2
+	}
 }
 
-// queryは[l, r) (1-indexed)の計算値を返します。
+// queryは[l, r) (1-based)の計算値を返します。
 func (st *SegmentTree) query(l, r int) int {
-	return 0
+	ret := st.f.e()
+	for ll, rr := l+len(st.nodes)/2, r+len(st.nodes)/2; ll < rr; ll, rr = ll/2, rr/2 {
+		if ll%2 == 1 {
+			ret = st.f.calc(ret, st.nodes[ll])
+			ll++
+		}
+		if rr%2 == 1 {
+			rr--
+			ret = st.f.calc(st.nodes[rr], ret)
+		}
+	}
+
+	return ret
+}
+
+// getはi番目の要素を返します。
+func (st *SegmentTree) get(i int) int {
+	return st.nodes[i+len(st.nodes)/2]
 }
 
 func main() {
