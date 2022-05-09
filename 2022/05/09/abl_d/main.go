@@ -29,13 +29,9 @@ func calc() {
 
 	st.init(300000)
 
-	d := make([]int, 10)
 	for _, v := range a {
 		l, r := max(v-k, 1), min(v+k+1, 300000)
 		now := st.query(l, r)
-		for i := 1; i < len(d); i++ {
-			d[i] = st.get(i)
-		}
 		st.update(v, now+1)
 	}
 
