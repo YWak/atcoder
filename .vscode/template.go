@@ -379,12 +379,7 @@ func NewIntInt(rows, cols, val int) [][]int {
 	return a
 }
 
-func reverse(arr *[]interface{}) {
-	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
-		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
-	}
-}
-
+// reverseIntはintの配列を逆転させます。
 func reverseInt(arr *[]int) {
 	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
 		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
@@ -405,20 +400,4 @@ func uniqueInt(arr []int) []int {
 		j++
 	}
 	return arr[:j]
-}
-
-// ==================================================
-// 構造体
-// ==================================================
-
-// Point は 座標を表す構造体です。
-type Point struct {
-	x int
-	y int
-}
-
-// Pointf は座標を表す構造体です。
-type Pointf struct {
-	x float64
-	y float64
 }
