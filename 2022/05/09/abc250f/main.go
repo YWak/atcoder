@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"math/big"
 	"math/bits"
 	"os"
 	"sort"
@@ -28,20 +29,23 @@ func calc() {
 	for i := 0; i < n; i++ {
 		ps[i].x, ps[i].y = in.NextInt2()
 	}
-	x8area := 0
-	s := make([]int, n*2+1)
+
+	// 面積計算用累積和を用意する
+	s := make([]big.Int, n*2+1)
 	for i := 0; i < n*2; i++ {
 		p1, p2 := ps[i%n], ps[(i+1)%n]
-		s[i+1] = s[i] + (p1.x-p2.x)*(p1.y+p2.y)
+        x1, x2, y1, y2 := big.NewInt(p1.x), big.NewInt(p2.x), big.NewInt(p1.y), big.NewInt(p2.y)
+		s[i+1] = s[i].add(s[i], (p1.x-p2.x)*(p1.y+p2.y)
 	}
 	area := func(i, j int) int {
-		p1, p2 := ps[i%n], ps[j%n]
+		p1, p2 := ps[j%n], ps[i%n]
 
-		t := s[j] - s[i] + (p2.x-p1.x)*(p2.y+p1.y)
+		// 直前まで計算して、p[j]からp[i]へ戻る
+		t := s[j] - s[i] + (p1.x-p2.x)*(p1.y+p2.y)
 		return abs(t)
 	}
 
-	x8area = abs(s[n] - s[0])
+	x8area := abs(s[n])
 	x8part := INF18 * 9
 
 	for i := 0; i < n; i++ {
@@ -56,6 +60,10 @@ func calc() {
 			}
 		}
 		for _, k := range []int{j, j + 1} {
+			if abs(i%n-k%n) < 2 {
+				continue
+			}
+
 			sk := area(i, k)
 			x4s := sk * 4
 			if abs(x8area-x4s) < abs(x8area-x8part) {
