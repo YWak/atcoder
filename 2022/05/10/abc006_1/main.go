@@ -23,7 +23,8 @@ var in *In
 var out *Out
 
 func calc() {
-
+	n := in.NextInt()
+	out.YESNO(n%3 == 0)
 }
 
 func main() {
