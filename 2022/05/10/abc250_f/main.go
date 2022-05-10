@@ -37,21 +37,16 @@ func calc() {
 	i, j := 0, 0
 	x8b := 0
 	for i < n*2 {
+		ans = min(ans, abs(x8a-x8b))
 		for x8b < x8a {
-			ans = min(ans, abs(x8a-x8b)) // x8a > x8bのとき
-
 			ii, jj, kk := i%n, j%n, (j+1)%n
-			// debug("add", ii, jj, kk, geo.x2area(ps[ii], ps[jj], ps[kk]))
 			x8b += geo.x2area(ps[ii], ps[jj], ps[kk]) * 4
 
 			ans = min(ans, abs(x8a-x8b)) // x8a > x8bのとき
 			j++
 		}
-		ans = min(ans, abs(x8a-x8b)) // x8a > x8bのとき
 		ii, jj, kk := i%n, (i+1)%n, j%n
 		x8b -= geo.x2area(ps[ii], ps[jj], ps[kk]) * 4
-		ans = min(ans, abs(x8a-x8b)) // 未定のとき
-		// debug("sub", ii, jj, kk, geo.x2area(ps[ii], ps[jj], ps[kk]))
 		i++
 	}
 
