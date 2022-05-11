@@ -26,34 +26,26 @@ type pair struct {
 	x, y int
 }
 
-func calc() {
-	n := in.NextInt()
-	bs := []pair{}
-	for i := 0; i < n; i++ {
-		x, y := in.NextInt2()
-		p := pair{x, y}
-		bs = append(bs, p)
-	}
-	sort.Slice(bs, func(i, j int) bool {
-		if bs[i].x != bs[j].x {
-			return bs[i].x < bs[j].x
-		}
-		return bs[i].y < bs[j].y
-	})
+type pairs []pair
+
+func (a pairs) Len() int           { return len(a) }
+func (a pairs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a pairs) Less(i, j int) bool { return a[i].x < a[j].x || a[i].x == a[j].x && a[i].y > a[j].y }
+
+func solve(n int, bs pairs) int {
+	sort.Sort(bs)
 	ys := []int{}
 	for i := 0; i < n; i++ {
-		if i == 0 || bs[i-1].x < bs[i].x {
-			ys = append(ys, bs[i].y)
-		}
+		ys = append(ys, bs[i].y)
 	}
 
-	s := make([]int, n)
-	for i := 0; i < n; i++ {
+	s := make([]int, len(ys))
+	for i := 0; i < len(ys); i++ {
 		s[i] = INF18
 	}
 
 	for _, y := range ys {
-		ng, ok := -1, n
+		ng, ok := -1, len(ys)
 		for abs(ok-ng) > 1 {
 			m := (ok + ng) / 2
 			if s[m] < y {
@@ -66,12 +58,11 @@ func calc() {
 	}
 	ans := 0
 	for _, v := range s {
-		if v == INF18 {
-			break
+		if v != INF18 {
+			ans++
 		}
-		ans++
 	}
-	out.Println(ans)
+	return ans
 }
 
 func main() {
@@ -79,7 +70,38 @@ func main() {
 	in, out = InitIo(true)
 	defer out.Flush()
 
-	calc()
+	n := in.NextInt()
+	bs := pairs{}
+	for i := 0; i < n; i++ {
+		x, y := in.NextInt2()
+		p := pair{x, y}
+		bs = append(bs, p)
+	}
+	out.Println(solve(n, bs))
+}
+
+type Permutation []int
+
+func (p *Permutation) next() bool {
+	for i := len(*p) - 2; i >= 0; i-- {
+		if (*p)[i] > (*p)[i+1] {
+			continue
+		}
+		j := len(*p)
+		for {
+			j--
+			if (*p)[i] < (*p)[j] {
+				break
+			}
+		}
+		(*p)[i], (*p)[j] = (*p)[j], (*p)[i]
+		for k, l := i+1, len(*p)-1; k < l; k, l = k+1, l-1 {
+			(*p)[k], (*p)[l] = (*p)[l], (*p)[k]
+		}
+		return true
+
+	}
+	return false
 }
 
 func debug(args ...interface{}) {
