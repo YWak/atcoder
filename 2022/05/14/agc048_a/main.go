@@ -23,25 +23,39 @@ var in *In
 var out *Out
 
 func solve(s string) int {
-	atcoder := "atcoder"
+	_atcoder := "atcoder"
+	if strings.HasPrefix(s, _atcoder) && len(s) > len(_atcoder) {
+		return 0
+	}
+	atcoder := []byte(_atcoder)
+
+	// atcoderのそれぞれの文字より大きい文字がどのインデックスにあるか
 	dist := make([]int, len(atcoder))
 	for i := range dist {
 		dist[i] = INF18
 	}
 	for i := len(s) - 1; i >= 0; i-- {
 		for j, c := range atcoder {
-			if i >= j && s[i] > byte(c) {
+			if i >= j && s[i] > c {
 				dist[j] = i
 			}
 		}
 	}
+
 	ans := INF18
-	for _, v := range dist {
-		ans = min(ans, v)
+	for i, c := range atcoder {
+		if len(s) <= i {
+			break
+		}
+		ans = min(ans, dist[i]-i)
+		if s[i] < c {
+			break
+		}
 	}
-	if ans == INF18 {
+	if ans > len(s) {
 		return -1
 	}
+
 	return ans
 }
 
