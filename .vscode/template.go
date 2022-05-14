@@ -19,6 +19,9 @@ const INF18 = int(1e18)
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
+// N10_6は10^6
+const N10_6 = int(1e6)
+
 var in *In
 var out *Out
 
