@@ -42,8 +42,7 @@ func solve() {
 	for i := 0; i < n; i++ {
 		x, y := in.NextInt2()
 		// bが正の範囲はaが増え続ける
-		ans = max(ans, a(x, 1))
-		ok, ng := 0, y+1
+		ok, ng := 1, y+1
 		for abs(ok-ng) > 1 {
 			t := (ok + ng) / 2
 			if b(x, t) > 0 {
@@ -53,9 +52,7 @@ func solve() {
 			}
 		}
 
-		if ok > 0 {
-			ans = max(ans, a(x, ok))
-		}
+		ans = max(ans, a(x, ok))
 
 		a0 = a(x, y)
 		b0 = b(x, y)
