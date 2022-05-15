@@ -31,26 +31,26 @@ func calc() {
 	// nはOK (n/n = 1)
 	m := map[int]int{n: 1}
 
-	// 割り切れるとき、nはk^xで表現できる
-	for t := 2; t*t <= n; t++ {
+	// 割り切れるとき、nはk^x+k*y+1で表現できる
+	for k := 2; k*k <= n; k++ {
 		p := n
-		for p%t == 0 {
-			p /= t
+		for p%k == 0 {
+			p /= k
 		}
-		if p == 1 {
-			m[t]++
+		if p%k == 1 {
+			m[k]++
 		}
 	}
 
 	// 割り切れないとき、n = 1 (mod k) -> n-1がkで割り切れる
 	n--
-	for t := 1; t*t <= n; t++ {
-		if n%t == 0 {
-			m[t]++
-			m[n/t]++
+	for k := 1; k*k <= n; k++ {
+		if n%k == 0 {
+			m[k]++
+			m[n/k]++
 		}
 	}
-	debug(m)
+	delete(m, 1)
 
 	out.Println(len(m))
 }
