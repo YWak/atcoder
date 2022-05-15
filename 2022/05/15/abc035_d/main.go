@@ -3,6 +3,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"io"
 	"math"
@@ -31,26 +32,23 @@ type edge struct {
 
 var n int
 var a []int
-var g [][]edge
-var costFrom []int
-var costTo []int
 
 func calc() {
 	n = in.NextInt()
 	m, t := in.NextInt2()
 	a = in.NextInts(n)
-	g = make([][]edge, n)
-	costFrom = make([]int, n)
-	costTo = make([]int, n)
-	for i := 1; i < n; i++ {
-		costFrom[i] = INF18
-		costTo[i] = INF18
-	}
+	g := make([][]edge, n)
+	rg := make([][]edge, n)
+
 	for i := 0; i < m; i++ {
 		a, b, c := in.NextInt3d(-1, -1, 0)
 		g[a] = append(g[a], edge{b, c})
+		rg[b] = append(rg[b], edge{a, c})
 	}
-	dfs(0, 0, map[int]bool{})
+
+	costFrom := distAll(g, 0)
+	costTo := distAll(rg, 0)
+
 	ans := 0
 	for i := 0; i < n; i++ {
 		// たどり着けなければ無視
@@ -62,24 +60,51 @@ func calc() {
 	out.Println(ans)
 }
 
-// dfsは1からcurrまでのコストの最小値と、currから1までのコストの最小値を取得します。
-func dfs(curr, cost int, hist map[int]bool) {
-	hist[curr] = true
-	for _, e := range g[curr] {
-		if e.to == 0 {
-			costTo[curr] = min(costTo[curr], e.cost)
+func distAll(g [][]edge, start int) []int {
+	costs := make([]int, len(g))
+	for i := 0; i < len(g); i++ {
+		costs[i] = INF18
+	}
+	costs[start] = 0
+	q := queue{&node{start, 0}}
+	for q.Len() > 0 {
+		p := heap.Pop(&q).(*node)
+		if costs[p.to] < p.cost {
 			continue
 		}
-		if hist[e.to] {
-			continue
+		for _, e := range g[p.to] {
+			c := p.cost + e.cost
+			if costs[e.to] < c {
+				continue
+			}
+			costs[e.to] = c
+			heap.Push(&q, &node{e.to, c})
 		}
-
-		costFrom[e.to] = min(costFrom[e.to], cost+e.cost)
-		dfs(e.to, cost+e.cost, hist)
-		costTo[curr] = min(costTo[curr], costTo[e.to]+e.cost)
 	}
 
-	delete(hist, curr)
+	return costs
+}
+
+type node struct{ to, cost int }
+type queue []*node
+
+func (q queue) Len() int {
+	return len(q)
+}
+func (q queue) Less(i, j int) bool {
+	return q[i].cost < q[j].cost
+}
+func (q queue) Swap(i, j int) {
+	q[i], q[j] = q[j], q[i]
+}
+func (q *queue) Pop() interface{} {
+	l := *q
+	p := l[len(l)-1]
+	*q = l[0 : len(l)-1]
+	return p
+}
+func (q *queue) Push(x interface{}) {
+	*q = append(*q, x.(*node))
 }
 
 func main() {
