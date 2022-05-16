@@ -30,6 +30,7 @@ func calc() {
 	k := in.NextInt()
 	n := len(s)
 
+	// i番目までの"."の数
 	dots := make([]int, n+1)
 	for i := 0; i < n; i++ {
 		dots[i+1] = dots[i]
@@ -37,16 +38,27 @@ func calc() {
 			dots[i+1]++
 		}
 	}
-	for a := n; a >= 0; a-- {
-		for l := 0; l+a-1 < n; l++ {
-			r := l + a
+	ok, ng := -1, n+1
+	check := func(m int) bool {
+		for l := 0; l+m-1 < n; l++ {
+			r := l + m
 			t := dots[r] - dots[l]
 			if t <= k {
-				out.Println(a)
-				return
+				return true
 			}
 		}
+		return false
 	}
+	for abs(ok-ng) > 1 {
+		m := (ok + ng) / 2
+		if check(m) {
+			ok = m
+		} else {
+			ng = m
+		}
+
+	}
+	out.Println(ok)
 }
 
 func main() {
