@@ -26,13 +26,41 @@ var in *In
 var out *Out
 
 func calc() {
-	s1 := in.NextString()
-	s2 := in.NextString()
+	s := [][]byte{
+		in.NextBytes(),
+		in.NextBytes(),
+	}
 
-	ok := false
-	for i := 0; i < len(s1); i++ {
-		if s1[i] == '#' && s2[i] == '#' {
-			ok = true
+	dx := []int{+1, -1, +0, +0}
+	dy := []int{+0, +0, +1, -1}
+	var dfs func(i, j int)
+	dfs = func(i, j int) {
+		s[i][j] = '.'
+		for t := 0; t < 4; t++ {
+			ii, jj := i+dx[t], j+dy[t]
+
+			if ii < 0 || ii == len(s) || jj < 0 || jj == len(s[i]) || s[ii][jj] != '#' {
+				continue
+			}
+			dfs(ii, jj)
+		}
+	}
+
+	done := false
+	for i := 0; i < 2 && !done; i++ {
+		for j := 0; j < len(s[i]) && !done; j++ {
+			if s[i][j] == '#' {
+				dfs(i, j)
+				done = true
+			}
+		}
+	}
+	ok := true
+	for i := 0; i < 2; i++ {
+		for j := 0; j < len(s[i]); j++ {
+			if s[i][j] == '#' {
+				ok = false
+			}
 		}
 	}
 
