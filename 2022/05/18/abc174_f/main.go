@@ -51,32 +51,39 @@ func calc() {
 	})
 
 	// [l, r)の区間にする
-	ans := map[int]int{}
+	ans := 0
+	counts := make([]int, 500001)
 	l, r := 0, 0
 	for _, q := range qs {
 		for q.r > r {
-			ans[c[r]]++
+			if counts[c[r]] == 0 {
+				ans++
+			}
+			counts[c[r]]++
 			r++
 		}
 		for q.r < r {
 			r--
-			ans[c[r]]--
-			if ans[c[r]] == 0 {
-				delete(ans, c[r])
+			counts[c[r]]--
+			if counts[c[r]] == 0 {
+				ans--
 			}
 		}
 		for q.l > l {
-			ans[c[l]]--
-			if ans[c[l]] == 0 {
-				delete(ans, c[l])
+			counts[c[l]]--
+			if counts[c[l]] == 0 {
+				ans--
 			}
 			l++
 		}
 		for q.l < l {
 			l--
-			ans[c[l]]++
+			if counts[c[l]] == 0 {
+				ans++
+			}
+			counts[c[l]]++
 		}
-		q.ans = len(ans)
+		q.ans = ans
 	}
 
 	sort.Slice(qs, func(i, j int) bool { return qs[i].i < qs[j].i })
