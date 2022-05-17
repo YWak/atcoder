@@ -26,7 +26,31 @@ var in *In
 var out *Out
 
 func calc() {
-
+	h, w := in.NextInt2()
+	f := []string{}
+	for i := 0; i < h; i++ {
+		s := in.NextString()
+		if strings.ContainsRune(s, '#') {
+			f = append(f, s)
+		}
+	}
+	sum := make([]int, w)
+	for j := 0; j < w; j++ {
+		sum[j] = len(f)
+		for i := 0; i < len(f); i++ {
+			if f[i][j] == '.' {
+				sum[j]--
+			}
+		}
+	}
+	for i := 0; i < len(f); i++ {
+		for j := 0; j < w; j++ {
+			if sum[j] > 0 {
+				out.Putc(f[i][j])
+			}
+		}
+		out.Println()
+	}
 }
 
 func main() {
