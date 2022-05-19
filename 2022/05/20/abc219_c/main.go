@@ -29,7 +29,7 @@ func calc() {
 	x := in.NextString()
 	code := make([]byte, 26)
 	for i, c := range x {
-		code[i] = byte(c)
+		code[c-'a'] = byte('a' + i)
 	}
 	n := in.NextInt()
 	m := map[string]string{}
