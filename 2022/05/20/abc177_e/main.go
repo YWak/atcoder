@@ -27,18 +27,17 @@ var out *Out
 
 func calc() {
 	count := make([]int, N10_6+1)
+	used := make([]bool, N10_6+1)
+
 	n := in.NextInt()
 	a := make([]int, n)
-	g := -1
 	for i := 0; i < n; i++ {
 		a[i] = in.NextInt()
 		count[a[i]]++
-
-		if g == -1 {
-			g = a[i]
-		} else {
-			g = gcd(g, a[i])
-		}
+	}
+	g := a[0]
+	for _, v := range a {
+		g = gcd(g, v)
 	}
 
 	if g != 1 {
@@ -46,20 +45,18 @@ func calc() {
 		return
 	}
 	pc := true
-	for i, v := range count {
-		if v == 0 {
+	for i := 2; i <= N10_6; i++ {
+		if used[i] {
 			continue
 		}
-		if v > 1 {
-			pc = false
-			break
+		c := 0
+		for j := i; j <= N10_6; j += i {
+			c += count[j]
+			used[j] = true
 		}
-		for j := i * 2; j < len(count); j += v {
-			if count[j] != 0 {
-				pc = false
-			}
-		}
+		pc = pc && c <= 1
 	}
+
 	if pc {
 		out.Println("pairwise coprime")
 	} else {
