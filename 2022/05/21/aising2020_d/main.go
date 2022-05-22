@@ -25,8 +25,56 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-func calc() {
+func initlow() []int {
+	actual := make([]int, 220000)
+	for i := 1; i < len(actual); i++ {
+		actual[i] = 1 + actual[i%popcount(i)]
+	}
+	return actual
+}
 
+func calc() {
+	n := in.NextInt()
+	x := in.NextString()
+
+	// xにある1の数
+	l := 0
+	for _, v := range x {
+		l += int(v - '0')
+	}
+
+	lp := l + 1
+	lm := l - 1
+
+	// 値の少ない部分は全パターン試せる
+	lowpart := initlow()
+
+	// xの1回目をbitが増えるパターンと減るパターンで検証する
+	sum_l_plus_1 := 0
+	sum_l_minus_1 := 0
+	for i := 0; i < n; i++ {
+		j := n - 1 - i
+		if x[i] == '1' {
+			if lm > 0 {
+				sum_l_minus_1 = (sum_l_minus_1 + powmod(2, j, lm)) % lm
+			}
+			sum_l_plus_1 = (sum_l_plus_1 + powmod(2, j, lp)) % lp
+		}
+	}
+	for i := 0; i < n; i++ {
+		j := n - 1 - i
+		ans := 0
+		if x[i] == '0' {
+			// bitが増える
+			f0 := (lp + sum_l_plus_1 + powmod(2, j, lp)) % lp
+			ans = 1 + lowpart[f0]
+		} else if lm > 0 {
+			// bitが減る
+			f0 := (lm + sum_l_minus_1 - powmod(2, j, lm)) % lm
+			ans = 1 + lowpart[f0]
+		}
+		out.Println(ans)
+	}
 }
 
 func main() {
@@ -297,7 +345,6 @@ func powmod(x, n, m int) int {
 	if n == 0 {
 		return 1
 	}
-
 	x = x % m
 	if x == 0 {
 		return 0
