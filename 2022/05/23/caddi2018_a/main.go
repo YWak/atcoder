@@ -26,10 +26,10 @@ var in *In
 var out *Out
 
 func calc() {
-	n, p := in.NextInt2()
-	used := make([]bool, N10_6)
+	used := make([]bool, N10_6*2)
 	m := map[int]int{}
 
+	n, p := in.NextInt2()
 	for i := 2; i*i <= p; i++ {
 		if used[i] {
 			continue
@@ -47,7 +47,7 @@ func calc() {
 	}
 	ans := 1
 	for k, c := range m {
-		ans *= max(1, (c/n)*k)
+		ans *= max(1, pow(k, (c/n)))
 	}
 	out.Println(ans)
 }
