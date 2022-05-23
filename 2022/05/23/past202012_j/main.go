@@ -29,16 +29,19 @@ func calc() {
 	s := in.NextString()
 	x := in.NextInt()
 
-	l := make([]int, len(s))
+	l := make([]int, len(s)+1)
 	t := 0
 	for i, c := range s {
 		if '0' <= c && c <= '9' {
-			l[i] = l[i-1] * int(c-'0'+1)
-		} else {
 			if i == 0 {
-				l[i] = 1
+				l[i] = 0
 			} else {
-				l[i] = l[i-1] + 1
+				l[i] = l[i-1] * int(c-'0'+1)
+			}
+		} else {
+			l[i] = 1
+			if i > 0 {
+				l[i] += l[i-1]
 			}
 		}
 		if l[i] >= x {
@@ -46,19 +49,22 @@ func calc() {
 			break
 		}
 	}
-	var ans byte
+	var ans byte = '-'
 	for i := t; i >= 0; i-- {
 		c := s[i]
+		// debug(i, l[i], x)
 		if '0' <= c && c <= '9' {
 			x %= l[i-1]
-		} else {
+			if x == 0 {
+				x = l[i-1]
+			}
+		} else if l[i] == x {
 			ans = c
 			break
 		}
 	}
 
-	out.Putc(ans)
-	out.Println()
+	out.Printf("%c\n", ans)
 }
 
 func main() {
