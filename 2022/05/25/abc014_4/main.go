@@ -88,16 +88,16 @@ func (lca *LCA) lca(a, b int) int {
 	if lca.depth[a] > lca.depth[b] {
 		a, b = b, a
 	}
-	if a == 0 {
-		return a
-	}
-
 	// 高さを同じにする
 	for k := lca.x - 1; k >= 0; k-- {
-		if (1 << k) <= lca.depth[b]-lca.depth[a] {
+		if ((lca.depth[b]-lca.depth[a])>>k)%2 == 1 {
 			b = lca.ancestors[b][k]
 		}
 	}
+	if a == b {
+		return a
+	}
+
 	// 同じ親にならないギリギリまで進める
 	for k := lca.x - 1; k >= 0; k-- {
 		if lca.ancestors[a][k] != lca.ancestors[b][k] {
