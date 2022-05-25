@@ -25,46 +25,36 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-type p struct {
-	n, l int
-}
-
 func calc() {
 	a, n := in.NextInt2()
-
-	ln := len(fmt.Sprint(n))
 
 	step := make([]int, N10_6)
 	for i := range step {
 		step[i] = INF18
 	}
 
-	queue := make([]*p, 0)
-	queue = append(queue, &p{1, 1})
+	queue := make([]int, 0)
+	queue = append(queue, 1)
 	step[1] = 0
 
 	for len(queue) > 0 {
 		q := queue[0]
 		queue = queue[1:]
-		if q.n == n {
+		if q == n {
 			out.Println(step[n])
 			return
 		}
 
-		xa := q.n * a
-		if xa < pow(10, ln) && step[xa] > step[q.n]+1 {
-			step[xa] = step[q.n] + 1
-			if xa < pow(10, q.l) {
-				queue = append(queue, &p{xa, q.l})
-			} else {
-				queue = append(queue, &p{xa, q.l + 1})
-			}
+		xa := q * a
+		if xa < N10_6 && step[xa] > step[q]+1 {
+			step[xa] = step[q] + 1
+			queue = append(queue, xa)
 		}
-		if q.n > 10 && q.n%10 != 0 {
-			xb := q.n/10 + pow(10, q.l-1)*(q.n%10)
-			if step[xb] > step[q.n]+1 {
-				step[xb] = step[q.n] + 1
-				queue = append(queue, &p{xb, q.l})
+		if q > 10 && q%10 != 0 {
+			xb, _ := strconv.Atoi(fmt.Sprintf("%d%d", q%10, q/10))
+			if step[xb] > step[q]+1 {
+				step[xb] = step[q] + 1
+				queue = append(queue, xb)
 			}
 		}
 	}
