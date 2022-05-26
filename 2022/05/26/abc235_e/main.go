@@ -26,7 +26,7 @@ var in *In
 var out *Out
 
 type edge struct {
-	from, to, c int
+	from, to, c, i int
 }
 
 func calc() {
@@ -36,26 +36,36 @@ func calc() {
 		costs[i] = INF18
 	}
 
-	edges := make([]*edge, m)
+	edges := make([]*edge, 0, m+q)
 	for i := 0; i < m; i++ {
 		a, b, c := in.NextInt3d(-1, -1, 0)
-		edges[i] = &edge{a, b, c}
+		edges = append(edges, &edge{a, b, c, -1})
+	}
+	for i := 0; i < q; i++ {
+		a, b, c := in.NextInt3d(-1, -1, 0)
+		edges = append(edges, &edge{a, b, c, i})
 	}
 	sort.Slice(edges, func(i, j int) bool {
 		return edges[i].c < edges[j].c
 	})
+
+	ans := make([]bool, q)
 	uf := ufNew(n)
 	for _, e := range edges {
 		if uf.Same(e.from, e.to) {
 			continue
 		}
-		uf.Unite(e.from, e.to)
-		costs[e.from] = min(costs[e.from], e.c)
-		costs[e.to] = min(costs[e.to], e.c)
+		if e.i != -1 {
+			ans[e.i] = true
+		} else {
+			uf.Unite(e.from, e.to)
+			costs[e.from] = min(costs[e.from], e.c)
+			costs[e.to] = min(costs[e.to], e.c)
+		}
 	}
-	for i := 0; i < q; i++ {
-		a, b, c := in.NextInt3d(-1, -1, 0)
-		out.YesNo(a != b && (costs[a] > c || costs[b] > c))
+
+	for _, v := range ans {
+		out.YesNo(v)
 	}
 }
 
