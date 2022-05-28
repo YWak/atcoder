@@ -25,8 +25,37 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-func calc() {
+func sum(a, d, n int) int {
+	if n <= 0 {
+		return 0
+	}
+	return n * (a*2 + (n-1)*d) / 2
+}
 
+func calc() {
+	n, a, b := in.NextInt3()
+	if a > b {
+		a, b = b, a
+	}
+	if b%a == 0 {
+		out.Println(sum(1, 1, n) - sum(a, a, n/a))
+		return
+	}
+	l := lcm(a, b)
+	out.Println(sum(1, 1, n) - sum(a, a, n/a) - sum(b, b, n/b) + sum(l, l, n/l))
+}
+
+func gcd(a, b int) int {
+	if b > a {
+		a, b = b, a
+	}
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
+}
+func lcm(a, b int) int {
+	return a * b / gcd(a, b)
 }
 
 func main() {
