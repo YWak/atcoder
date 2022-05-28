@@ -413,3 +413,17 @@ func uniqueInt(arr []int) []int {
 	}
 	return arr[:j]
 }
+
+// compressはnumbersで渡した値を座標圧縮します。
+func compress(numbers map[int]int) (map[int]int, []int) {
+	keys := sort.IntSlice{}
+	for i := range numbers {
+		keys = append(keys, i)
+	}
+	sort.Sort(keys)
+	for i, v := range keys {
+		numbers[v] = i
+	}
+
+	return numbers, keys
+}

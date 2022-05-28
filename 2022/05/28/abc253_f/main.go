@@ -32,8 +32,8 @@ type query struct {
 	op, l, r, x, i, j int
 }
 
-func (q *query) index() int {
-	return q.j*m + q.i
+func index(i, j int) int {
+	return j*m + i
 }
 
 func calc() {
@@ -43,66 +43,54 @@ func calc() {
 	st := NewSegmentTree()
 	n2i := map[int]int{}
 
-	qs := []*query{}
-	// q3の直前にop == 2を適用されたタイミングで値を設定できるようにしておく
+	queries := make([]*query, Q)
 	last := make([]int, n)       // i行を最後に参照したop = 2のクエリ番号
 	watch := make([][]*query, Q) // op = 2を参照する op = 3のクエリのリスト
 	for k := 0; k < Q; k++ {
 		op := in.NextInt()
+		var q query
 		switch op {
 		case 1:
 			{
 				l, r, x := in.NextInt3()
 				l--
-				qs = append(qs, &query{op: op, l: l, r: r, x: x})
-				n2i[l*m] = 1
-				n2i[r*m-1] = 1
-				n2i[r*m] = 1
+				q = query{op: op, l: l, r: r, x: x}
+				n2i[index(0, l)] = 1
+				n2i[index(n-1, r-1)] = 1
+				n2i[index(0, r)] = 1
 			}
 		case 2:
 			{
 				i, x := in.NextInt2()
 				i--
-				qs = append(qs, &query{op: op, i: i, x: x})
-				last[i] = k
+				q = query{op: op, i: i, x: x}
+				last[i] = k // i行目に最後にop = 2の操作をしたタイミングを記録しておく
 			}
 		case 3:
 			{
 				i, j := in.NextInt2()
 				i--
 				j--
-				_q := &query{op: op, i: i, j: j}
-				qs = append(qs, _q)
-				n2i[j*m+i] = 1
-				watch[last[i]] = append(watch[last[i]], _q)
+				q = query{op: op, i: i, j: j}
+				n2i[index(i, j)] = 1
+				watch[last[i]] = append(watch[last[i]], &q)
 			}
 		}
+		queries[k] = &q
 	}
+	compress1(n2i)
+	st.init(len(n2i) + 1)
 
-	// 座圧
-	keys := sort.IntSlice{}
-	for v := range n2i {
-		keys = append(keys, v)
-	}
-	sort.Sort(keys)
-	for i, v := range keys {
-		n2i[v] = i + 1
-	}
-
-	// st[i,j] = st[j*m + i]
-	st.init(len(keys) + 1)
-
-	for i, q := range qs {
+	for i, q := range queries {
 		switch q.op {
 		case 1:
-			// st[i,j] = st[j*m + i]
-			st.update(n2i[q.l*m], n2i[q.r*m], q.x)
+			st.update(n2i[index(0, q.l)], n2i[index(0, q.r)], q.x)
 		case 2:
 			for _, v := range watch[i] {
-				v.x = q.x - st.query(n2i[v.index()])
+				v.x = q.x - st.query(n2i[index(v.i, v.j)])
 			}
 		case 3:
-			out.Println(q.x + st.query(n2i[q.index()]))
+			out.Println(q.x + st.query(n2i[index(q.i, q.j)]))
 		}
 	}
 }
@@ -204,6 +192,7 @@ func (st *SegmentTree) initAsArray(vals []int) {
 	}
 }
 
+// queryはi番目の値を取得します。
 func (st *SegmentTree) query(i int) int {
 	t := i + st.n
 	ret := st.nodes[t]
@@ -219,6 +208,7 @@ func (st *SegmentTree) query(i int) int {
 	return ret
 }
 
+// update は[l, r)の値にvalueを適用します。
 func (st *SegmentTree) update(l, r, value int) {
 	for ll, rr := l+st.n, r+st.n; ll < rr; ll, rr = ll/2, rr/2 {
 		if ll%2 == 1 {
@@ -620,4 +610,34 @@ func uniqueInt(arr []int) []int {
 		j++
 	}
 	return arr[:j]
+}
+
+// compress0はnumbersで渡した値を0から座標圧縮します。
+func compress0(numbers map[int]int) (map[int]int, []int) {
+	keys := sort.IntSlice{}
+	for i := range numbers {
+		keys = append(keys, i)
+	}
+	sort.Sort(keys)
+	for i, v := range keys {
+		numbers[v] = i
+	}
+
+	return numbers, keys
+}
+
+// compress0はnumbersで渡した値を0から座標圧縮します。
+func compress1(numbers map[int]int) (map[int]int, map[int]int) {
+	keys := sort.IntSlice{}
+	for i := range numbers {
+		keys = append(keys, i)
+	}
+	sort.Sort(keys)
+	values := map[int]int{}
+	for i, v := range keys {
+		numbers[v] = i + 1
+		values[i+1] = v
+	}
+
+	return numbers, values
 }
