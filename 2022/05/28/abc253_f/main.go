@@ -25,16 +25,23 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+var n int
+var m int
+
 type query struct {
 	q, t, l, r, x, i, j int
 }
 
-func calc() {
-	n, m, Q := in.NextInt3()
-	st := NewSegmentTree()
+func (q *query) index() int {
+	return q.j*m + q.i
+}
 
-	// st[i,j] = st[j*m + i]
-	st.init(n * m)
+func calc() {
+	n, m = in.NextInt2()
+	Q := in.NextInt()
+
+	st := NewSegmentTree()
+	n2i := map[int]int{}
 
 	qs := []*query{}
 	for q := 0; q < Q; q++ {
@@ -45,6 +52,8 @@ func calc() {
 				l, r, x := in.NextInt3()
 				l--
 				qs = append(qs, &query{q: q, t: t, l: l, r: r, x: x})
+				n2i[l*m] = 1
+				n2i[r*m] = 1
 			}
 		case 2:
 			{
@@ -58,9 +67,23 @@ func calc() {
 				i--
 				j--
 				qs = append(qs, &query{q: q, t: t, i: i, j: j})
+				n2i[j*m+i] = 1
 			}
 		}
 	}
+
+	// 座圧
+	keys := sort.IntSlice{}
+	for v := range n2i {
+		keys = append(keys, v)
+	}
+	sort.Sort(keys)
+	for i, v := range keys {
+		n2i[v] = i + 1
+	}
+
+	// st[i,j] = st[j*m + i]
+	st.init(len(keys) + 1)
 
 	// q3の直前にop == 2を適用されたタイミングで値を設定できるようにしておく
 	last := make([]int, n)
@@ -78,13 +101,13 @@ func calc() {
 		switch q.t {
 		case 1:
 			// st[i,j] = st[j*m + i]
-			st.update(q.l*m, (q.r)*m, q.x)
+			st.update(n2i[q.l*m], n2i[(q.r)*m], q.x)
 		case 2:
 			for _, v := range watch[q.q] {
-				v.x = q.x - st.query(v.j*m+v.i)
+				v.x = q.x - st.query(n2i[v.index()])
 			}
 		case 3:
-			out.Println(q.x + st.query(q.j*m+q.i))
+			out.Println(q.x + st.query(n2i[q.index()]))
 		}
 	}
 }
