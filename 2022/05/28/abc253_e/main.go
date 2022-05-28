@@ -46,7 +46,13 @@ func calc() {
 			if i+k <= m {
 				dp2[i] = mod.add(dp2[i], mod.sub(s[m], s[i+k]))
 			}
+			if k == 0 {
+				dp2[i] = mod.sub(dp2[i], dp[i])
+			}
 		}
+		// if n < 10 {
+		// 	debug(s, dp2)
+		// }
 		dp = dp2
 	}
 	ans := 0
