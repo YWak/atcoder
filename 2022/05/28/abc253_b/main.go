@@ -26,7 +26,19 @@ var in *In
 var out *Out
 
 func calc() {
-
+	h, _ := in.NextInt2()
+	x := []int{}
+	y := []int{}
+	for i := 0; i < h; i++ {
+		s := in.NextString()
+		for j, c := range s {
+			if c == 'o' {
+				x = append(x, i)
+				y = append(y, j)
+			}
+		}
+	}
+	out.Println(abs(x[0]-x[1]) + abs(y[0]-y[1]))
 }
 
 func main() {
