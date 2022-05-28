@@ -25,72 +25,66 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-var n int
-var m int
-
-type query struct {
+type Query struct {
 	op, l, r, x, i, j int
 }
 
-func index(i, j int) int {
-	return j*m + i
-}
-
 func calc() {
-	n, m = in.NextInt2()
-	Q := in.NextInt()
+	n, m, Q := in.NextInt3()
 
-	st := NewSegmentTree()
-	n2i := map[int]int{}
+	st := NewSegmentTree() // 列に足された値
+	st.init(m)
 
-	queries := make([]*query, Q)
-	last := make([]int, n)       // i行を最後に参照したop = 2のクエリ番号
-	watch := make([][]*query, Q) // op = 2を参照する op = 3のクエリのリスト
-	for k := 0; k < Q; k++ {
+	queries := make([]*Query, Q)
+	last := make([]int, n) // i行を最後に参照したop = 2のクエリ番号
+	for i := range last {
+		last[i] = -1
+	}
+	watch := make([][]*Query, Q) // op = 2を参照する op = 3のクエリのリスト
+	for q := 0; q < Q; q++ {
 		op := in.NextInt()
-		var q query
+		var query Query
 		switch op {
 		case 1:
 			{
-				l, r, x := in.NextInt3()
-				l--
-				q = query{op: op, l: l, r: r, x: x}
-				n2i[index(0, l)] = 1
-				n2i[index(n-1, r-1)] = 1
-				n2i[index(0, r)] = 1
+				l, r, x := in.NextInt3d(-1, 0, 0)
+				query = Query{op: op, l: l, r: r, x: x}
 			}
 		case 2:
 			{
-				i, x := in.NextInt2()
-				i--
-				q = query{op: op, i: i, x: x}
-				last[i] = k // i行目に最後にop = 2の操作をしたタイミングを記録しておく
+				i, x := in.NextInt2d(-1, 0)
+				query = Query{op: op, i: i, x: x}
+				last[i] = q // i行目に最後にop = 2の操作をしたタイミングを記録しておく
 			}
 		case 3:
 			{
-				i, j := in.NextInt2()
-				i--
-				j--
-				q = query{op: op, i: i, j: j}
-				n2i[index(i, j)] = 1
-				watch[last[i]] = append(watch[last[i]], &q)
+				i, j := in.NextInt2d(-1, -1)
+				query = Query{op: op, i: i, j: j}
+
+				// このクエリが参照する行に、直前にop = 2を適用したタイミングで状況を取得できるようにする
+				if last[i] != -1 {
+					watch[last[i]] = append(watch[last[i]], &query)
+				}
 			}
 		}
-		queries[k] = &q
+		queries[q] = &query
 	}
-	compress1(n2i)
-	st.init(len(n2i) + 1)
 
-	for i, q := range queries {
-		switch q.op {
+	// 操作を行う
+	for q, query := range queries {
+		switch query.op {
 		case 1:
-			st.update(n2i[index(0, q.l)], n2i[index(0, q.r)], q.x)
+			// 区間加算
+			st.update(query.l, query.r, query.x)
 		case 2:
-			for _, v := range watch[i] {
-				v.x = q.x - st.query(n2i[index(v.i, v.j)])
+			// このクエリの値を参照するop = 3のクエリに対して、
+			// xを設定してそれまでの加算値を無効化する
+			for _, v := range watch[q] {
+				v.x = query.x - st.query(v.j)
 			}
 		case 3:
-			out.Println(q.x + st.query(n2i[index(q.i, q.j)]))
+			// 値を調整して出力
+			out.Println(query.x + st.query(query.j))
 		}
 	}
 }
@@ -626,7 +620,7 @@ func compress0(numbers map[int]int) (map[int]int, []int) {
 	return numbers, keys
 }
 
-// compress0はnumbersで渡した値を0から座標圧縮します。
+// compress1はnumbersで渡した値を1から座標圧縮します。
 func compress1(numbers map[int]int) (map[int]int, map[int]int) {
 	keys := sort.IntSlice{}
 	for i := range numbers {
