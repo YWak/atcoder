@@ -29,7 +29,7 @@ var n int
 var m int
 
 type query struct {
-	q, t, l, r, x, i, j int
+	op, l, r, x, i, j int
 }
 
 func (q *query) index() int {
@@ -44,30 +44,37 @@ func calc() {
 	n2i := map[int]int{}
 
 	qs := []*query{}
-	for q := 0; q < Q; q++ {
-		t := in.NextInt()
-		switch t {
+	// q3の直前にop == 2を適用されたタイミングで値を設定できるようにしておく
+	last := make([]int, n)       // i行を最後に参照したop = 2のクエリ番号
+	watch := make([][]*query, Q) // op = 2を参照する op = 3のクエリのリスト
+	for k := 0; k < Q; k++ {
+		op := in.NextInt()
+		switch op {
 		case 1:
 			{
 				l, r, x := in.NextInt3()
 				l--
-				qs = append(qs, &query{q: q, t: t, l: l, r: r, x: x})
+				qs = append(qs, &query{op: op, l: l, r: r, x: x})
 				n2i[l*m] = 1
+				n2i[r*m-1] = 1
 				n2i[r*m] = 1
 			}
 		case 2:
 			{
 				i, x := in.NextInt2()
 				i--
-				qs = append(qs, &query{q: q, t: t, i: i, x: x})
+				qs = append(qs, &query{op: op, i: i, x: x})
+				last[i] = k
 			}
 		case 3:
 			{
 				i, j := in.NextInt2()
 				i--
 				j--
-				qs = append(qs, &query{q: q, t: t, i: i, j: j})
+				_q := &query{op: op, i: i, j: j}
+				qs = append(qs, _q)
 				n2i[j*m+i] = 1
+				watch[last[i]] = append(watch[last[i]], _q)
 			}
 		}
 	}
@@ -85,25 +92,13 @@ func calc() {
 	// st[i,j] = st[j*m + i]
 	st.init(len(keys) + 1)
 
-	// q3の直前にop == 2を適用されたタイミングで値を設定できるようにしておく
-	last := make([]int, n)
-	watch := make([][]*query, n)
-	for _, q := range qs {
-		if q.t == 2 {
-			last[q.i] = q.q
-		}
-		if q.t == 3 {
-			watch[last[q.i]] = append(watch[q.i], q)
-		}
-	}
-
-	for _, q := range qs {
-		switch q.t {
+	for i, q := range qs {
+		switch q.op {
 		case 1:
 			// st[i,j] = st[j*m + i]
-			st.update(n2i[q.l*m], n2i[(q.r)*m], q.x)
+			st.update(n2i[q.l*m], n2i[q.r*m], q.x)
 		case 2:
-			for _, v := range watch[q.q] {
+			for _, v := range watch[i] {
 				v.x = q.x - st.query(n2i[v.index()])
 			}
 		case 3:
