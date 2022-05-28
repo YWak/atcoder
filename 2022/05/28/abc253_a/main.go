@@ -26,7 +26,8 @@ var in *In
 var out *Out
 
 func calc() {
-
+	a, b, c := in.NextInt3()
+	out.YesNo((a <= b && b <= c) || (a >= b && b >= c))
 }
 
 func main() {
