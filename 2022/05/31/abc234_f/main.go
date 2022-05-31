@@ -26,8 +26,19 @@ var in *In
 var out *Out
 
 func calc() {
-	mod := NewMod998244353()
-	com := NewComination(5000, 5000, mod)
+	mod := 998244353
+	n, r := 5000, 5000
+	com := make([][]int, n+1)
+	for i := 0; i <= n; i++ {
+		com[i] = make([]int, r+1)
+	}
+	com[0][0] = 1
+	for i := 1; i <= n; i++ {
+		com[i][0] = 1
+		for j := 1; j <= r; j++ {
+			com[i][j] = (com[i-1][j-1] + com[i-1][j]) % mod
+		}
+	}
 
 	s := in.NextBytes()
 	c := [26]int{}
@@ -46,87 +57,106 @@ func calc() {
 					break
 				}
 				// j文字あるところにk文字挿入する
-				pat := com.nCk(j+k, k)
-				mod.chadd(&t[j+k], mod.mul(pat, dp[j]))
+				pat := com[j+k][k]
+				t[j+k] = (t[j+k] + pat*dp[j]%mod) % mod
 			}
 		}
 		dp = t
 	}
 	ans := 0
 	for i := 1; i <= len(s); i++ {
-		mod.chadd(&ans, dp[i])
+		ans = (ans + dp[i]) % mod
 	}
 	out.Println(ans)
 }
 
-type Combination struct {
-	mod   *Mod
-	style int
-	fact  []int
-	ifact []int
-	dp    [][]int
+type Combination interface {
+	nCr(n, k int) int
 }
 
-func NewComination(n, k int, mod *Mod) Combination {
-	c := Combination{mod: mod}
-
-	if n <= 5000 && k <= 5000 {
-		c.style = 1
-		// 完全に初期化できる
-		c.dp = make([][]int, n+1)
-		for i := 0; i <= n; i++ {
-			c.dp[i] = make([]int, k+1)
-		}
-		c.dp[0][0] = 1
-		for i := 1; i <= n; i++ {
-			c.dp[i][0] = 1
-			for j := 1; j <= k; j++ {
-				c.dp[i][j] = c.mod.add(c.dp[i-1][j-1], c.dp[i-1][j])
-			}
-		}
-	} else if n <= pow(10, 7) {
-		c.style = 2
-		c.initFact(n)
-	} else if k <= pow(10, 7) {
-		c.style = 3
-		c.initFact(k)
-	}
-	return c
+type Combination1 struct {
+	dp [][]int
 }
 
-func (c *Combination) initFact(n int) {
-	N := n + 1
-	// 全部の初期化が間に合う
-	c.fact = make([]int, N)
-	c.ifact = make([]int, N)
-	c.fact[1] = 1
-	for i := 2; i < N; i++ {
-		c.fact[i] = c.mod.mul(c.fact[i-1], i)
-	}
-	c.ifact[n] = c.mod.inv(c.fact[n])
-	for i := n; i > 0; i-- {
-		c.ifact[i-1] = c.mod.mul(c.ifact[i], i)
-	}
-}
-
-func (c *Combination) nCk(n, k int) int {
-	if n <= 0 || k <= 0 || n < k {
+func (c Combination1) nCr(n, r int) int {
+	if n <= 0 || r <= 0 || n < r {
 		return 1
 	}
-	switch c.style {
-	case 1:
-		return c.dp[n][k]
-	case 2:
-		return c.mod.mul(c.fact[n], c.mod.mul(c.ifact[k], c.ifact[n-k]))
-	case 3:
-		ans := 1
-		for i := n; i >= n-k+1; i-- {
-			ans = c.mod.mul(ans, i)
-		}
-		return c.mod.mul(ans, c.ifact[k])
-	default:
-		panic("not initialized")
+	return c.dp[n][r]
+}
+
+type Combination2 struct {
+	mod   *Mod
+	fact  []int
+	ifact []int
+}
+
+func (c Combination2) nCr(n, r int) int {
+	if n <= 0 || r <= 0 || n < r {
+		return 1
 	}
+	return c.mod.mul(c.fact[n], c.mod.mul(c.ifact[r], c.ifact[n-r]))
+}
+
+type Combination3 struct {
+	mod   *Mod
+	ifact []int
+}
+
+func (c Combination3) nCr(n, r int) int {
+	if n <= 0 || r <= 0 || n < r {
+		return 1
+	}
+	ans := 1
+	for i := n; i >= n-r+1; i-- {
+		ans = c.mod.mul(ans, i)
+	}
+	return c.mod.mul(ans, c.ifact[r])
+}
+
+func NewComination(n, r int, mod *Mod) Combination {
+	if n <= 5000 && r <= 5000 {
+		// 完全に初期化できる
+		dp := make([][]int, n+1)
+		for i := 0; i <= n; i++ {
+			dp[i] = make([]int, r+1)
+		}
+		dp[0][0] = 1
+		for i := 1; i <= n; i++ {
+			dp[i][0] = 1
+			for j := 1; j <= r; j++ {
+				dp[i][j] = mod.add(dp[i-1][j-1], dp[i-1][j])
+			}
+		}
+		return &Combination1{dp}
+	}
+
+	initFact := func(m int) ([]int, []int) {
+		N := n + 1
+		// 全部の初期化が間に合う
+		fact := make([]int, N)
+		ifact := make([]int, N)
+		fact[1] = 1
+		for i := 2; i < N; i++ {
+			fact[i] = mod.mul(fact[i-1], i)
+		}
+		ifact[n] = mod.inv(fact[n])
+		for i := n; i > 0; i-- {
+			ifact[i-1] = mod.mul(ifact[i], i)
+		}
+		return fact, ifact
+	}
+
+	if n <= pow(10, 7) {
+		fact, ifact := initFact(n)
+		return Combination2{mod, fact, ifact}
+	}
+	if r <= pow(10, 7) {
+		_, ifact := initFact(r)
+		return Combination3{mod, ifact}
+	}
+
+	panic("can not define")
 }
 
 type Mod struct {
