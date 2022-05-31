@@ -171,18 +171,22 @@ func (mod mint) div(a, b int) int {
 	return mod.mul(a, mod.inv(b))
 }
 
+// chaddはa + b (mod m)の結果をaに設定します。
 func (mod mint) chadd(a *int, b int) {
 	*a = mod.add(*a, b)
 }
 
+// chsubはa - b (mod m)の結果をaに設定します。
 func (mod mint) chsub(a *int, b int) {
 	*a = mod.sub(*a, b)
 }
 
+// chmulはa * b (mod m)の結果をaに設定します。
 func (mod mint) chmul(a *int, b int) {
 	*a = mod.mul(*a, b)
 }
 
+// chdivはa / b (mod m)の結果をaに設定します。
 func (mod mint) chdiv(a *int, b int) {
 	*a = mod.div(*a, b)
 }
