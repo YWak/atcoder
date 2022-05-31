@@ -5,7 +5,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"math"
 	"math/bits"
 	"os"
 	"sort"
@@ -26,19 +25,8 @@ var in *In
 var out *Out
 
 func calc() {
-	mod := 998244353
-	n, r := 5000, 5000
-	com := make([][]int, n+1)
-	for i := 0; i <= n; i++ {
-		com[i] = make([]int, r+1)
-	}
-	com[0][0] = 1
-	for i := 1; i <= n; i++ {
-		com[i][0] = 1
-		for j := 1; j <= r; j++ {
-			com[i][j] = (com[i-1][j-1] + com[i-1][j]) % mod
-		}
-	}
+	mod := Mod998244353()
+	com := NewComination(5000, 5000, mod)
 
 	s := in.NextBytes()
 	c := [26]int{}
@@ -57,166 +45,117 @@ func calc() {
 					break
 				}
 				// j文字あるところにk文字挿入する
-				pat := com[j+k][k]
-				t[j+k] = (t[j+k] + pat*dp[j]%mod) % mod
+				pat := com.nCr(j+k, k)
+				t[j+k] = mod.add(t[j+k], mod.mul(pat, dp[j]))
 			}
 		}
 		dp = t
 	}
 	ans := 0
 	for i := 1; i <= len(s); i++ {
-		ans = (ans + dp[i]) % mod
+		ans = mod.add(ans, dp[i])
 	}
 	out.Println(ans)
 }
 
-type Combination interface {
-	nCr(n, k int) int
+type Combination struct {
+	// factはnの階乗を返します。
+	fact func(n int) int
+
+	// nPrはn個のモノからr個取り出して並べる順列の個数を返します。
+	nPr func(n, k int) int
+
+	// nCrはn個のモノからr個取り出す組み合わせの個数を返します。
+	nCr func(n, k int) int
+
+	// nHrはn個のモノから重複を許して取り出す組み合わせの個数を返します。
+	nHr func(n, k int) int
 }
 
-type Combination1 struct {
-	dp [][]int
-}
-
-func (c Combination1) nCr(n, r int) int {
-	if n <= 0 || r <= 0 || n < r {
-		return 1
+func NewComination(nmax, rmax int, mod mint) Combination {
+	fact := make([]int, nmax+1)
+	ifact := make([]int, nmax+1)
+	fact[1] = 1
+	for i := 2; i <= nmax; i++ {
+		fact[i] = mod.mul(fact[i-1], i)
 	}
-	return c.dp[n][r]
-}
-
-type Combination2 struct {
-	mod   *Mod
-	fact  []int
-	ifact []int
-}
-
-func (c Combination2) nCr(n, r int) int {
-	if n <= 0 || r <= 0 || n < r {
-		return 1
+	ifact[nmax] = mod.inv(fact[nmax])
+	for i := nmax; i > 0; i-- {
+		ifact[i-1] = mod.mul(ifact[i], i)
 	}
-	return c.mod.mul(c.fact[n], c.mod.mul(c.ifact[r], c.ifact[n-r]))
-}
 
-type Combination3 struct {
-	mod   *Mod
-	ifact []int
-}
-
-func (c Combination3) nCr(n, r int) int {
-	if n <= 0 || r <= 0 || n < r {
-		return 1
-	}
-	ans := 1
-	for i := n; i >= n-r+1; i-- {
-		ans = c.mod.mul(ans, i)
-	}
-	return c.mod.mul(ans, c.ifact[r])
-}
-
-func NewComination(n, r int, mod *Mod) Combination {
-	if n <= 5000 && r <= 5000 {
-		// 完全に初期化できる
-		dp := make([][]int, n+1)
-		for i := 0; i <= n; i++ {
-			dp[i] = make([]int, r+1)
+	nCr := func(n, r int) int {
+		if n <= 0 || r <= 0 || n < r {
+			return 1
 		}
-		dp[0][0] = 1
-		for i := 1; i <= n; i++ {
-			dp[i][0] = 1
-			for j := 1; j <= r; j++ {
-				dp[i][j] = mod.add(dp[i-1][j-1], dp[i-1][j])
+		return mod.mul(fact[n], mod.mul(ifact[r], ifact[n-r]))
+	}
+
+	return Combination{
+		fact: func(n int) int {
+			return fact[n]
+		},
+		nPr: func(n, r int) int {
+			if n <= 0 || r <= 0 || n < r {
+				return 1
 			}
-		}
-		return &Combination1{dp}
+			return mod.mul(fact[n], ifact[n-r])
+		},
+		nCr: nCr,
+		nHr: func(n, r int) int {
+			return nCr(n+r-1, r)
+		},
 	}
-
-	initFact := func(m int) ([]int, []int) {
-		N := n + 1
-		// 全部の初期化が間に合う
-		fact := make([]int, N)
-		ifact := make([]int, N)
-		fact[1] = 1
-		for i := 2; i < N; i++ {
-			fact[i] = mod.mul(fact[i-1], i)
-		}
-		ifact[n] = mod.inv(fact[n])
-		for i := n; i > 0; i-- {
-			ifact[i-1] = mod.mul(ifact[i], i)
-		}
-		return fact, ifact
-	}
-
-	if n <= pow(10, 7) {
-		fact, ifact := initFact(n)
-		return Combination2{mod, fact, ifact}
-	}
-	if r <= pow(10, 7) {
-		_, ifact := initFact(r)
-		return Combination3{mod, ifact}
-	}
-
-	panic("can not define")
 }
 
-type Mod struct {
-	modulo int
+type mint int
+
+func Mod998244353() mint {
+	return mint(998244353)
 }
 
-func NewMod1000000007() *Mod {
-	return &Mod{pow(10, 9) + 7}
+func Mod1000000007() mint {
+	return mint(1000000007)
 }
 
-func NewMod998244353() *Mod {
-	return &Mod{998244353}
-}
-
-func (mod *Mod) norm(a int) int {
-	if a < 0 || a >= mod.modulo {
-		a %= mod.modulo
+// normはaをmod mの値に変換します
+func (mod mint) norm(a int) int {
+	if a < 0 || a >= int(mod) {
+		a %= int(mod)
 	}
 	if a < 0 {
-		a += mod.modulo
+		a += int(mod)
 	}
 	return a
 }
 
-func (mod *Mod) add(a, b int) int {
+// addはa + b (mod m)を返します。
+func (mod mint) add(a, b int) int {
 	ab := a + b
-	if ab >= mod.modulo {
-		ab %= mod.modulo
+	if ab >= int(mod) {
+		ab %= int(mod)
 	}
 	return ab
 }
 
-func (mod *Mod) sub(a, b int) int {
-	ab := a - b + mod.modulo
-	if ab >= mod.modulo {
-		ab -= mod.modulo
+// subはa - b (mod m)を返します。
+func (mod mint) sub(a, b int) int {
+	ab := a - b
+	if ab < 0 {
+		ab += int(mod)
 	}
 	return ab
 }
-func (mod *Mod) mul(a, b int) int {
-	return (a * b) % mod.modulo
+
+// mulはa * b (mod m)を返します。
+func (mod mint) mul(a, b int) int {
+	return (a * b) % int(mod)
 }
 
-func (mod *Mod) pow(a, b int) int {
-	ans := 1
-
-	for b > 0 {
-		if b&1 == 1 {
-			ans = mod.mul(ans, a)
-		}
-		a = mod.mul(a, a)
-		b = b >> 1
-	}
-
-	return ans
-}
-
-func (mod *Mod) inv(a int) int {
+// invはmod mにおけるaの逆元を返します。
+func (mod mint) inv(a int) int {
 	// 拡張ユークリッドの互除法
-	b, u, v := mod.modulo, 1, 0
+	b, u, v := int(mod), 1, 0
 	for b > 0 {
 		t := a / b
 		a -= t * b
@@ -227,23 +166,24 @@ func (mod *Mod) inv(a int) int {
 	return mod.norm(u)
 }
 
-func (mod *Mod) div(a, b int) int {
+// divはa / b (mod m)を返します。
+func (mod mint) div(a, b int) int {
 	return mod.mul(a, mod.inv(b))
 }
 
-func (mod *Mod) chadd(a *int, b int) {
+func (mod mint) chadd(a *int, b int) {
 	*a = mod.add(*a, b)
 }
 
-func (mod *Mod) chsub(a *int, b int) {
+func (mod mint) chsub(a *int, b int) {
 	*a = mod.sub(*a, b)
 }
 
-func (mod *Mod) chmul(a *int, b int) {
+func (mod mint) chmul(a *int, b int) {
 	*a = mod.mul(*a, b)
 }
 
-func (mod *Mod) chdiv(a *int, b int) {
+func (mod mint) chdiv(a *int, b int) {
 	*a = mod.div(*a, b)
 }
 
@@ -538,20 +478,6 @@ func ch(cond bool, ok, ng int) int {
 		return ok
 	}
 	return ng
-}
-
-func mul(a, b int) (int, int) {
-	if a < 0 {
-		a, b = -a, -b
-	}
-	if a == 0 || b == 0 {
-		return 0, 0
-	} else if a > 0 && b > 0 && a > math.MaxInt64/b {
-		return 0, +1
-	} else if a > math.MinInt64/b {
-		return 0, -1
-	}
-	return a * b, 0
 }
 
 // ==================================================

@@ -314,15 +314,33 @@ func powmod(x, n, m int) int {
 	return ans
 }
 
-// ch は condがtrueのときok, falseのときngを返します。
-func ch(cond bool, ok, ng int) int {
+// chiはcondがtrueのときok, falseのときngを返します。
+func chi(cond bool, ok, ng int) int {
 	if cond {
 		return ok
 	}
 	return ng
 }
 
-func mul(a, b int) (int, int) {
+// chbはcondがtrueのときok, falseのときngを返します。
+func chb(cond bool, ok, ng byte) byte {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// chsはcondがtrueのときok, falseのときngを返します。
+func chs(cond bool, ok, ng string) string {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// extmulはa*bの結果を返します。
+// 2つ目の値が+1ならオーバーフロー、-1ならアンダーフローが発生したことを表します。
+func extmul(a, b int) (int, int) {
 	if a < 0 {
 		a, b = -a, -b
 	}
