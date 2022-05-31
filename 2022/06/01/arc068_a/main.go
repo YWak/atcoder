@@ -28,8 +28,11 @@ var out *Out
 func calc() {
 	n := in.NextInt()
 
-	ans := n/11*2 + 1
+	ans := n / 11 * 2
 	n = n % 11
+	if n != 0 {
+		ans++
+	}
 	if n > 6 {
 		ans++
 	}
