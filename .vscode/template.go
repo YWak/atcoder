@@ -253,6 +253,16 @@ func min(a, b int) int {
 	return b
 }
 
+// chmax は aとbのうち大きい方をaに設定します。
+func chmax(a *int, b int) {
+	*a = max(*a, b)
+}
+
+// chmin は aとbのうち小さい方をaに設定します。
+func chmin(a *int, b int) {
+	*a = min(*a, b)
+}
+
 // abs は aの絶対値を返します。
 func abs(a int) int {
 	if a > 0 {
