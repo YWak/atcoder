@@ -419,29 +419,6 @@ func NewIntInt(rows, cols, val int) [][]int {
 	return a
 }
 
-// reverseIntはintの配列を逆転させます。
-func reverseInt(arr *[]int) {
-	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
-		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
-	}
-}
-
-func uniqueInt(arr []int) []int {
-	hist := map[int]bool{}
-	j := 0
-	for i := 0; i < len(arr); i++ {
-		if hist[arr[i]] {
-			continue
-		}
-
-		a := arr[i]
-		arr[j] = a
-		hist[a] = true
-		j++
-	}
-	return arr[:j]
-}
-
 // compressはnumbersで渡した値を座標圧縮します。
 func compress(numbers map[int]int) (map[int]int, []int) {
 	keys := sort.IntSlice{}
