@@ -48,11 +48,11 @@ func solve() bool {
 
 		queue := []int{i}
 		pos[i] = 0
+		done[i] = true
 
 		for len(queue) > 0 {
 			u := queue[0]
 			queue = queue[1:]
-			done[u] = true
 
 			// 前進
 			for _, e := range fg[u] {
@@ -60,6 +60,7 @@ func solve() bool {
 				if !done[e.to] {
 					pos[e.to] = x
 					queue = append(queue, e.to)
+					done[e.to] = true
 				} else if pos[e.to] != x {
 					// 不一致検出
 					return false
@@ -73,6 +74,7 @@ func solve() bool {
 				if !done[e.to] {
 					pos[e.to] = x
 					queue = append(queue, e.to)
+					done[e.to] = true
 				} else if pos[e.to] != x {
 					// 不一致検出
 					return false
