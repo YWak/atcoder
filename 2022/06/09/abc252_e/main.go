@@ -110,11 +110,13 @@ func (g *Graph) DijkstraAll(s int) []int {
 			c = INF18
 		}
 		cost[i] = c
-		heap.Push(&pq, &DijkstraNode{i, c})
 	}
-
+	heap.Push(&pq, &DijkstraNode{0, s})
 	for pq.Len() > 0 {
 		u := heap.Pop(&pq).(*DijkstraNode)
+		if cost[u.node] < u.cost {
+			continue
+		}
 		for i := 0; i < len(g.list[u.node]); i++ {
 			v := g.list[u.node][i]
 			c := cost[u.node] + v.weight
