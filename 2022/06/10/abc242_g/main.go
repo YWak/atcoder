@@ -55,7 +55,7 @@ func calc() {
 		}
 	})
 	l, r := 0, 0
-	m := map[int]bool{}
+	m := make([]bool, n+1)
 	t := 0
 	for _, q := range qs {
 		for l > q.l {
