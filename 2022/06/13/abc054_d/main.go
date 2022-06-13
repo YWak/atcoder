@@ -31,24 +31,56 @@ type s struct {
 
 func calc() {
 	n, ma, mb := in.NextInt3()
-	p1 := []*s{{0, 0, 0}}
-	p2 := []*s{{0, 0, 0}}
+	al := []int{0}
+	ar := []int{0}
+	bl := []int{0}
+	br := []int{0}
+	cl := []int{0}
+	cr := []int{0}
+
+	// 半分全列挙
 	for t := 0; t < n; t++ {
 		a, b, c := in.NextInt3()
-		for i, l := 0, len(p1); i < l; i++ {
-			p1 = append(p1, &s{p1[i].a + a, p1[i].b + b, p1[i].c + c})
+		for i, l := 0, len(al); i < l; i++ {
+			aa, bb, cc := al[i]+a, bl[i]+b, cl[i]+c
+			al = append(al, aa)
+			bl = append(bl, bb)
+			cl = append(cl, cc)
 		}
-		p1, p2 = p2, p1
+		al, bl, cl, ar, br, cr = ar, br, cr, al, bl, cl
 	}
+
+	// a1*ma - b1*mb = b2*ma - a2*mb
+	// b2*ma-a2*mbの値ごとに最小値をもつ
 	ans := INF18
-	for _, s1 := range p1 {
-		for _, s2 := range p2 {
-			a, b, c := s1.a+s2.a, s1.b+s2.b, s1.c+s2.c
-			if c > 0 && a%ma == 0 && b%mb == 0 && a/ma == b/mb {
-				chmin(&ans, c)
-			}
+	costs := map[int]int{}
+	for i := 1; i < len(ar); i++ {
+		a2, b2, c2 := ar[i], br[i], cr[i]
+		k := b2*ma - a2*mb
+		if k == 0 {
+			chmin(&ans, c2)
+		}
+
+		if c1, e := costs[k]; e {
+			costs[k] = min(c1, c2)
+		} else {
+			costs[k] = c2
 		}
 	}
+
+	for i := 1; i < len(al); i++ {
+		a1, b1, c1 := al[i], bl[i], cl[i]
+		k := mb*a1 - ma*b1
+		if k == 0 {
+			chmin(&ans, c1)
+		}
+
+		// ひとつも使わない場合は除外する
+		if c2, e := costs[k]; e && c1+c2 > 0 {
+			chmin(&ans, c1+c2)
+		}
+	}
+
 	if ans == INF18 {
 		ans = -1
 	}
