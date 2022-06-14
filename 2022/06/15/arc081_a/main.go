@@ -25,21 +25,31 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+func max2(a, b, c int) (int, int) {
+	if c > a {
+		return c, a
+	}
+	if c > b {
+		return a, c
+	}
+	return a, b
+}
+
 func calc() {
 	n := in.NextInt()
 	m := map[int]int{}
 	for i := 0; i < n; i++ {
 		m[in.NextInt()]++
 	}
+
 	a, b := 0, 0
 	for k, c := range m {
 		if c < 2 {
 			continue
 		}
-		if a < k {
-			a, b = k, a
-		} else if b < k {
-			b = k
+		a, b = max2(a, b, k)
+		if c >= 4 {
+			a, b = max2(a, b, k)
 		}
 	}
 	out.Println(a * b)
