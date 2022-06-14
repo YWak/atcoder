@@ -26,21 +26,21 @@ var in *In
 var out *Out
 
 func calc() {
-	s := make([][]byte, 3)
+	s := make([][]int, 3)
 	for t := 0; t < 3; t++ {
 		_s := in.NextBytes()
 		for _, c := range _s {
-			s[t] = append(s[t], c-'a')
+			s[t] = append(s[t], int(c-'a'))
 		}
 	}
-	t := byte(0)
+
+	t := 0
 	for {
 		if len(s[t]) == 0 {
-			out.Printf("%c\n", t+'A')
+			out.Println(string(rune(t + 'A')))
 			return
 		}
-		t = s[t][0]
-		s[t] = s[t][1:]
+		t, s[t] = s[t][0], s[t][1:]
 	}
 }
 
