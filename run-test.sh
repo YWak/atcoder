@@ -10,6 +10,7 @@ TIMEOUT="${2:-3}s"
 EXE="./main"
 TEMPFILE1=$(mktemp)
 TEMPFILE2=$(mktemp)
+
 go build -o $EXE main.go
 
 trap 'rm -rf main $TEMPFILE1 $TEMPFILE2 $EXE' 0

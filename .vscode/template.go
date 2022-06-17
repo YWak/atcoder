@@ -19,6 +19,9 @@ const INF18 = int(1e18)
 // INF9 は最大値を表す数
 const INF9 = int(1e9)
 
+// N10_6は10^6
+const N10_6 = int(1e6)
+
 var in *In
 var out *Out
 
@@ -208,12 +211,25 @@ func (out *Out) PrintLenAndIntsLn(a []int) {
 	out.Println(strings.Join(b, " "))
 }
 
+// Putcは一文字出力します。
+func (out *Out) Putc(c byte) {
+	out.Printf("%c", c)
+}
+
 // YesNo は condが真ならYes, 偽ならNoを出力します。
 func (out *Out) YesNo(cond bool) {
 	if cond {
 		out.Println("Yes")
 	} else {
 		out.Println("No")
+	}
+}
+
+func (out *Out) YESNO(cond bool) {
+	if cond {
+		out.Println("YES")
+	} else {
+		out.Println("NO")
 	}
 }
 
@@ -235,6 +251,16 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// chmax は aとbのうち大きい方をaに設定します。
+func chmax(a *int, b int) {
+	*a = max(*a, b)
+}
+
+// chmin は aとbのうち小さい方をaに設定します。
+func chmin(a *int, b int) {
+	*a = min(*a, b)
 }
 
 // abs は aの絶対値を返します。
@@ -278,6 +304,10 @@ func divfloor(a, b int) int {
 
 // powmod は (x^n) mod m を返します。
 func powmod(x, n, m int) int {
+	if n == 0 {
+		return 1
+	}
+
 	x = x % m
 	if x == 0 {
 		return 0
@@ -294,15 +324,33 @@ func powmod(x, n, m int) int {
 	return ans
 }
 
-// ch は condがtrueのときok, falseのときngを返します。
-func ch(cond bool, ok, ng int) int {
+// chiはcondがtrueのときok, falseのときngを返します。
+func chi(cond bool, ok, ng int) int {
 	if cond {
 		return ok
 	}
 	return ng
 }
 
-func mul(a, b int) (int, int) {
+// chbはcondがtrueのときok, falseのときngを返します。
+func chb(cond bool, ok, ng byte) byte {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// chsはcondがtrueのときok, falseのときngを返します。
+func chs(cond bool, ok, ng string) string {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// extmulはa*bの結果を返します。
+// 2つ目の値が+1ならオーバーフロー、-1ならアンダーフローが発生したことを表します。
+func extmul(a, b int) (int, int) {
 	if a < 0 {
 		a, b = -a, -b
 	}
@@ -371,46 +419,16 @@ func NewIntInt(rows, cols, val int) [][]int {
 	return a
 }
 
-func reverse(arr *[]interface{}) {
-	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
-		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
+// compressはnumbersで渡した値を座標圧縮します。
+func compress(numbers map[int]int) (map[int]int, []int) {
+	keys := sort.IntSlice{}
+	for i := range numbers {
+		keys = append(keys, i)
 	}
-}
-
-func reverseInt(arr *[]int) {
-	for i, j := 0, len(*arr)-1; i < j; i, j = i+1, j-1 {
-		(*arr)[i], (*arr)[j] = (*arr)[j], (*arr)[i]
+	sort.Sort(keys)
+	for i, v := range keys {
+		numbers[v] = i
 	}
-}
 
-func uniqueInt(arr []int) []int {
-	hist := map[int]bool{}
-	j := 0
-	for i := 0; i < len(arr); i++ {
-		if hist[arr[i]] {
-			continue
-		}
-
-		a := arr[i]
-		arr[j] = a
-		hist[a] = true
-		j++
-	}
-	return arr[:j]
-}
-
-// ==================================================
-// 構造体
-// ==================================================
-
-// Point は 座標を表す構造体です。
-type Point struct {
-	x int
-	y int
-}
-
-// Pointf は座標を表す構造体です。
-type Pointf struct {
-	x float64
-	y float64
+	return numbers, keys
 }
