@@ -48,7 +48,7 @@ func calc() {
 			last = p
 			s = append(s, last)
 		} else {
-			last.r = p.r
+			chmax(&last.r, p.r)
 		}
 	}
 
