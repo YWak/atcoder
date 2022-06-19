@@ -41,35 +41,42 @@ func calc() {
 	}
 	c := in.NextInts(n)
 
-	// 参照を削除する
-	for u, r := range refs {
-		if r != 0 {
-			continue
-		}
-		v := xs[u]
-		refs[v]--
-		for refs[v] == 0 {
-			v = xs[v]
-			refs[v]--
-		}
-	}
-	ans := 0
-
+	// 参照を削除する0
+	queue := []int{}
 	for u, r := range refs {
 		if r == 0 {
+			queue = append(queue, u)
+		}
+	}
+
+	for len(queue) > 0 {
+		u := queue[0]
+		queue = queue[1:]
+		v := xs[u]
+		refs[v]--
+		if refs[v] == 0 {
+			queue = append(queue, v)
+		}
+	}
+	used := make([]bool, n)
+	ans := 0
+	for u, r := range refs {
+		if used[u] || r == 0 {
 			continue
 		}
-		cost := c[u]
-		refs[u]--
+		used[u] = true
 
+		cost := c[u]
 		v := xs[u]
-		for v != u {
+		for !used[v] {
+			used[v] = true
 			chmin(&cost, c[v])
-			refs[v]--
 			v = xs[v]
 		}
+
 		ans += cost
 	}
+
 	out.Println(ans)
 }
 
