@@ -58,6 +58,9 @@ func (g *Geo) dist2(p1 *Point, p2 *Point) int {
 	return x*x + y*y
 }
 
+// distは2点間の距離を返します。
+// tested:
+//   https://atcoder.jp/contests/abc010/tasks/abc010_3
 func (g *Geo) dist(p1, p2 *Point) float64 {
 	return math.Sqrt(float64(g.dist2(p1, p2)))
 }
