@@ -30,7 +30,7 @@ func calc() {
 	k := in.NextInt()
 
 	m := map[string]bool{}
-	for i := 0; i+k < len(s); i++ {
+	for i := 0; i+k-1 < len(s); i++ {
 		m[s[i:i+k]] = true
 	}
 	out.Println(len(m))
