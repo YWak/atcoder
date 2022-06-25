@@ -27,7 +27,7 @@ var out *Out
 
 func calc() {
 	n, x := in.NextInt2()
-	out.Printf("%c\n", 'A'+x/n-1)
+	out.Printf("%c\n", 'A'+(x-1)/n)
 }
 
 func main() {
