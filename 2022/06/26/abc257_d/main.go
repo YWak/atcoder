@@ -36,8 +36,9 @@ func calc() {
 		x, y, p := in.NextInt3()
 		jumps = append(jumps, &jump{x, y, p})
 	}
-	ok := INF9 * 3
-	ng := 0
+
+	ok := INF9 * 5
+	ng := -1
 	for abs(ok-ng) > 1 {
 		m := (ok + ng) / 2
 		g := make([][]int, n)
