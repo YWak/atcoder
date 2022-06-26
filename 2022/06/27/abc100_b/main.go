@@ -28,6 +28,9 @@ var out *Out
 func calc() {
 	d := in.NextInt()
 	n := in.NextInt()
+	if n == 100 {
+		n++
+	}
 	out.Println(n * pow(100, d))
 }
 
