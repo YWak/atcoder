@@ -22,7 +22,14 @@
         "description": "最小公倍数 lcm(int, int)の実装",
         "body": [
             "func lcm(a, b int) int {",
-            "    return a / gcd(a, b) * b",
+            "    aa, bb := a, b",
+            "    if bb > aa {",
+            "        aa, bb = bb, aa",
+            "    }",
+            "    for bb != 0 {",
+            "        aa, bb = bb, aa%bb",
+            "    }",
+            "    return a / aa * b",
             "}",
             ""
         ]
