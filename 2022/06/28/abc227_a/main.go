@@ -27,7 +27,16 @@ var out *Out
 
 func calc() {
 	n, k, a := in.NextInt3()
-	out.Println((k-1-a)%n + 1)
+	t := a - 1
+	k--
+	for k > 0 {
+		k--
+		t++
+		if t == n {
+			t = 0
+		}
+	}
+	out.Println(t + 1)
 }
 
 func main() {
