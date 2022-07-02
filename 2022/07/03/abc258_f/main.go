@@ -17,7 +17,7 @@ import (
 const INF18 = int(2e18) + int(2e9)
 
 // INF9 は最大値を表す数
-const INF9 = int(2e9)
+const INF9 = int(1e9)
 
 // N10_6は10^6
 const N10_6 = int(1e6)
@@ -25,8 +25,70 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-func calc() {
+type pos struct {
+	x, y, cost int
+}
 
+func solve() int {
+	b, k := in.NextInt2()
+	sx, sy, gx, gy := in.NextInt4()
+
+	// (x,y)を大通上に移動させる
+	getPos := func(x, y, s, t int) []pos {
+		p := []pos{}
+
+		dx := []int{0, x % b, x%b - b}
+		dy := []int{0, y % b, y%b - b}
+		for i := 0; i < 3; i++ {
+			for j := 0; j < 3; j++ {
+				c := 0
+				xx, yy := x-dx[i], y-dy[j]
+				if xx%b == 0 && yy%b == 0 {
+					c = min(abs(dx[i])+k*abs(dy[j]), k*abs(dx[i])+abs(dy[j]))
+				} else if xx%b == 0 {
+					c = k*abs(dx[i]) + abs(dy[j])
+				} else if yy%b == 0 {
+					c = abs(dx[i]) + k*abs(dy[j])
+				} else {
+					c = k*abs(dx[i]) + k*abs(dy[j])
+				}
+
+				p = append(p, pos{xx, yy, c})
+			}
+		}
+
+		return p
+	}
+
+	sp := getPos(sx, sy, gx, gy)
+	gp := getPos(gx, gy, sx, sy)
+
+	// 全パターンの組み合わせで移動する
+	ans := (abs(sx-gx) + abs(sy-gy)) * k
+	for _, s := range sp {
+		for _, g := range gp {
+			cx := k
+			cy := k
+			if s.y%b == 0 && g.y%b == 0 {
+				cx = 1
+			}
+			if s.x%b == 0 && g.x%b == 0 {
+				cy = 1
+			}
+			c := s.cost + g.cost + abs(s.x-g.x)*cx + abs(s.y-g.y)*cy
+			if c < ans {
+				ans = c
+			}
+		}
+	}
+	return ans
+}
+
+func calc() {
+	t := in.NextInt()
+	for i := 0; i < t; i++ {
+		out.Println(solve())
+	}
 }
 
 func main() {
