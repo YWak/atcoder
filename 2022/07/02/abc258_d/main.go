@@ -27,26 +27,19 @@ var out *Out
 
 func calc() {
 	n, x := in.NextInt2()
-	a := make([]int, n)
-	b := make([]int, n)
-
-	for i := 0; i < n; i++ {
-		a[i], b[i] = in.NextInt2()
-	}
-
 	ab := make([]int, n+1)
 	minb := make([]int, n+1)
 	minb[0] = INF18
+
 	for i := 0; i < n; i++ {
-		ab[i+1] = ab[i] + a[i] + b[i]
-		minb[i+1] = min(minb[i], b[i])
+		a, b := in.NextInt2()
+		ab[i+1] = ab[i] + a + b
+		minb[i+1] = min(minb[i], b)
 	}
 
-	ans := INF18
-	for i := 1; i <= n; i++ {
-		if x-i < 0 {
-			break
-		}
+	ans := INF18 * 8
+	for i := 1; i <= min(n, x); i++ {
+		// debug(ab[i], minb[i], x-i)
 		chmin(&ans, ab[i]+minb[i]*(x-i))
 	}
 
