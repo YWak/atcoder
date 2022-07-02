@@ -47,7 +47,7 @@ func calc() {
 		for j := 0; j < n; j++ {
 			t1 := 0
 			t2 := 0
-			for k := 0; k < 4; k++ {
+			for k := 0; k < n; k++ {
 				t1 = t1*10 + int(a[i][j+k]-'0')
 				t2 = t2*10 + int(a[i+k][j]-'0')
 			}
@@ -59,7 +59,7 @@ func calc() {
 	for i := 0; i < n; i++ {
 		for j := 0; j < n; j++ {
 			t := 0
-			for k := 0; k < 4; k++ {
+			for k := 0; k < n; k++ {
 				t = t*10 + int(a[i+k][j+k]-'0')
 			}
 			chmax(&ans, t)
