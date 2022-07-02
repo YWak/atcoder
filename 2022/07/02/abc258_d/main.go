@@ -33,18 +33,21 @@ func calc() {
 	for i := 0; i < n; i++ {
 		a[i], b[i] = in.NextInt2()
 	}
-	ab := make([]int, n)
-	ab[0] = a[0] + b[0]
-	minb := make([]int, n)
-	minb[0] = b[0]
-	for i := 1; i < n; i++ {
-		ab[i] = ab[i-1] + a[i] + b[i]
-		minb[i] = min(minb[i-1], b[i])
+
+	ab := make([]int, n+1)
+	minb := make([]int, n+1)
+	minb[0] = INF18
+	for i := 0; i < n; i++ {
+		ab[i+1] = ab[i] + a[i] + b[i]
+		minb[i+1] = min(minb[i], b[i])
 	}
 
 	ans := INF18
-	for i := 0; i < n; i++ {
-		chmin(&ans, ab[i]+minb[i]*(x-(i+1)))
+	for i := 1; i <= n; i++ {
+		if x-i < 0 {
+			break
+		}
+		chmin(&ans, ab[i]+minb[i]*(x-i))
 	}
 
 	out.Println(ans)
