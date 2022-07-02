@@ -42,20 +42,20 @@ func calc() {
 
 	// 縦横斜めの検証
 	ans := 0
+	// 縦横
 	for i := 0; i < n; i++ {
-		t := 0
 		for j := 0; j < n; j++ {
-			t = t*10 + int(a[i][j]-'0')
+			t1 := 0
+			t2 := 0
+			for k := 0; k < 4; k++ {
+				t1 = t1*10 + int(a[i][j+k]-'0')
+				t2 = t2*10 + int(a[i+k][j]-'0')
+			}
+			chmax(&ans, t1)
+			chmax(&ans, t2)
 		}
-		chmax(&ans, t)
 	}
-	for i := 0; i < n; i++ {
-		t := 0
-		for j := 0; j < n; j++ {
-			t = t*10 + int(a[j][i]-'0')
-		}
-		chmax(&ans, t)
-	}
+	// 斜め
 	for i := 0; i < n; i++ {
 		for j := 0; j < n; j++ {
 			t := 0
