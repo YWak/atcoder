@@ -27,68 +27,41 @@ var out *Out
 
 func calc() {
 	n := in.NextInt()
-	a := make([][]byte, n*2)
+	a := NewIntInt(n*2, n*2, 0)
 	for i := 0; i < n; i++ {
-		a[i] = in.NextBytes()
+		p := in.NextBytes()
+		for j := 0; j < n; j++ {
+			o := int(p[j] - '0')
+			a[i][j] = o
+			a[i+n][j] = o
+			a[i][j+n] = o
+			a[i+n][j+n] = o
+		}
 	}
-	for i := 0; i < n; i++ {
-		t := append([]byte{}, a[i]...)
-		a[i] = append(a[i], t...)
-		a[i] = append(a[i], t...)
-	}
-	for i := 0; i < n; i++ {
-		a[i+n] = a[i]
-	}
-
 	// 縦横斜めの検証
 	ans := 0
 	// 縦横
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			t1 := 0
-			t2 := 0
-			for k := 0; k < n; k++ {
-				t1 = t1*10 + int(a[i][j+k]-'0')
-				t2 = t2*10 + int(a[i+k][j]-'0')
-			}
-			chmax(&ans, t1)
-			chmax(&ans, t2)
-		}
-	}
-	// 斜め
 	for i := 0; i < n*2; i++ {
 		for j := 0; j < n*2; j++ {
-			if i+n < n*2 && j+n < n*2 {
-				t1 := 0
-				for k := 0; k < n; k++ {
-					t1 = t1*10 + int(a[i+k][j+k]-'0')
+			for dx := -1; dx <= 1; dx++ {
+				for dy := -1; dy <= 1; dy++ {
+					if dx == 0 && dy == 0 {
+						continue
+					}
+					c := 0
+					t := 0
+					for k := 0; k < n; k++ {
+						x, y := i+dx*k, j+dy*k
+						if x < 0 || x == n*2 || y < 0 || y == n*2 {
+							break
+						}
+						c++
+						t = t*10 + a[x][y]
+					}
+					if c == n {
+						chmax(&ans, t)
+					}
 				}
-				chmax(&ans, t1)
-			}
-			if i-n >= 0 && j-n >= 0 {
-				t1 := 0
-				for k := 0; k < n; k++ {
-					t1 = t1*10 + int(a[i-k][j-k]-'0')
-				}
-				chmax(&ans, t1)
-			}
-		}
-	}
-	for i := 0; i < n*2; i++ {
-		for j := 0; j < n*2; j++ {
-			if i+n < n*2 && j-n >= 0 {
-				t := 0
-				for k := 0; k < n; k++ {
-					t = t*10 + int(a[i+k][j-k]-'0')
-				}
-				chmax(&ans, t)
-			}
-			if j+n < n*2 && i-n >= 0 {
-				t := 0
-				for k := 0; k < n; k++ {
-					t = t*10 + int(a[i-k][j+k]-'0')
-				}
-				chmax(&ans, t)
 			}
 		}
 	}
