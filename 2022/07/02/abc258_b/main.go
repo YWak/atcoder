@@ -56,22 +56,40 @@ func calc() {
 		}
 	}
 	// 斜め
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			t := 0
-			for k := 0; k < n; k++ {
-				t = t*10 + int(a[i+k][j+k]-'0')
+	for i := 0; i < n*2; i++ {
+		for j := 0; j < n*2; j++ {
+			if i+n < n*2 && j+n < n*2 {
+				t1 := 0
+				for k := 0; k < n; k++ {
+					t1 = t1*10 + int(a[i+k][j+k]-'0')
+				}
+				chmax(&ans, t1)
 			}
-			chmax(&ans, t)
+			if i-n >= 0 && j-n >= 0 {
+				t1 := 0
+				for k := 0; k < n; k++ {
+					t1 = t1*10 + int(a[i-k][j-k]-'0')
+				}
+				chmax(&ans, t1)
+			}
 		}
 	}
-	for i := 0; i < n; i++ {
-		for j := n; j < n*2; j++ {
-			t := 0
-			for k := 0; k < n; k++ {
-				t = t*10 + int(a[i+k][j-k]-'0')
+	for i := 0; i < n*2; i++ {
+		for j := 0; j < n*2; j++ {
+			if i+n < n*2 && j-n >= 0 {
+				t := 0
+				for k := 0; k < n; k++ {
+					t = t*10 + int(a[i+k][j-k]-'0')
+				}
+				chmax(&ans, t)
 			}
-			chmax(&ans, t)
+			if j+n < n*2 && i-n >= 0 {
+				t := 0
+				for k := 0; k < n; k++ {
+					t = t*10 + int(a[i-k][j+k]-'0')
+				}
+				chmax(&ans, t)
+			}
 		}
 	}
 
