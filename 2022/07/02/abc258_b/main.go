@@ -68,7 +68,7 @@ func calc() {
 	for i := 0; i < n; i++ {
 		for j := n; j < n*2; j++ {
 			t := 0
-			for k := 0; k < 4; k++ {
+			for k := 0; k < n; k++ {
 				t = t*10 + int(a[i+k][j-k]-'0')
 			}
 			chmax(&ans, t)
