@@ -25,29 +25,29 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+type point struct{ r, c int }
+
 func calc() {
 	R, C, k := in.NextInt3()
 	n := in.NextInt()
 
-	rc := make([]map[int]bool, R)
+	// rc[r][c]に飴があるかどうか
+	rc := map[point]bool{}
 
-	rsum := make([]int, R)
-	csum := make([]int, C)
+	rsum := make([]int, R) // rに存在する飴の数
+	csum := make([]int, C) // cに存在する飴の数
 
 	for i := 0; i < n; i++ {
 		r, c := in.NextInt2d(-1, -1)
 
-		if rc[r] == nil {
-			rc[r] = map[int]bool{}
-		}
-		rc[r][c] = true
+		rc[point{r, c}] = true
 
 		rsum[r]++
 		csum[c]++
 	}
 
-	revrsum := make([]int, R+1)
-	revcsum := make([]int, C+1)
+	revrsum := make([]int, n+1)
+	revcsum := make([]int, n+1)
 
 	for _, s := range rsum {
 		revrsum[s]++
@@ -58,20 +58,23 @@ func calc() {
 	}
 
 	ans := 0
+
+	// 合計がkになる列を数える
 	for sr, u := range revrsum {
-		sc := k - sr
-		if 0 <= sc && sc < len(revcsum) {
-			ans += revcsum[sc] * u
+		if k < sr {
+			break
 		}
+		ans += revcsum[k-sr] * u
 	}
-	for r, cs := range rc {
-		for c := range cs {
-			s := rsum[r] + csum[c]
-			if s == k {
-				ans--
-			} else if s == k+1 {
-				ans++
-			}
+
+	// 飴がある場合はkのかわりにk+1になる
+	for p := range rc {
+		s := rsum[p.r] + csum[p.c]
+
+		if s == k {
+			ans--
+		} else if s == k+1 {
+			ans++
 		}
 	}
 
