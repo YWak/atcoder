@@ -29,52 +29,47 @@ func calc() {
 	R, C, k := in.NextInt3()
 	n := in.NextInt()
 
-	rc := map[int]map[int]bool{}
-
-	add := func(r, c int) {
-		if _, e := rc[r]; !e {
-			rc[r] = map[int]bool{}
-		}
-		rc[r][c] = true
-	}
-	exists := func(r, c int) bool {
-		if m, e := rc[r]; !e {
-			return false
-		} else {
-			return m[c]
-		}
-	}
-
-	rs := map[int]bool{}
-	cs := map[int]bool{}
+	rc := make([]map[int]bool, R)
 
 	rsum := make([]int, R)
 	csum := make([]int, C)
 
 	for i := 0; i < n; i++ {
 		r, c := in.NextInt2d(-1, -1)
-		rs[r] = true
-		cs[c] = true
 
-		add(r, c)
+		if rc[r] == nil {
+			rc[r] = map[int]bool{}
+		}
+		rc[r][c] = true
+
 		rsum[r]++
 		csum[c]++
 	}
 
-	revcsum := map[int][]int{}
-	for c, s := range csum {
-		revcsum[s] = append(revcsum[s], c)
+	revrsum := make([]int, R+1)
+	revcsum := make([]int, C+1)
+
+	for _, s := range rsum {
+		revrsum[s]++
+	}
+
+	for _, s := range csum {
+		revcsum[s]++
 	}
 
 	ans := 0
-	for r := range rs {
-		for _, c := range revcsum[k-rsum[r]] {
-			if !exists(r, c) {
-				ans++
-			}
+	for sr, u := range revrsum {
+		sc := k - sr
+		if 0 <= sc && sc < len(revcsum) {
+			ans += revcsum[sc] * u
 		}
-		for _, c := range revcsum[k-rsum[r]+1] {
-			if exists(r, c) {
+	}
+	for r, cs := range rc {
+		for c := range cs {
+			s := rsum[r] + csum[c]
+			if s == k {
+				ans--
+			} else if s == k+1 {
 				ans++
 			}
 		}
