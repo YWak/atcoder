@@ -30,7 +30,7 @@ func calc() {
 	ok := s[0] == 'A'
 	l := 0
 	k := -1
-	for i := 2; i < len(s)-2; i++ {
+	for i := 2; i < len(s)-1; i++ {
 		if s[i] == 'C' {
 			l++
 			k = i
