@@ -25,54 +25,57 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+type beki struct {
+	p, e int
+}
+
 func calc() {
 	n := in.NextInt()
-	as := make([]map[int]int, n)
-	lcm1 := map[int]int{}
-	lcm2 := map[int]int{}
+	as := make([][]*beki, n)
+	pi := map[int]int{}
 
 	for i := 0; i < n; i++ {
 		m := in.NextInt()
-		as[i] = map[int]int{}
 		for j := 0; j < m; j++ {
 			p, e := in.NextInt2()
-			as[i][p] = e
-
-			if e1, ex1 := lcm1[p]; !ex1 {
-				lcm1[p] = e
-			} else if e2, ex2 := lcm2[p]; !ex2 {
-				lcm2[p] = e
-			} else if e1 < e {
-				lcm1[p], lcm2[p] = e, e1
-			} else if e2 < e {
-				lcm2[p] = e
-			}
+			as[i] = append(as[i], &beki{p, e})
+			pi[p] = 0
 		}
 	}
 
-	// 最小公倍数に関係ある素数
-	ps := sort.IntSlice{}
-	for p, e := range lcm1 {
-		if e != lcm2[p] {
-			ps = append(ps, p)
-		}
-	}
-	sort.Sort(ps)
-
-	// 最小公倍数に関わっていれば0、そうでなければ1とする
-	ans := map[string]bool{}
+	compress(pi)
+	lcm1 := make([]int, len(pi))
+	lcm2 := make([]int, len(pi))
 	for _, a := range as {
-		b := make([]byte, len(ps))
-		for i, p := range ps {
-			if a[p] == lcm1[p] {
-				b[i] = 0
-			} else {
-				b[i] = 1
+		for _, b := range a {
+			i := pi[b.p]
+			if lcm1[i] < b.e {
+				lcm1[i], lcm2[i] = b.e, lcm1[i]
+			} else if lcm2[i] < b.e {
+				lcm2[i] = b.e
 			}
 		}
-		ans[string(b)] = true
 	}
-	out.Println(len(ans))
+
+	ans := 0
+	notchanged := 0
+	for _, a := range as {
+		found := false
+		for _, b := range a {
+			i := pi[b.p]
+			if b.e == lcm1[i] && lcm1[i] > lcm2[i] {
+				found = true
+				break
+			}
+		}
+		if found {
+			ans++
+		} else {
+			notchanged = 1
+		}
+	}
+
+	out.Println(ans + notchanged)
 }
 
 func main() {
