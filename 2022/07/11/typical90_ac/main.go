@@ -26,13 +26,23 @@ var in *In
 var out *Out
 
 type LazySegmentTree struct {
-	init        func(n int) *LazySegmentTree
+	// initは長さnの配列として初期化します
+	init func(n int) *LazySegmentTree
+
+	// initByArrayはarrとして初期化します。
 	initByArray func(arr []int) *LazySegmentTree
-	update      func(l, r, v int)
-	query       func(l, r int) int
-	all         func() int
+
+	// updateは[l, r)をvで更新します。
+	update func(l, r, v int)
+
+	// queryは[l, r)の値を返します。
+	query func(l, r int) int
+
+	// allは全区間の値を返します。
+	all func() int
 }
 
+// NewLazySegmentTreeは遅延評価セグメントツリーの実装を返します。
 func NewLazySegmentTree(
 	operate func(a, b int) int,
 	mapping func(f, x int) int,
@@ -50,6 +60,9 @@ func NewLazySegmentTree(
 		data[k] = operate(data[k*2+0], data[k*2+1])
 	}
 
+	// 初期化
+	// tested:
+	//   https://atcoder.jp/contests/typical90/tasks/typical90_ac
 	st.init = func(n int) *LazySegmentTree {
 		arr := make([]int, n)
 		for i := 0; i < n; i++ {
@@ -57,6 +70,10 @@ func NewLazySegmentTree(
 		}
 		return st.initByArray(arr)
 	}
+
+	// 配列による初期化
+	// tested:
+	//   https://atcoder.jp/contests/typical90/tasks/typical90_ac
 	st.initByArray = func(arr []int) *LazySegmentTree {
 		n := len(arr)
 		size = 1
@@ -92,6 +109,9 @@ func NewLazySegmentTree(
 		applyAll(2*k+1, lazy[k])
 		lazy[k] = id()
 	}
+	// [l, r)の値を取得する。
+	// tested:
+	//   https://atcoder.jp/contests/typical90/tasks/typical90_ac
 	st.query = func(l, r int) int {
 		if l == r {
 			return e()
@@ -121,6 +141,10 @@ func NewLazySegmentTree(
 
 		return operate(sml, smr)
 	}
+
+	// [l, r)の値をvで更新する
+	// tested:
+	//   https://atcoder.jp/contests/typical90/tasks/typical90_ac
 	st.update = func(l, r, v int) {
 		if l == r {
 			return
