@@ -42,7 +42,7 @@ func calc() {
 	ans := sort.IntSlice{}
 	sort.Slice(st1, func(i, j int) bool {
 		si, sj := st1[i], st1[j]
-		return si.a > sj.a
+		return si.a > sj.a || sj.a == si.a && si.i < sj.i
 	})
 	for i := 0; i < x; i++ {
 		ans = append(ans, st1[i].i)
@@ -51,7 +51,7 @@ func calc() {
 	debug(ans)
 	sort.Slice(st1, func(i, j int) bool {
 		si, sj := st1[i], st1[j]
-		return si.b > sj.b
+		return si.b > sj.b || sj.b == si.b && si.i < sj.i
 	})
 	for i := 0; i < n; i++ {
 		if y == 0 {
