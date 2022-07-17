@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"math/big"
 	"math/bits"
 	"os"
 	"sort"
@@ -28,39 +27,29 @@ var out *Out
 
 func calc() {
 	s, t, m := in.NextInt3()
-	to := make([]*big.Int, t)
-	for i := 0; i < t; i++ {
-		to[i] = big.NewInt(0)
-	}
+	g := make([][]int, s+1)
 
 	for i := 0; i < m; i++ {
-		u, v := in.NextInt2d(-1, -1-s)
-		to[v].SetBit(to[v], u, 1)
+		u, v := in.NextInt2()
+		g[u] = append(g[u], v-s)
 	}
-
-	for i := 0; i < t; i++ {
-		for j := i + 1; j < t; j++ {
-			k := big.NewInt(0)
-			k.Set(to[i])
-			k.And(k, to[j])
-			ans := []int{s + i + 1, s + j + 1}
-			bs := k.Bits()
-			for u, b := range bs {
-				if b == 0 {
+	ok := NewIntInt(t+1, t+1, 0)
+	for i := 1; i <= s; i++ {
+		for _, u := range g[i] {
+			for _, v := range g[i] {
+				if u == v {
 					continue
 				}
-				for t := 0; t < 64; t++ {
-					if nthbit(int(b), t) == 1 {
-						ans = append(ans, u*64+t+1)
-					}
+				if ok[u][v] == 0 {
+					ok[u][v] = i
+				} else {
+					out.Println(i, ok[u][v], u+s, v+s)
+					return
 				}
-			}
-			if len(ans) >= 4 {
-				out.PrintIntsLn(ans[:4])
-				return
 			}
 		}
 	}
+
 	out.Println(-1)
 }
 
