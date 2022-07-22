@@ -27,13 +27,14 @@ var out *Out
 
 func calc() {
 	s := in.NextBytes()
-	n := len(s)
-	for s[n-1] == 'a' {
-		s = s[:n-1]
-		n--
+	for r := len(s) - 1; r > 1 && (s[0] == 'a') && s[r] == 'a'; r -= 2 {
+		s = s[1:r]
+	}
+	for len(s) > 0 && s[len(s)-1] == 'a' {
+		s = s[:len(s)-1]
 	}
 	ok := true
-	for i, j := 0, n-1; i < n; i, j = i+1, j-1 {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		if s[i] != s[j] {
 			ok = false
 			break
