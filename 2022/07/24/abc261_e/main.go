@@ -30,9 +30,7 @@ func calc() {
 
 	conv := NewIntInt(2, 31, 0)
 	for j := 0; j < 31; j++ {
-		if nthbit(c, j) == 1 {
-			conv[1][j] = 1
-		}
+		conv[1][j] = 1
 	}
 
 	for i := 0; i < n; i++ {
