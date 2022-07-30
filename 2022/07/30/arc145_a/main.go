@@ -28,29 +28,27 @@ var out *Out
 func calc() {
 	n := in.NextInt()
 	s := in.NextBytes()
-	t := make([]int, n)
-	for i := 0; i < n; i++ {
-		t[i] = int(s[i] - 'A' + 1)
-	}
-
-	ok := true
-	for i, j := 0, n-1; i < j; i, j = i+1, j-1 {
-		if t[i]&1 == 1 {
-			t[i+1] |= 2
-		}
-		if t[j]&2 == 2 {
-			t[j-1] |= 1
-		}
-		if t[i]&t[j] == 0 {
-			if t[i] == 1 && t[j] == 2 {
-				ok = false
+	rem := false
+	solve := func() bool {
+		for n > 2 {
+			if s[0] == 'A' && s[n-1] == 'A' {
+				s = s[1 : n-1]
+				n -= 2
+				rem = true
+			} else {
 				break
 			}
-			t[i+1] = 2
 		}
+		if n <= 1 {
+			return true
+		}
+		if n == 2 {
+			return s[0] == s[1]
+		}
+		return s[0] == 'B' || rem
 	}
 
-	out.YesNo(ok)
+	out.YesNo(solve())
 }
 
 func main() {
