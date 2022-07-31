@@ -27,16 +27,26 @@ var out *Out
 
 func calc() {
 	n, m := in.NextInt2()
-	g := make([][]int, n)
+	g := make([]map[int]bool, n)
+	for i := range g {
+		g[i] = map[int]bool{}
+	}
+
 	rg := make([][]int, n)
 	for i := 0; i < m; i++ {
 		u, v := in.NextInt2d(-1, -1)
-		g[u] = append(g[u], v)
+		g[u][v] = true
 		rg[v] = append(rg[v], u)
 	}
 	ans := 0
-	for k := 0; k < n; k++ {
-		ans += len(rg[k]) * len(g[k])
+	for b := 0; b < n; b++ {
+		for _, a := range rg[b] {
+			for c := range g[b] {
+				if g[a][c] {
+					ans++
+				}
+			}
+		}
 	}
 	out.Println(ans)
 }
