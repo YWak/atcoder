@@ -11,7 +11,7 @@
             "}",
             "",
             "func Mod1000000007() mint {",
-            "  return mint(1000000007)",
+            "  return mint(pow(10, 9)+7)",
             "}",
             "",
             "// normはaをmod mの値に変換します",
