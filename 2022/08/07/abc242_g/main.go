@@ -56,7 +56,7 @@ func calc() {
 	})
 	l, r := 0, 0
 	t := 0
-	m := make([]int, n)
+	m := make([]int, n+1)
 	for _, q := range qs {
 		for l > q.l {
 			l--
