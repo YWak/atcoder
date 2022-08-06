@@ -31,23 +31,34 @@ func calc() {
 	for i := 0; i < m; i++ {
 		a[i] = i + 1
 	}
-	ans := sort.StringSlice{}
+	ans := [][]int{}
 
 	for p := 0; p < 1<<m; p++ {
 		if popcount(p) != n {
 			continue
 		}
-		t := []string{}
+		t := []int{}
 		for i := 0; i < m; i++ {
 			if nthbit(p, i) == 1 {
-				t = append(t, fmt.Sprint(a[i]))
+				t = append(t, a[i])
 			}
 		}
-		ans = append(ans, strings.Join(t, " "))
+		ans = append(ans, t)
 	}
-	sort.Sort(ans)
+	sort.Slice(ans, func(i, j int) bool {
+		a := ans[i]
+		b := ans[j]
+		for t := 0; t < n; t++ {
+			if a[t] == b[t] {
+				continue
+			}
+			return a[t] < b[t]
+		}
+		return false
+	})
+
 	for _, v := range ans {
-		out.Println(v)
+		out.PrintIntsLn(v)
 	}
 }
 
