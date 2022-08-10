@@ -26,16 +26,23 @@ var in *In
 var out *Out
 
 func calc() {
-	s := in.NextString()
+	s := in.NextBytes()
 	keyence := "keyence"
 	ok := false
-	for i := 0; i < len(s)-len(keyence)+1; i++ {
-		l := i + (len(s) - len(keyence))
-		t := s[0:i] + s[l:]
-		if t == keyence {
-			ok = true
+	for l := 0; l < len(s); l++ {
+		for r := l; r < len(s); r++ {
+			b := []byte{}
+			for i, c := range s {
+				if i < l || i >= r {
+					b = append(b, c)
+				}
+			}
+			if string(b) == keyence {
+				ok = true
+			}
 		}
 	}
+
 	out.YESNO(ok)
 }
 
