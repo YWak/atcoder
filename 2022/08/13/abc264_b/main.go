@@ -26,22 +26,25 @@ var in *In
 var out *Out
 
 func calc() {
-	r, c := in.NextInt2()
-	white := false
-	for i := 2; i < 9; i += 2 {
-		left := i
-		right := 16 - i
-		if r == i {
-			if left <= c && c <= right {
-				white = true
-			}
-		} else if c == i {
-			if left <= r && r <= right {
-				white = true
-			}
-		}
+	f := []string{
+		"bbbbbbbbbbbbbbb",
+		"bwwwwwwwwwwwwwb",
+		"bwbbbbbbbbbbbwb",
+		"bwbwwwwwwwwwbwb",
+		"bwbwbbbbbbbwbwb",
+		"bwbwbwwwwwbwbwb",
+		"bwbwbwbbbwbwbwb",
+		"bwbwbwbwbwbwbwb",
+		"bwbwbwbbbwbwbwb",
+		"bwbwbwwwwwbwbwb",
+		"bwbwbbbbbbbwbwb",
+		"bwbwwwwwwwwwbwb",
+		"bwbbbbbbbbbbbwb",
+		"bwwwwwwwwwwwwwb",
+		"bbbbbbbbbbbbbbb",
 	}
-	out.Println(chs(white, "white", "black"))
+	r, c := in.NextInt2()
+	out.Println(chs(f[r-1][c-1] == 'w', "white", "black"))
 }
 
 func main() {
