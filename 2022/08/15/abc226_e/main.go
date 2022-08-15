@@ -45,7 +45,7 @@ func _dfs(g [][]int, curr, prev int, nhist, ehist map[int]bool) {
 	}
 }
 
-// 辺の数を返す
+// 頂点と辺の数を返す
 func dfs(g [][]int, curr, prev int) (map[int]bool, map[int]bool) {
 	nhist := map[int]bool{}
 	ehist := map[int]bool{}
@@ -68,9 +68,6 @@ func calc() {
 
 	for i := 0; i < n; i++ {
 		if used[i] {
-			continue
-		}
-		if len(g[i]) == 0 {
 			continue
 		}
 
