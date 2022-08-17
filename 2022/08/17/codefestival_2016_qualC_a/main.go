@@ -29,7 +29,7 @@ func calc() {
 	s := in.NextString()
 	c := strings.IndexByte(s, 'C')
 	f := strings.LastIndexByte(s, 'F')
-	out.YesNo(c < f)
+	out.YesNo(c != -1 && f != -1 && c < f)
 }
 
 func main() {
