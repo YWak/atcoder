@@ -25,29 +25,170 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+type SegmentTreeFunctions struct {
+	// 単位元を返します
+	e func() int
+	// 計算結果を返します
+	calc func(a, b int) int
+}
+
+type SegmentTree struct {
+	// このsegment treeが管理するインデックスの範囲。[0, n)を管理する。
+	n int
+
+	// segment treeの各ノードの値を保持する配列
+	nodes []int
+
+	// このsegment treeの値を操作する関数群
+	f SegmentTreeFunctions
+}
+
+// NewSegmentTreeは区間和を扱うSegmentTreeを返します。
+// tested:
+//   https://atcoder.jp/contests/abl/tasks/abl_d
+func NewSegmentTree() *SegmentTree {
+	return &SegmentTree{
+		-1,
+		[]int{},
+		SegmentTreeFunctions{
+			func() int { return 0 },
+			func(a, b int) int { return a + b },
+		},
+	}
+}
+
+// NewRangeMaxQueryは区間最大値を扱うSegmentTreeを返します。
+func NewRangeMaxQuery() *SegmentTree {
+	return &SegmentTree{
+		-1,
+		[]int{},
+		SegmentTreeFunctions{
+			func() int { return 0 },
+			func(a, b int) int { return max(a, b) },
+		},
+	}
+}
+
+// NewRangeMinQueryは区間最小値を扱うSegmentTreeを返します。
+// tested:
+//   https://judge.yosupo.jp/problem/staticrmq
+func NewRangeMinQuery() *SegmentTree {
+	return &SegmentTree{
+		-1,
+		[]int{},
+		SegmentTreeFunctions{
+			func() int { return INF18 },
+			func(a, b int) int { return min(a, b) },
+		},
+	}
+}
+
+// initは[0, n)のsegment treeを初期化します。
+// 各要素の値は単位元となります。
+// tested:
+//   https://atcoder.jp/contests/abl/tasks/abl_d
+func (st *SegmentTree) init(n int) {
+	// xはn*2を超える最小の2べき
+	x := 1
+	for x/2 < n+1 {
+		x *= 2
+	}
+	st.n = x / 2
+	st.nodes = make([]int, x)
+	for i := 0; i < x; i++ {
+		st.nodes[i] = st.f.e()
+	}
+}
+
+// initAsArrayはvalsで配列を初期化します。
+// 区間の長さはlen(vals)になります。
+// tested:
+//   https://judge.yosupo.jp/problem/staticrmq
+func (st *SegmentTree) initAsArray(vals []int) {
+	n := len(vals)
+	// xはn*2を超える最小の2べき
+	x := 1
+	for x/2 < n {
+		x *= 2
+	}
+	st.n = x / 2
+	st.nodes = make([]int, x)
+
+	for i, v := range vals {
+		st.nodes[i+st.n] = v
+	}
+	for i := st.n - 1; i > 0; i-- {
+		st.nodes[i] = st.f.calc(st.nodes[i*2], st.nodes[i*2+1])
+	}
+}
+
+// updateはi(0-based)番目の値をvalueに更新します。
+// tested:
+//   https://atcoder.jp/contests/abl/tasks/abl_d
+func (st *SegmentTree) update(i, value int) {
+	t := i + st.n
+	st.nodes[t] = value
+
+	for {
+		t /= 2
+		if t == 0 {
+			break
+		}
+		st.nodes[t] = st.f.calc(st.nodes[t*2], st.nodes[t*2+1])
+	}
+}
+
+// queryは[l, r) (0-based)の計算値を返します。
+// tested:
+//   https://atcoder.jp/contests/abl/tasks/abl_d
+func (st *SegmentTree) query(l, r int) int {
+	ret := st.f.e()
+	for ll, rr := l+st.n, r+st.n; ll < rr; ll, rr = ll/2, rr/2 {
+		if ll%2 == 1 {
+			ret = st.f.calc(ret, st.nodes[ll])
+			ll++
+		}
+		if rr%2 == 1 {
+			rr--
+			ret = st.f.calc(st.nodes[rr], ret)
+		}
+	}
+
+	return ret
+}
+
+// getはi番目(0-based)の要素を返します。
+func (st *SegmentTree) get(i int) int {
+	return st.nodes[i+st.n]
+}
+
+// allは全区間に対する値を返します。
+func (st *SegmentTree) all() int {
+	return st.nodes[1]
+}
+
 func calc() {
 	n, p, q, r := in.NextInt4()
 	a := in.NextInts(n)
-	s := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		s[i+1] = s[i] + a[i]
-	}
+	st := NewSegmentTree()
+	st.initAsArray(a)
+
 	// a[t] + ... + a[k] = o となるkを返す。なければ-1
 	find := func(t, o int) int {
-		ok, ng := n, t-1
+		ok, ng := n+1, t
 		for abs(ok-ng) > 1 {
 			mid := (ok + ng) / 2
-			sum := s[mid+1] - s[t]
+			sum := st.query(t, mid)
 			if sum >= o {
 				ok = mid
 			} else {
 				ng = mid
 			}
 		}
-		if ok == n {
+		if ok == n+1 {
 			return -1
 		}
-		if s[ok+1]-s[t] != o {
+		if st.query(t, ok) != o {
 			return -1
 		}
 		return ok
@@ -67,7 +208,6 @@ func calc() {
 		if w == -1 {
 			continue
 		}
-		// debug(x+1, y+1, z+1, w+1, s[y]-s[x])
 		ans = true
 		break
 	}
