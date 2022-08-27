@@ -95,19 +95,21 @@ func calc() {
 		ps[i] = geo.NextPoint()
 	}
 	ok := true
-	a := []int{}
+	ccw := func(p, q, r *Point) int {
+		x1 := q.x - p.x
+		y1 := q.y - p.y
+		x2 := r.x - p.x
+		y2 := r.y - p.y
+
+		return x1*y2 - x2*y1
+	}
+	ccw0 := ccw(ps[0], ps[1], ps[2])
 	for i := 0; i < 4; i++ {
 		p0 := ps[(i+0)%4]
 		p1 := ps[(i+1)%4]
 		p2 := ps[(i+2)%4]
 
-		a = append(a, geo.x2area(p0, p1, p2))
-	}
-	s := func(a int) int {
-		return a / abs(a)
-	}
-	for i := 0; i < 3; i++ {
-		if s(a[i]) != a[i+1] {
+		if ccw0*ccw(p0, p1, p2) < 0 {
 			ok = false
 		}
 	}
