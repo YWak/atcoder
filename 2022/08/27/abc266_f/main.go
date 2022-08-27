@@ -25,53 +25,61 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-var g [][]int
-var parents []int
-
-// 足を定義する
-func dfs(curr, prev int) int {
-	if len(g[curr]) >= 3 {
-		parents[curr] = curr
-		return curr
-	}
-	var p int
-	for _, next := range g[curr] {
-		if next == prev {
-			continue
-		}
-		p = dfs(next, curr)
-	}
-	parents[curr] = p
-	return p
-}
-
 func calc() {
 	n := in.NextInt()
-	parents = make([]int, n)
+	g := make([][]int, n+1)
+	refs := make([]int, n+1)
+	refs[0] = -1
+
 	for i := 0; i < n; i++ {
-		parents[i] = -1
-	}
-	g = make([][]int, n)
-	for i := 0; i < n; i++ {
-		u, v := in.NextInt2d(-1, -1)
+		u, v := in.NextInt2()
 		g[u] = append(g[u], v)
 		g[v] = append(g[v], u)
+		refs[u]++
+		refs[v]++
 	}
-	for i := 0; i < n; i++ {
-		if len(g[i]) == 1 {
-			dfs(i, -1)
+	parents := map[int]int{}
+	for i := range g {
+		parents[i] = i
+	}
+
+	queue := []int{}
+	for i, c := range refs {
+		if c == 1 {
+			queue = append(queue, i)
 		}
 	}
-	for i := 0; i < n; i++ {
-		if parents[i] == -1 {
-			parents[i] = i
+	for len(queue) > 0 {
+		u := queue[0]
+		queue = queue[1:]
+		delete(parents, u)
+
+		for _, v := range g[u] {
+			refs[v]--
+			if refs[v] == 1 {
+				queue = append(queue, v)
+			}
+		}
+	}
+	queue = []int{}
+	for p := range parents {
+		queue = append(queue, p)
+	}
+	for len(queue) > 0 {
+		u := queue[0]
+		queue = queue[1:]
+		for _, v := range g[u] {
+			if _, e := parents[v]; !e {
+				parents[v] = parents[u]
+				queue = append(queue, v)
+			}
 		}
 	}
 
 	// debug(parents)
 	Q := in.NextInt()
 	for q := 0; q < Q; q++ {
-		x, y := in.NextInt2d(-1, -1)
+		x, y := in.NextInt2()
 		out.YesNo(parents[x] == parents[y])
 	}
 }
