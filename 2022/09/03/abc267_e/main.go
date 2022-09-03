@@ -3,6 +3,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"io"
 	"math"
@@ -25,16 +26,141 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+// PriorityQueueListは優先度付きキューのリストを表す
+type PriorityQueueList struct {
+	values []int
+	prior  func(a, b int) bool
+}
+
+// PriorityQueue は優先度付きキューを表す
+type PriorityQueue struct {
+	list *PriorityQueueList
+}
+
+// Smaller は aがbより小さいかどうかを判断します。
+func Smaller(a, b int) bool {
+	return a < b
+}
+
+// Bigger は aがbより大きいかどうかを判断します。
+func Bigger(a, b int) bool {
+	return b < a
+}
+
+// NewIntPriorityQueue は 優先度をpriorで判断する優先度付きキューを返します。
+func NewIntPriorityQueue(prior func(a, b int) bool) PriorityQueue {
+	return PriorityQueue{
+		&PriorityQueueList{
+			make([]int, 0, 100),
+			prior,
+		},
+	}
+}
+
+// Push は優先度付きキューに要素を一つ追加します。
+func (pq PriorityQueue) Push(value int) {
+	heap.Push(pq.list, value)
+}
+
+// Pop は優先度付きキューから要素を一つ取り出します。
+func (pq PriorityQueue) Pop() int {
+	return heap.Pop(pq.list).(int)
+}
+
+// Top は優先度つきキューの先頭要素を返します。
+func (pq PriorityQueue) Top() int {
+	v := heap.Pop(pq.list).(int)
+	heap.Push(pq.list, v)
+	return v
+}
+
+// Empty は優先度付きキューが空かどうかを判断します。
+func (pq PriorityQueue) Empty() bool {
+	return pq.list.Len() == 0
+}
+
+// Swap は要素を交換します。
+func (list PriorityQueueList) Swap(i, j int) {
+	list.values[i], list.values[j] = list.values[j], list.values[i]
+}
+
+// Less は要素を比較し、優先度が低いかどうかを判断します
+func (list PriorityQueueList) Less(i, j int) bool {
+	return list.prior(list.values[i], list.values[j])
+}
+
+// Len は要素の数を返します。
+func (list PriorityQueueList) Len() int {
+	return len(list.values)
+}
+
+// Pop は要素を取り出して返します。
+func (list *PriorityQueueList) Pop() interface{} {
+	old := list.values
+	n := len(old)
+	item := old[n-1]
+	values := old[:n-1]
+	list.values = values
+	return item
+}
+
+// Push は要素を追加します。
+func (list *PriorityQueueList) Push(item interface{}) {
+	list.values = append(list.values, item.(int))
+}
+
 func calc() {
+	type node struct{ i, w int }
 	n, m := in.NextInt2()
 	a := in.NextInts(n)
+
 	g := make([][]int, n)
+	ws := make([]int, n)
 	for i := 0; i < m; i++ {
 		u, v := in.NextInt2d(-1, -1)
 		g[u] = append(g[u], v)
 		g[v] = append(g[v], u)
+		ws[u] += a[v]
+		ws[v] += a[u]
 	}
 
+	done := make([]bool, n)
+	nodes := make([]node, n)
+	q := NewIntPriorityQueue(func(a, b int) bool {
+		na, nb := nodes[a], nodes[b]
+		if na.w != nb.w {
+			return na.w < nb.w
+		}
+		return na.i > nb.i
+	})
+	for i := 0; i < n; i++ {
+		nodes[i].i = i
+		nodes[i].w = ws[i]
+		q.Push(i)
+	}
+	ans := 0
+	for !q.Empty() {
+		i := q.Pop()
+		u := nodes[i].i
+		w := nodes[i].w
+
+		if done[u] {
+			continue
+		}
+		chmax(&ans, w)
+		done[u] = true
+
+		for _, v := range g[u] {
+			if done[v] {
+				continue
+			}
+
+			ws[v] -= a[u]
+			nodes = append(nodes, node{v, ws[v]})
+			q.Push(len(nodes) - 1)
+		}
+	}
+	out.Println(ans)
 }
 
 func main() {
