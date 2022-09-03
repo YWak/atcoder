@@ -25,107 +25,16 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-var g [][]int
-var refs [][][]int
-var parents []int
-var depths []int
-
-func dfs(curr, prev, depth, parent int) {
-	if len(refs[parent]) == depth {
-		refs[parent] = append(refs[parent], []int{})
-	}
-
-	refs[parent][depth] = append(refs[parent][depth], curr)
-	parents[curr] = parent
-	depths[curr] = depth
-
-	for _, next := range g[curr] {
-		if next == prev {
-			continue
-		}
-		dfs(next, curr, depth+1, parent)
-	}
-}
-
 func calc() {
-	n := in.NextInt()
-	g = make([][]int, n+1)
-	for i := 0; i < n-1; i++ {
-		a, b := in.NextInt2()
-		g[a] = append(g[a], b)
-		g[b] = append(g[b], a)
+	n, m := in.NextInt2()
+	a := in.NextInts(n)
+	g := make([][]int, n)
+	for i := 0; i < m; i++ {
+		u, v := in.NextInt2d(-1, -1)
+		g[u] = append(g[u], v)
+		g[v] = append(g[v], u)
 	}
 
-	refs = make([][][]int, n+1)
-	parents = make([]int, n+1) // 親
-	depths = make([]int, n+1)  // 深さ
-	ps := []int{}
-	for _, p := range g[1] {
-		// 親がpで深さがkであるノードの集合を求める
-		refs[p] = make([][]int, 1)
-		dfs(p, 1, 1, p)
-		ps = append(ps, p)
-	}
-	// 深い順にしておく
-	sort.Slice(ps, func(i, j int) bool {
-		return len(refs[ps[i]]) > len(refs[ps[j]])
-	})
-	solve := func(u, k int) int {
-		p := parents[u]
-		d := depths[u]
-		debug(u, k, p, d)
-
-		if u == 1 {
-			if k == 1 {
-				return ps[0]
-			}
-			if len(refs[ps[0]]) <= k {
-				return -1
-			}
-			if len(refs[ps[0]][k]) == 0 {
-				return -1
-			}
-			debug("root to child")
-			return refs[ps[0]][k][0]
-		}
-
-		if d == k { // 深さがkと同じなら根
-			debug("root")
-			return 1
-		}
-		if d > k { // 根に戻る途中ならそのようにする
-			debug("back")
-			return refs[p][d-k][0]
-		}
-		if len(refs[p]) > d+k {
-			return refs[p][d+k][0]
-		}
-
-		if len(g[0]) > 1 { // 他の木に行かなければならない
-			// 大きい木から探す。その次も見ておく。
-			sub := refs[ps[0]]
-			if ps[0] == p {
-				sub = refs[ps[1]]
-			}
-			if len(sub) <= k-d {
-				return -1
-			}
-			if len(sub[k-d]) == 0 {
-				debug("subtree is none")
-				return -1
-			}
-			return sub[k-d][0]
-		}
-		debug("no subtree")
-		return -1
-	}
-
-	Q := in.NextInt()
-	for q := 0; q < Q; q++ {
-		u, k := in.NextInt2()
-		debug(q, "-------")
-		out.Println(solve(u, k))
-	}
 }
 
 func main() {
@@ -137,7 +46,7 @@ func main() {
 }
 
 func debug(args ...interface{}) {
-	// fmt.Fprintln(os.Stderr, args...)
+	fmt.Fprintln(os.Stderr, args...)
 }
 
 // ==================================================
