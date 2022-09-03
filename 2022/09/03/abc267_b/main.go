@@ -44,6 +44,7 @@ func solve(s []byte) bool {
 		rest(2, 8),
 		rest(1, 5),
 		rest(3, 9),
+		rest(6),
 		rest(10),
 	}
 	for i := range d {
@@ -57,9 +58,9 @@ func solve(s []byte) bool {
 				if k > 0 {
 					return true
 				}
-				break
+			} else {
+				k++
 			}
-			k++
 		}
 	}
 	return false
