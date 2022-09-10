@@ -49,9 +49,35 @@ func (p *Permutation) next() bool {
 	return false
 }
 
+var ss = []string{}
+var xx = [16]string{}
+var tm = map[string]bool{}
+
+func dfs(s string, t int, ps Permutation, rest int) string {
+	if t >= len(ps) {
+		if tm[s] {
+			return "-1"
+		}
+		return s
+	}
+	next := ss[ps[t]]
+	for i := 0; i <= rest; i++ {
+		ans := dfs(s+xx[i+1]+next, t+1, ps, rest-i)
+		if ans != "-1" {
+			return ans
+		}
+
+	}
+
+	return "-1"
+}
+
 func calc() {
+	for i := 0; i < 16; i++ {
+		xx[i] = strings.Repeat("_", i)
+	}
+
 	n, m := in.NextInt2()
-	ss := []string{}
 	length := 0
 	for i := 0; i < n; i++ {
 		s := in.NextString()
@@ -59,12 +85,7 @@ func calc() {
 		length += len(s)
 	}
 	maxUnderscore := 16 - length - (n - 1)
-	xx := [16]string{}
-	for i := 0; i < 16; i++ {
-		xx[i] = strings.Repeat("_", i)
-	}
 
-	tm := map[string]bool{}
 	for i := 0; i < m; i++ {
 		t := in.NextString()
 		for j := 1; j <= len(t); j++ {
@@ -78,40 +99,9 @@ func calc() {
 	}
 
 	for {
-		// 先頭から
-		x := ""
-		rest := maxUnderscore
-		for j, p := range ps {
-			x += ss[p]
-			// 最後なら文字列を追加できないのでここで確認する
-			if j == n-1 {
-				if !tm[x] {
-					out.Println(x)
-					return
-				}
-				break
-			}
-
-			// 許される_の数まであったら1つだけ採用する。それでもダメなら諦める
-			k := -1
-			for i := 1; i <= rest+1; i++ {
-				if !tm[x+xx[i]+ss[ps[j+1]]] {
-					k = i
-					break
-				}
-			}
-
-			if k == -1 {
-				x += "_"
-				continue
-			}
-			// 見つかった
-			x += xx[k] + ss[ps[j+1]]
-			for i := j + 2; i < len(ps); i++ {
-				x += "_" + ss[ps[i]]
-			}
-
-			out.Println(x)
+		ans := dfs(ss[ps[0]], 1, ps, maxUnderscore)
+		if ans != "-1" {
+			out.Println(ans)
 			return
 		}
 
