@@ -53,13 +53,12 @@ func calc() {
 	n, m := in.NextInt2()
 	ss := []string{}
 	length := 0
-	maxUnderscore := 16
 	for i := 0; i < n; i++ {
 		s := in.NextString()
 		ss = append(ss, s)
 		length += len(s)
-		maxUnderscore -= len(s) + 1
 	}
+	maxUnderscore := 16 - length - (n - 1)
 	xx := [16]string{}
 	for i := 0; i < 16; i++ {
 		xx[i] = strings.Repeat("_", i)
@@ -96,7 +95,7 @@ func calc() {
 
 			// 許される_の数まであったら1つだけ採用する。それでもダメなら諦める
 			k := -1
-			for i := 1; i < rest; i++ {
+			for i := 1; i <= rest; i++ {
 				if !tm[x+xx[i]] {
 					k = i
 					break
