@@ -49,20 +49,17 @@ func (p *Permutation) next() bool {
 	return false
 }
 
-var ss = []string{}
 var xx = [16]string{}
 var tm = map[string]bool{}
 
-func dfs(s string, t int, ps Permutation, rest int) string {
-	if t == len(ps) {
-		if tm[s] {
-			return ""
-		}
-		return s
+func dfs(s string, ss []string, rest int) string {
+	if len(ss) == 0 {
+		return chs(tm[s], "", s)
 	}
-	next := ss[ps[t]]
+
+	next := ss[0]
 	for i := 0; i <= rest; i++ {
-		ans := dfs(s+xx[i+1]+next, t+1, ps, rest-i)
+		ans := dfs(s+xx[i+1]+next, ss[1:], rest-i)
 		if ans != "" {
 			return ans
 		}
@@ -77,13 +74,13 @@ func calc() {
 	}
 
 	n, m := in.NextInt2()
-	length := 0
+	maxUnderscore := 16 - (n - 1)
+	ss := []string{}
 	for i := 0; i < n; i++ {
 		s := in.NextString()
 		ss = append(ss, s)
-		length += len(s)
+		maxUnderscore -= len(s)
 	}
-	maxUnderscore := 16 - length - (n - 1)
 
 	for i := 0; i < m; i++ {
 		t := in.NextString()
@@ -98,7 +95,11 @@ func calc() {
 	t := 0
 	for {
 		t++
-		ans := dfs(ss[ps[0]], 1, ps, maxUnderscore)
+		sss := []string{}
+		for i := 0; i < n; i++ {
+			sss = append(sss, ss[ps[i]])
+		}
+		ans := dfs(sss[0], sss[1:], maxUnderscore)
 		if ans != "" {
 			out.Println(ans)
 			return
