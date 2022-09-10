@@ -54,22 +54,21 @@ var xx = [16]string{}
 var tm = map[string]bool{}
 
 func dfs(s string, t int, ps Permutation, rest int) string {
-	if t >= len(ps) {
+	if t == len(ps) {
 		if tm[s] {
-			return "-1"
+			return ""
 		}
 		return s
 	}
 	next := ss[ps[t]]
 	for i := 0; i <= rest; i++ {
 		ans := dfs(s+xx[i+1]+next, t+1, ps, rest-i)
-		if ans != "-1" {
+		if ans != "" {
 			return ans
 		}
-
 	}
 
-	return "-1"
+	return ""
 }
 
 func calc() {
@@ -88,9 +87,7 @@ func calc() {
 
 	for i := 0; i < m; i++ {
 		t := in.NextString()
-		for j := 1; j <= len(t); j++ {
-			tm[t[:j]] = true
-		}
+		tm[t] = true
 	}
 
 	ps := make(Permutation, n)
@@ -98,9 +95,11 @@ func calc() {
 		ps[i] = i
 	}
 
+	t := 0
 	for {
+		t++
 		ans := dfs(ss[ps[0]], 1, ps, maxUnderscore)
-		if ans != "-1" {
+		if ans != "" {
 			out.Println(ans)
 			return
 		}
