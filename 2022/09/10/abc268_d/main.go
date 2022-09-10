@@ -95,11 +95,11 @@ func calc() {
 	t := 0
 	for {
 		t++
-		sss := []string{}
+		s := []string{}
 		for _, p := range ps {
-			sss = append(sss, ss[p])
+			s = append(s, ss[p])
 		}
-		ans := dfs(sss[0], sss[1:], maxUnderscore)
+		ans := dfs(s[0], s[1:], maxUnderscore)
 		if ans != "" {
 			out.Println(ans)
 			return
