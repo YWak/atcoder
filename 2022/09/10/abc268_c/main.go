@@ -30,9 +30,12 @@ func calc() {
 	ps := in.NextInts(n)
 	d := make([]int, n)
 	for i, p := range ps {
-		d[(abs(p-1-i)+n)%n]++
-		d[(abs(p-0-i)+n)%n]++
-		d[(abs(p+1-i)+n)%n]++
+		// pがk回ったとき嬉しくなるとする
+		s, t, u := (p-1-i+n)%n, (p-0-i+n)%n, (p+1-i+n)%n
+		// debug(i, p, s, t, u)
+		d[s]++
+		d[t]++
+		d[u]++
 	}
 	mi := 0
 	for i := 0; i < n; i++ {
