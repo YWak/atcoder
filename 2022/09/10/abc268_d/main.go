@@ -49,7 +49,7 @@ func (p *Permutation) next() bool {
 	return false
 }
 
-var xx = [16]string{}
+var xx = [18]string{}
 var tm = map[string]bool{}
 
 func dfs(s string, ss []string, rest int) string {
@@ -59,7 +59,7 @@ func dfs(s string, ss []string, rest int) string {
 
 	next := ss[0]
 	for i := 0; i <= rest; i++ {
-		ans := dfs(s+xx[i+1]+next, ss[1:], rest-i)
+		ans := dfs(s+xx[i]+next, ss[1:], rest-i)
 		if ans != "" {
 			return ans
 		}
@@ -69,8 +69,8 @@ func dfs(s string, ss []string, rest int) string {
 }
 
 func calc() {
-	for i := 0; i < 16; i++ {
-		xx[i] = strings.Repeat("_", i)
+	for i := range xx {
+		xx[i] = strings.Repeat("_", i+1)
 	}
 
 	n, m := in.NextInt2()
