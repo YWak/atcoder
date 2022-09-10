@@ -85,12 +85,11 @@ func calc() {
 			x += ss[p]
 			// 最後なら文字列を追加できないのでここで確認する
 			if j == n-1 {
-				if tm[x] {
-					out.Println(-1)
-				} else {
+				if !tm[x] {
 					out.Println(x)
+					return
 				}
-				return
+				break
 			}
 
 			// 許される_の数まであったら1つだけ採用する。それでもダメなら諦める
@@ -120,6 +119,7 @@ func calc() {
 			break
 		}
 	}
+	out.Println(-1)
 }
 
 func main() {
