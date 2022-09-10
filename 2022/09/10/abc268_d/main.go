@@ -96,8 +96,8 @@ func calc() {
 	for {
 		t++
 		sss := []string{}
-		for i := 0; i < n; i++ {
-			sss = append(sss, ss[ps[i]])
+		for _, p := range ps {
+			sss = append(sss, ss[p])
 		}
 		ans := dfs(sss[0], sss[1:], maxUnderscore)
 		if ans != "" {
