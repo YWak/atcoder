@@ -54,7 +54,7 @@ var tm = map[string]bool{}
 
 func dfs(s string, ss []string, rest int) string {
 	if len(ss) == 0 {
-		return chs(tm[s], "", s)
+		return chs(tm[s] || len(s) > 16 || len(s) < 3, "", s)
 	}
 
 	next := ss[0]
