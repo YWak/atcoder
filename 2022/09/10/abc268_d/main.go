@@ -84,7 +84,7 @@ func calc() {
 		for j, p := range ps {
 			x += ss[p]
 			// 最後なら文字列を追加できないのでここで確認する
-			if j == n-1 && tm[x] {
+			if j == n-1 {
 				if tm[x] {
 					out.Println(-1)
 				} else {
