@@ -94,8 +94,8 @@ func calc() {
 
 			// 許される_の数まであったら1つだけ採用する。それでもダメなら諦める
 			k := -1
-			for i := 1; i <= rest; i++ {
-				if !tm[x+xx[i]] {
+			for i := 1; i <= rest+1; i++ {
+				if !tm[x+xx[i]+ss[ps[j+1]]] {
 					k = i
 					break
 				}
@@ -106,8 +106,8 @@ func calc() {
 				continue
 			}
 			// 見つかった
-			x += xx[k-1]
-			for i := j + 1; i < len(ps); i++ {
+			x += xx[k] + ss[ps[j+1]]
+			for i := j + 2; i < len(ps); i++ {
 				x += "_" + ss[ps[i]]
 			}
 
