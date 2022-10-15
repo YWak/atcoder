@@ -25,6 +25,40 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+type IPersistentStack interface {
+	Pop() IPersistentStack
+	Push(value int) IPersistentStack
+	Peek() int
+}
+
+type PersistentStackNode struct {
+	value int
+	prev  *PersistentStackNode
+}
+
+type PersistentStack struct {
+	top *PersistentStackNode
+}
+
+func (stack *PersistentStack) Pop() IPersistentStack {
+	if stack.top == nil {
+		return &PersistentStack{top: nil}
+	}
+	return &PersistentStack{top: stack.top.prev}
+}
+
+func (stack *PersistentStack) Push(value int) IPersistentStack {
+	next := &PersistentStackNode{value, stack.top}
+	return &PersistentStack{next}
+}
+
+func (stack *PersistentStack) Peek() int {
+	if stack.top == nil {
+		return -1
+	}
+	return stack.top.value
+}
+
 func calc() {
 	type query struct {
 		m string
@@ -32,57 +66,26 @@ func calc() {
 	}
 
 	Q := in.NextInt()
-	qs := []*query{}
-	mem := make([]int, Q) // 各saveQueryでいくつ配列を覚えておけばいいか？
-	for i := range mem {
-		mem[i] = 1
-	}
-
-	saveQuery := map[int]int{} // 最後にそのページをsaveしたクエリ
-	page := 0
+	ans := []int{}
+	pages := map[int]IPersistentStack{}
+	var a IPersistentStack = &PersistentStack{}
 
 	for i := 0; i < Q; i++ {
 		m := in.NextString()
-		t := -1
 		switch m {
 		case "ADD":
-			t = in.NextInt()
-		case "SAVE": // 最後にsaveした場所を覚えておく
-			t = in.NextInt()
-			saveQuery[t] = i
-		case "LOAD": // loadした時点で、そのときのページを記録しておく
-			t = in.NextInt()
-			page = t
-		case "DELETE": // 削除した回数を記録する
-			mem[saveQuery[page]]++
-		}
-
-		qs = append(qs, &query{m, t})
-	}
-	debug(mem)
-
-	lists := map[int][]int{}
-	a := []int{}
-	ans := []int{}
-	for i, q := range qs {
-		switch q.m {
-		case "ADD":
-			a = append(a, q.t)
-		case "DELETE":
-			a = a[:max(0, len(a)-1)]
+			a = a.Push(in.NextInt())
 		case "SAVE":
-			// 必要な分だけ保存する
-			// debug("save", len(a), mem[i], max(0, len(a)-mem[i]))
-			lists[q.t] = append([]int{}, a[max(0, len(a)-mem[i]):]...)
+			pages[in.NextInt()] = a
 		case "LOAD":
-			// 配列を取得する
-			a = append([]int{}, lists[q.t]...)
+			a = pages[in.NextInt()]
+			if a == nil {
+				a = &PersistentStack{}
+			}
+		case "DELETE":
+			a = a.Pop()
 		}
-		t := -1
-		if len(a) > 0 {
-			t = a[len(a)-1]
-		}
-		ans = append(ans, t)
+		ans = append(ans, a.Peek())
 	}
 	out.PrintIntsLn(ans)
 }
