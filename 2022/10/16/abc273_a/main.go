@@ -26,7 +26,13 @@ var in *In
 var out *Out
 
 func calc() {
-
+	n := in.NextInt()
+	ans := 1
+	for i := 1; i <= n; i++ {
+		ans *= i
+		debug(ans)
+	}
+	out.Println(ans)
 }
 
 func main() {
