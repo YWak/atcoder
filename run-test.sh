@@ -14,6 +14,7 @@ TEMPFILE2=$(mktemp)
 go build -o $EXE main.go
 
 trap 'rm -rf main $TEMPFILE1 $TEMPFILE2 $EXE' 0
+export AT_DEBUG=1
 
 for i in $(seq 10); do
     INPUT="./ex${i}.txt"

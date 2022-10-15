@@ -33,27 +33,34 @@ func calc() {
 
 	Q := in.NextInt()
 	qs := []*query{}
+	mem := make([]int, Q) // 各saveQueryでいくつ配列を覚えておけばいいか？
+	for i := range mem {
+		mem[i] = 1
+	}
+
+	saveQuery := map[int]int{} // 最後にそのページをsaveしたクエリ
+	page := 0
+
 	for i := 0; i < Q; i++ {
 		m := in.NextString()
 		t := -1
-		if m != "DELETE" {
+		switch m {
+		case "ADD":
 			t = in.NextInt()
-		}
-		qs = append(qs, &query{m, t})
-	}
-	mem := make([]int, Q)      // 各saveQueryでいくつ配列を覚えておけばいいか？
-	saveQuery := map[int]int{} // 最後にそのページをsaveしたクエリ
-	page := 0
-	for i, q := range qs {
-		switch q.m {
 		case "SAVE": // 最後にsaveした場所を覚えておく
-			saveQuery[q.t] = i
+			t = in.NextInt()
+			saveQuery[t] = i
 		case "LOAD": // loadした時点で、そのときのページを記録しておく
-			page = q.t
+			t = in.NextInt()
+			page = t
 		case "DELETE": // 削除した回数を記録する
 			mem[saveQuery[page]]++
 		}
+
+		qs = append(qs, &query{m, t})
 	}
+	debug(mem)
+
 	lists := map[int][]int{}
 	a := []int{}
 	ans := []int{}
@@ -62,13 +69,11 @@ func calc() {
 		case "ADD":
 			a = append(a, q.t)
 		case "DELETE":
-			if len(a) > 0 {
-				a = a[:len(a)-1]
-			}
+			a = a[:max(0, len(a)-1)]
 		case "SAVE":
 			// 必要な分だけ保存する
-			// debug("save", len(a), mem[i], max(0, len(a)-mem[i]-1))
-			lists[q.t] = append([]int{}, a[max(0, len(a)-mem[i]-1):]...)
+			// debug("save", len(a), mem[i], max(0, len(a)-mem[i]))
+			lists[q.t] = append([]int{}, a[max(0, len(a)-mem[i]):]...)
 		case "LOAD":
 			// 配列を取得する
 			a = append([]int{}, lists[q.t]...)
@@ -77,7 +82,6 @@ func calc() {
 		if len(a) > 0 {
 			t = a[len(a)-1]
 		}
-		// debug(a, lists)
 		ans = append(ans, t)
 	}
 	out.PrintIntsLn(ans)
@@ -91,8 +95,12 @@ func main() {
 	calc()
 }
 
+var isdebug = os.Getenv("AT_DEBUG") == "1"
+
 func debug(args ...interface{}) {
-	fmt.Fprintln(os.Stderr, args...)
+	if isdebug {
+		fmt.Fprintln(os.Stderr, args...)
+	}
 }
 
 // ==================================================
