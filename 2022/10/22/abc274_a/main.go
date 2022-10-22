@@ -27,13 +27,16 @@ var out *Out
 
 func calc() {
 	a, b := in.NextInt2()
-	// a *= 1
-	b *= 10000
-	s := b / a
-	if s%10 >= 5 {
+	bb := b * 10000
+	s := bb / a
+	if (bb/a)%10 >= 5 {
 		s += 10
 	}
-	out.Printf("%.3f\n", float64(s)/10000)
+	if s == 10000 {
+		out.Println("1.000")
+	} else {
+		out.Printf("0.%03d\n", s/10)
+	}
 }
 
 func main() {
