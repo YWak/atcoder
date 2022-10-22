@@ -25,38 +25,37 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+func solve(a []int, i0 int, goal int) bool {
+	d := []int{}
+	for i := i0; i < len(a); i += 2 {
+		d = append(d, a[i])
+	}
+	goal = abs(goal)
+	// dを足したり引いたりしてgoalが作れるか？
+	dp := NewIntInt(len(d)+1, 10001, 0)
+	dp[0][0] = 1
+	for i, v := range d {
+		for j := 0; j < len(dp[i]); j++ {
+			if dp[i][j] == 0 {
+				continue
+			}
+			if j >= v {
+				dp[i+1][j-v] = 1
+			}
+			if j+v <= 10000 {
+				dp[i+1][j+v] = 1
+			}
+		}
+	}
+
+	return dp[len(d)][goal] == 1
+}
+
 func calc() {
 	n, x, y := in.NextInt3()
 	a := in.NextInts(n)
 
-	// dp[x][y] は座標x,yに存在できる。
-	ind := func(i, j int) int {
-		return i*100000 + j
-	}
-	rin := func(t int) (int, int) {
-		return t / 100000, t % 100000
-	}
-	dp := map[int]bool{ind(a[0], 0): true}
-	for i := 1; i < n; i++ {
-		dp2 := map[int]bool{}
-		var dx []int
-		var dy []int
-		if i%2 == 1 {
-			dx = []int{0, 0}
-			dy = []int{a[i], -a[i]}
-		} else {
-			dx = []int{a[i], -a[i]}
-			dy = []int{0, 0}
-		}
-		for t := range dp {
-			u, v := rin(t)
-			for j := 0; j < 2; j++ {
-				dp2[ind(u+dx[j], v+dy[j])] = true
-			}
-		}
-		dp = dp2
-	}
-	out.YesNo(dp[ind(x, y)])
+	out.YesNo(solve(a, 0, x) && solve(a, 1, y))
 }
 
 func main() {
