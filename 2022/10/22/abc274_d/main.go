@@ -30,39 +30,26 @@ func solve(a []int, i0 int, goal int) bool {
 	for i := i0; i < len(a); i += 2 {
 		d = append(d, a[i])
 	}
-	goal = abs(goal)
+
 	// dを足したり引いたりしてgoalが作れるか？
-	dp := NewIntInt(len(d)+1, 10001, 0)
-	dp[0][0] = 1
-	for i, v := range d {
-		for j := 0; j < len(dp[i]); j++ {
-			if dp[i][j] == 0 {
-				continue
-			}
-			if j >= v {
-				dp[i+1][j-v] = 1
-			}
-			if j+v <= 10000 {
-				dp[i+1][j+v] = 1
-			}
+	dp := map[int]bool{0: true}
+	for _, v := range d {
+		dp2 := map[int]bool{}
+		for j := range dp {
+			dp2[j-v] = true
+			dp2[j+v] = true
 		}
+		dp = dp2
 	}
 
-	return dp[len(d)][goal] == 1
+	return dp[goal]
 }
 
 func calc() {
 	n, x, y := in.NextInt3()
 	a := in.NextInts(n)
 
-	t := 0
-	if x < 0 {
-		x = abs(x) + a[0]
-		a[0] = 0
-		t = 2
-	}
-
-	out.YesNo(solve(a, t, x) && solve(a, 1, y))
+	out.YesNo(solve(a, 2, abs(x-a[0])) && solve(a, 1, abs(y)))
 }
 
 func main() {
