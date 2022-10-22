@@ -55,6 +55,11 @@ func calc() {
 	n, x, y := in.NextInt3()
 	a := in.NextInts(n)
 
+	if x < 0 {
+		x = abs(x) + a[0]
+		a[0] = 0
+	}
+
 	out.YesNo(solve(a, 0, x) && solve(a, 1, y))
 }
 
