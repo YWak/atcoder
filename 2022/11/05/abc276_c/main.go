@@ -28,6 +28,16 @@ var out *Out
 func calc() {
 	n := in.NextInt()
 	p := in.NextInts(n)
+	pp := Permutation{}
+	for _, v := range p {
+		pp = append(pp, -v)
+	}
+	pp.next()
+	q := []int{}
+	for _, v := range pp {
+		q = append(q, -v)
+	}
+	out.PrintIntsLn(q)
 }
 
 type Permutation []int
