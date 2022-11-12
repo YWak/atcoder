@@ -84,7 +84,7 @@ func calc() {
 		return ib < jb
 	})
 	for i := 0; i < h-1; i++ {
-		if rows[i].b > rows[i+1].b {
+		if rows[i].a > rows[i+1].b {
 			ok = false
 		}
 	}
