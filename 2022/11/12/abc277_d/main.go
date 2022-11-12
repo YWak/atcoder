@@ -43,19 +43,14 @@ func calc() {
 	for i := 0; i < n; {
 		t := s
 		for j := 0; j < n; j++ {
-			curr := a[i+j]
+			i++
+			curr := a[i]
 			t -= curr.cost
 			chmin(&ans, t)
-			con := i+j+1 < len(a)-1
-			if con {
-				next := a[i+j+1]
-				con = next.n == curr.n || next.n == (curr.n+1)%m
+			if a[i+1].n == curr.n || a[i+1].n == (curr.n+1)%m {
+				continue
 			}
-			debug(i, i+j)
-			if !con {
-				i = i + j + 1
-				break
-			}
+			break
 		}
 	}
 	chmax(&ans, 0)
