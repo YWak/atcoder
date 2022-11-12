@@ -36,22 +36,29 @@ func calc() {
 		s += v
 	}
 	sort.Slice(a, func(i, j int) bool { return a[i].n < a[j].n })
-	debug(a)
+	a = append(a, a...)
+
 	// 連続している数のグループに分ける。
 	ans := INF18
 	for i := 0; i < n; {
 		t := s
-		for j := i; j < n; j++ {
-			t -= a[j].cost
+		for j := 0; j < n; j++ {
+			curr := a[i+j]
+			t -= curr.cost
 			chmin(&ans, t)
-			if j+1 == n || a[j+1].n-a[j].n > 1 {
-				debug(i, j, t)
-				i = j + 1
+			con := i+j+1 < len(a)-1
+			if con {
+				next := a[i+j+1]
+				con = next.n == curr.n || next.n == (curr.n+1)%m
+			}
+			debug(i, i+j)
+			if !con {
+				i = i + j + 1
 				break
 			}
 		}
 	}
-
+	chmax(&ans, 0)
 	out.Println(ans)
 }
 
