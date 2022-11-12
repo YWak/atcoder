@@ -51,7 +51,7 @@ func calc() {
 		m := map[int]int{}
 		for j, p := range ps {
 			if _, e := m[p.a]; !e {
-				m[p.a] = w + w*i + j
+				m[p.a] = w*(i+1) + j // 最大 w*h+w = w*(h+1)
 			}
 		}
 
@@ -83,7 +83,7 @@ func calc() {
 		}
 		return ib < jb
 	})
-	for i := 0; i < h-1; i++ {
+	for i := 0; i < len(rows)-1; i++ {
 		if rows[i].b > rows[i+1].a {
 			ok = false
 		}
