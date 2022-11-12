@@ -42,10 +42,10 @@ func calc() {
 			ps = append(ps, &pair{a, j})
 		}
 
-		sort.Slice(ps, func(i, j int) bool { return ps[i].a < ps[j].a })
 		if len(ps) == 0 {
 			continue
 		}
+		sort.Slice(ps, func(i, j int) bool { return ps[i].a < ps[j].a })
 		rows = append(rows, &pair{ps[0].a, ps[len(ps)-1].a})
 
 		m := map[int]int{}
