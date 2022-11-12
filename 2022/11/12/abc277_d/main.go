@@ -47,7 +47,7 @@ func calc() {
 			curr := a[i]
 			t -= curr.cost
 			chmin(&ans, t)
-			if a[i+1].n == curr.n || a[i+1].n == (curr.n+1)%m {
+			if i+1 < len(a)-1 && (a[i+1].n == curr.n || a[i+1].n == (curr.n+1)%m) {
 				continue
 			}
 			break
