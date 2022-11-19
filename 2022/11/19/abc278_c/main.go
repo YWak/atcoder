@@ -26,17 +26,19 @@ var in *In
 var out *Out
 
 func calc() {
-	n := in.NextInt()
+	in.NextInt()
 	Q := in.NextInt()
-	follow := make([]map[int]bool, n)
-	for i := range follow {
-		follow[i] = map[int]bool{}
-	}
+	follow := map[int]map[int]bool{}
 
 	for q := 0; q < Q; q++ {
 		t, a, b := in.NextInt3()
-		a--
-		b--
+		if follow[a] == nil {
+			follow[a] = map[int]bool{}
+		}
+		if follow[b] == nil {
+			follow[b] = map[int]bool{}
+		}
+
 		if t == 1 {
 			follow[a][b] = true
 		} else if t == 2 {
