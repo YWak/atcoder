@@ -40,7 +40,7 @@ func calc() {
 		rbi[i] = i
 	}
 
-	ref := make([]int, n*2+10)
+	ref := make([]int, n+Q+10)
 	for i := range ref {
 		if i <= n {
 			ref[i] = i
