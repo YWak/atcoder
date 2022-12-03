@@ -25,6 +25,18 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+// n!にpは何度かけられたか？
+func phi(n, p int) int {
+	ans := 0
+	k := p
+	for k <= n {
+		ans += n / k
+		k *= p
+	}
+
+	return ans
+}
+
 // PrimeFactor は素因数と指数
 type PrimeFactor struct {
 	factor int
@@ -61,33 +73,38 @@ func factorize(n int) []PrimeFactor {
 	return factors
 }
 
-// n内にpの倍数はいくつあるか？
-func phi(n, p int) int {
-	ans := 0
-	k := p
-	for k <= n {
-		ans += n / k
-		k *= p
-	}
-
-	return ans
-}
-
 func calc() {
 	k := in.NextInt()
-	ps := factorize(k)
+	ps := []int{}
+	ns := []int{}
+	kk := k
+	for i := 2; i*i <= kk; i++ {
+		if kk%i != 0 {
+			continue
+		}
+		c := 0
+		for kk%i == 0 {
+			kk /= i
+			c++
+		}
+		ps = append(ps, i)
+		ns = append(ns, c)
+	}
+	// 最後に素数が残った場合
+	if kk != 1 {
+		ps = append(ps, kk)
+		ns = append(ns, 1)
+	}
 
 	// 大きい素数から見ていって勘定する
 	ans := 1
-	for i := len(ps) - 1; i >= 0; i-- {
-		p := ps[i]
-		if phi(ans, p.factor) >= p.exp {
-			continue
-		}
-		l, r := ans, INF18
+	for i, p := range ps {
+		n := ns[i]
+		debug(p, n, phi(ans, p))
+		l, r := 1, INF18
 		for r-l > 1 {
 			m := (l + r) / 2
-			if phi(m, p.factor) < p.exp {
+			if phi(m, p) < n {
 				l = m
 			} else {
 				r = m
