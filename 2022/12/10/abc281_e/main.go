@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"math/bits"
+	"math/rand"
 	"os"
 	"sort"
 	"strconv"
@@ -25,9 +26,498 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+type SegmentTreeFunctions struct {
+	// 単位元を返します
+	e func() int
+	// 計算結果を返します
+	calc func(a, b int) int
+}
+
+type SegmentTree struct {
+	// このsegment treeが管理するインデックスの範囲。[0, n)を管理する。
+	n int
+
+	// segment treeの各ノードの値を保持する配列
+	nodes []int
+
+	// このsegment treeの値を操作する関数群
+	f SegmentTreeFunctions
+}
+
+// NewSegmentTreeは区間和を扱うSegmentTreeを返します。
+// tested:
+//
+//	https://atcoder.jp/contests/abl/tasks/abl_d
+func NewSegmentTree() *SegmentTree {
+	return &SegmentTree{
+		-1,
+		[]int{},
+		SegmentTreeFunctions{
+			func() int { return 0 },
+			func(a, b int) int { return a + b },
+		},
+	}
+}
+
+// NewRangeMaxQueryは区間最大値を扱うSegmentTreeを返します。
+func NewRangeMaxQuery() *SegmentTree {
+	return &SegmentTree{
+		-1,
+		[]int{},
+		SegmentTreeFunctions{
+			func() int { return 0 },
+			func(a, b int) int { return max(a, b) },
+		},
+	}
+}
+
+// NewRangeMinQueryは区間最小値を扱うSegmentTreeを返します。
+// tested:
+//
+//	https://judge.yosupo.jp/problem/staticrmq
+func NewRangeMinQuery() *SegmentTree {
+	return &SegmentTree{
+		-1,
+		[]int{},
+		SegmentTreeFunctions{
+			func() int { return INF18 },
+			func(a, b int) int { return min(a, b) },
+		},
+	}
+}
+
+// initは[0, n)のsegment treeを初期化します。
+// 各要素の値は単位元となります。
+// tested:
+//
+//	https://atcoder.jp/contests/abl/tasks/abl_d
+func (st *SegmentTree) init(n int) {
+	// xはn*2を超える最小の2べき
+	x := 1
+	for x/2 < n+1 {
+		x *= 2
+	}
+	st.n = x / 2
+	st.nodes = make([]int, x)
+	for i := 0; i < x; i++ {
+		st.nodes[i] = st.f.e()
+	}
+}
+
+// initAsArrayはvalsで配列を初期化します。
+// 区間の長さはlen(vals)になります。
+// tested:
+//
+//	https://judge.yosupo.jp/problem/staticrmq
+func (st *SegmentTree) initAsArray(vals []int) {
+	n := len(vals)
+	// xはn*2を超える最小の2べき
+	x := 1
+	for x/2 < n {
+		x *= 2
+	}
+	st.n = x / 2
+	st.nodes = make([]int, x)
+
+	for i, v := range vals {
+		st.nodes[i+st.n] = v
+	}
+	for i := st.n - 1; i > 0; i-- {
+		st.nodes[i] = st.f.calc(st.nodes[i*2], st.nodes[i*2+1])
+	}
+}
+
+// updateはi(0-based)番目の値をvalueに更新します。
+// tested:
+//
+//	https://atcoder.jp/contests/abl/tasks/abl_d
+func (st *SegmentTree) update(i, value int) {
+	t := i + st.n
+	st.nodes[t] = value
+
+	for {
+		t /= 2
+		if t == 0 {
+			break
+		}
+		st.nodes[t] = st.f.calc(st.nodes[t*2], st.nodes[t*2+1])
+	}
+}
+
+// queryは[l, r) (0-based)の計算値を返します。
+// tested:
+//
+//	https://atcoder.jp/contests/abl/tasks/abl_d
+func (st *SegmentTree) query(l, r int) int {
+	ret := st.f.e()
+	for ll, rr := l+st.n, r+st.n; ll < rr; ll, rr = ll/2, rr/2 {
+		if ll%2 == 1 {
+			ret = st.f.calc(ret, st.nodes[ll])
+			ll++
+		}
+		if rr%2 == 1 {
+			rr--
+			ret = st.f.calc(st.nodes[rr], ret)
+		}
+	}
+
+	return ret
+}
+
+// getはi番目(0-based)の要素を返します。
+func (st *SegmentTree) get(i int) int {
+	return st.nodes[i+st.n]
+}
+
+// allは全区間に対する値を返します。
+func (st *SegmentTree) all() int {
+	return st.nodes[1]
+}
+
+type Treap struct {
+	root *node
+	// allowDup は、このTreapのキーとして重複を許すかどうか
+	allowDup   bool
+	comparator func(a, b interface{}) int
+}
+
+type node struct {
+	key   interface{}
+	value interface{}
+	pri   int
+	cnt   int
+	left  *node
+	right *node
+}
+
+func NewTreap(comparator func(a, b interface{}) int) *Treap {
+	return &Treap{nil, false, comparator}
+}
+
+// NewIntTreap は、int型のキーを使用し、昇順に保存するTreapを作成して返します。
+func NewIntTreap() *Treap {
+	return NewTreap(func(a, b interface{}) int {
+		aa, bb := a.(int), b.(int)
+		if aa == bb {
+			return 0
+		}
+		if aa < bb {
+			return -1
+		}
+		return +1
+	})
+}
+
+// NewRevIntTreap は、int型のキーを使用し、降順に保存するTreapを作成して返します。
+func NewRevIntTreap() *Treap {
+	return NewTreap(func(a, b interface{}) int {
+		aa, bb := a.(int), b.(int)
+		if aa == bb {
+			return 0
+		}
+		if aa < bb {
+			return +1
+		}
+		return -1
+	})
+}
+
+// Len は、このTreapに含まれる要素の数を返します。
+func (t *Treap) Len() int {
+	return t._count(t.root)
+}
+
+// Get は、keyに対応する値を探して返します。 存在しない場合はnilを返します。
+func (t *Treap) Get(key interface{}) interface{} {
+	n := t.root
+	for n != nil {
+		c := t.comparator(key, n.key)
+		if c == 0 {
+			return n.value
+		} else if c < 0 {
+			n = n.left
+		} else {
+			n = n.right
+		}
+	}
+
+	return nil
+}
+
+// GetKthは k (1-indexed)番目のキーと対応する値を返します。
+// 該当する要素が存在しない場合は (nil, nil) を返します。
+func (t *Treap) GetKth(k int) (interface{}, interface{}) {
+	if k < 0 || t.Len() < k {
+		return nil, nil
+	}
+	a, b := t._split(t.root, k)
+
+	n := a
+	var p *node = nil
+	for n != nil {
+		p = n
+		n = n.right
+	}
+	if p == nil {
+		return nil, nil
+	}
+	t.root = t._merge(a, b)
+
+	return p.key, p.value
+}
+
+// Find は、key以下で最大のキーを返します。
+// 対応するキーがなければnilを返します。
+func (t *Treap) Find(key interface{}) interface{} {
+	n := t.root
+	var ans *node
+
+	for n != nil {
+		c := t.comparator(key, n.key)
+		if c == 0 {
+			return key
+		}
+		if c < 0 {
+			n = n.left
+		} else {
+			ans = n
+			n = n.right
+		}
+	}
+
+	if ans == nil {
+		return nil
+	}
+	return ans.key
+}
+
+// Put は、keyとそれに対応するvalueを保存し、古い値を返します。
+// すでにキーが登録されている場合、allowDupがtrueなら挿入、falseなら上書きされます。
+func (t *Treap) Put(key interface{}, value interface{}) interface{} {
+	n, v := t._put(t.root, key, value, rand.Intn(1<<60))
+	t.root = n
+	t._update(t.root)
+
+	return v
+}
+
+func (t *Treap) _put(n *node, key, value interface{}, pri int) (*node, interface{}) {
+	if n == nil {
+		return &node{key, value, pri, 1, nil, nil}, nil
+	}
+	c := t.comparator(key, n.key)
+	if c == 0 && !t.allowDup {
+		v := n.value
+		n.value = value
+		return n, v
+	}
+	if c <= 0 {
+		nn, v := t._put(n.left, key, value, pri)
+		n.left = nn
+		if n.left.pri < n.pri {
+			n = t._rotatel(n)
+		}
+
+		return t._update(n), v
+	} else {
+		nn, v := t._put(n.right, key, value, pri)
+		n.right = nn
+		if n.right.pri < n.pri {
+			n = t._rotater(n)
+		}
+		return t._update(n), v
+	}
+}
+
+func (t *Treap) _rotatel(n *node) *node {
+	result := n.left
+	x := result.right
+	result.right = n
+	n.left = x
+	t._update(n)
+	t._update(result)
+	return result
+}
+
+func (t *Treap) _rotater(n *node) *node {
+	result := n.right
+	x := result.left
+	result.left = n
+	n.right = x
+	t._update(n)
+	t._update(result)
+	return result
+}
+
+func (t *Treap) Remove(key interface{}) interface{} {
+	n, v := t._remove(t.root, key)
+	t.root = t._update(n)
+	return v
+}
+
+func (t *Treap) _remove(n *node, key interface{}) (*node, interface{}) {
+	if n == nil {
+		return nil, nil
+	}
+	c := t.comparator(key, n.key)
+	if c == 0 {
+		// このノードを削除する
+		v := n.value
+		n = t._merge(n.left, n.right)
+		t._update(n)
+		return n, v
+	}
+	if c < 0 {
+		r := n
+		nn, v := t._remove(n.left, key)
+		r.left = nn
+		if r.left != nil && r.left.pri < r.pri {
+			r = t._rotatel(r)
+		}
+		return t._update(r), v
+	} else {
+		r := n
+		nn, v := t._remove(n.right, key)
+		r.right = nn
+		if r.right != nil && r.right.pri < r.pri {
+			r = t._rotater(r)
+		}
+		return t._update(r), v
+	}
+}
+
+func (t *Treap) _count(n *node) int {
+	if n == nil {
+		return 0
+	}
+	return n.cnt
+}
+
+func (t *Treap) _update(n *node) *node {
+	if n != nil {
+		n.cnt = t._count(n.left) + t._count(n.right) + 1
+	}
+
+	return n
+}
+
+func (t *Treap) _merge(l, r *node) *node {
+	if l == nil || r == nil {
+		if r == nil {
+			return l
+		} else {
+			return r
+		}
+	}
+	if l.pri < r.pri {
+		l.right = t._merge(l.right, r)
+		return t._update(l)
+	} else {
+		r.left = t._merge(l, r.left)
+		return t._update(r)
+	}
+}
+
+func (t *Treap) _split(n *node, nth int) (*node, *node) {
+	if n == nil {
+		return nil, nil
+	}
+	if nth <= t._count(n.left) {
+		a, b := t._split(n.left, nth)
+		n.left = b
+		return a, t._update(n)
+	} else {
+		a, b := t._split(n.right, nth-t._count(n.left)-1)
+		n.right = a
+		return t._update(n), b
+	}
+}
+
 func calc() {
 	n, m, k := in.NextInt3()
 	a := in.NextInts(n)
+
+	// 座圧
+	v2i := map[int]int{}
+	for _, v := range a {
+		v2i[v]++
+	}
+	compress(v2i)
+
+	st := NewSegmentTree()
+	st.init(n)
+
+	// 事前準備
+	cand := NewIntTreap()
+
+	head := sort.IntSlice{}
+	for i := 0; i < m; i++ {
+		head = append(head, a[i])
+	}
+	sort.Sort(head)
+	// 先頭K個をリストに入れる
+	for i := 0; i < k; i++ {
+		v := head[i]
+		st.update(v2i[v], v+st.get(v2i[v]))
+	}
+	for i := k; i < m; i++ {
+		v := cand.Get(head[i])
+		if v == nil {
+			v = 0
+		}
+		cand.Put(head[i], v.(int)+1)
+		debug("cand.put", head[i])
+	}
+
+	c := map[int]int{}
+	ans := []int{}
+	for i := 0; i < n-m+1; i++ {
+		ans = append(ans, st.all())
+
+		// 抜ける値
+		v1 := a[i]
+		c[v1]--
+		s1 := st.get(v2i[v1])
+
+		// 抜ける分を取り除く
+		if s1 != 0 {
+			st.update(v2i[v1], s1-v1)
+		} else {
+			// 候補から取り除く
+			c1 := cand.Get(v1)
+			if c1 == nil || c1 == 1 {
+				cand.Remove(v1)
+			} else {
+				cand.Put(v1, c1.(int)-1)
+			}
+			debug("cand.remove", head[i])
+		}
+
+		if i == n-m {
+			continue
+		}
+
+		// 追加分
+		c2 := cand.Get(a[i+m])
+		if c2 == nil {
+			c2 = 0
+		}
+		cand.Put(a[i+m], c2.(int)+1)
+		debug("cand.put", a[i+m])
+
+		_v2, _c3 := cand.GetKth(1)
+		v2 := _v2.(int)
+		s2 := st.get(v2i[v2])
+		st.update(v2i[v2], s2+v2)
+		if _c3 == 1 {
+			cand.Remove(v2)
+		} else {
+			cand.Put(v2, _c3.(int)-1)
+		}
+		debug("out", v1, "in", a[i+m], "use", v2, st.nodes[st.n:])
+	}
+
+	out.PrintIntsLn(ans)
 }
 
 func main() {
