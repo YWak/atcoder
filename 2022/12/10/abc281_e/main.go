@@ -446,9 +446,34 @@ func calc() {
 
 	st := NewSegmentTree()
 	st.init(n)
+	stadd := func(v int) {
+		s := st.get(v2i[v])
+		st.update(v2i[v], s+v)
+	}
+	stsub := func(v int) {
+		s := st.get(v2i[v])
+		st.update(v2i[v], s-v)
+	}
 
 	// 事前準備
+	used := NewRevIntTreap()
 	cand := NewIntTreap()
+	mapadd := func(t *Treap, key int) {
+		c := t.Get(key)
+		if c == nil {
+			t.Put(key, 1)
+		} else {
+			t.Put(key, c.(int)+1)
+		}
+	}
+	mapdel := func(t *Treap, key int) {
+		c := t.Get(key)
+		if c == 1 {
+			t.Remove(key)
+		} else {
+			t.Put(key, c.(int)-1)
+		}
+	}
 
 	head := sort.IntSlice{}
 	for i := 0; i < m; i++ {
@@ -458,63 +483,54 @@ func calc() {
 	// 先頭K個をリストに入れる
 	for i := 0; i < k; i++ {
 		v := head[i]
-		st.update(v2i[v], v+st.get(v2i[v]))
+		stadd(v)
+		mapadd(used, v)
 	}
 	for i := k; i < m; i++ {
-		v := cand.Get(head[i])
-		if v == nil {
-			v = 0
-		}
-		cand.Put(head[i], v.(int)+1)
-		debug("cand.put", head[i])
+		mapadd(cand, head[i])
 	}
 
-	c := map[int]int{}
 	ans := []int{}
+
 	for i := 0; i < n-m+1; i++ {
 		ans = append(ans, st.all())
-
 		// 抜ける値
 		v1 := a[i]
-		c[v1]--
-		s1 := st.get(v2i[v1])
 
-		// 抜ける分を取り除く
-		if s1 != 0 {
-			st.update(v2i[v1], s1-v1)
+		c := 1
+		if used.Get(v1) == nil {
+			// 使っていなければ無視する
+			mapdel(cand, v1)
 		} else {
-			// 候補から取り除く
-			c1 := cand.Get(v1)
-			if c1 == nil || c1 == 1 {
-				cand.Remove(v1)
-			} else {
-				cand.Put(v1, c1.(int)-1)
-			}
-			debug("cand.remove", head[i])
+			// 使っていればそれを削除する
+			c++
+			mapdel(used, v1)
+			stsub(v1)
 		}
 
 		if i == n-m {
 			continue
 		}
 
-		// 追加分
-		c2 := cand.Get(a[i+m])
-		if c2 == nil {
-			c2 = 0
-		}
-		cand.Put(a[i+m], c2.(int)+1)
-		debug("cand.put", a[i+m])
+		// 現在の最大値を候補に戻す
+		_v, _ := used.GetKth(1)
+		v := _v.(int)
+		stsub(v)
+		mapadd(cand, v)
+		mapdel(used, v)
+		debug("pushback", _v)
 
-		_v2, _c3 := cand.GetKth(1)
-		v2 := _v2.(int)
-		s2 := st.get(v2i[v2])
-		st.update(v2i[v2], s2+v2)
-		if _c3 == 1 {
-			cand.Remove(v2)
-		} else {
-			cand.Put(v2, _c3.(int)-1)
+		// 追加分
+		mapadd(cand, a[i+m])
+
+		for j := 0; j < c; j++ {
+			_v2, _ := cand.GetKth(1)
+			v2 := _v2.(int)
+			mapdel(cand, v2)
+
+			stadd(v2)
+			mapadd(used, v2)
 		}
-		debug("out", v1, "in", a[i+m], "use", v2, st.nodes[st.n:])
 	}
 
 	out.PrintIntsLn(ans)
