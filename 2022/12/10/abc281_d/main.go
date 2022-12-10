@@ -31,37 +31,42 @@ func calc() {
 
 	// i番目まで見て、j個の和でDで割ったあまりがkである値の最大値
 	dp := make([][][]int, n+1)
+	found := make([][][]bool, n+1)
 	for i := range dp {
 		dp[i] = make([][]int, K+1)
+		found[i] = make([][]bool, K+1)
 		for j := range dp[i] {
 			dp[i][j] = make([]int, d)
-			for k := range dp[i][j] {
-				if j == 0 {
-					dp[i][j][k] = 0
-				} else {
-					dp[i][j][k] = -1
-				}
-			}
+			found[i][j] = make([]bool, d)
 		}
 	}
+	found[0][0][0] = true
 	for i, v := range a {
 		// 使わない場合
 		for j := 0; j <= K; j++ {
 			for k := 0; k < d; k++ {
 				dp[i+1][j][k] = dp[i][j][k]
+				found[i+1][j][k] = found[i][j][k]
 			}
 		}
 		// 使う場合
 		for j := 0; j < K; j++ {
 			for k := 0; k < d; k++ {
+				if !found[i][j][k] {
+					continue
+				}
 				vv := dp[i][j][k] + v
 				d2 := vv % d
 				chmax(&dp[i+1][j+1][d2], vv)
+				found[i+1][j+1][d2] = true
 			}
 		}
 	}
-
-	out.Println(dp[n][K][0])
+	if !found[n][K][0] {
+		out.Println(-1)
+	} else {
+		out.Println(dp[n][K][0])
+	}
 }
 
 func main() {
