@@ -3,11 +3,11 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"io"
 	"math"
 	"math/bits"
-	"math/rand"
 	"os"
 	"sort"
 	"strconv"
@@ -174,263 +174,87 @@ func (st *SegmentTree) all() int {
 	return st.nodes[1]
 }
 
-type Treap struct {
-	root *node
-	// allowDup は、このTreapのキーとして重複を許すかどうか
-	allowDup   bool
-	comparator func(a, b interface{}) int
+// PriorityQueueListは優先度付きキューのリストを表す
+type PriorityQueueList struct {
+	values []int
+	prior  func(a, b int) bool
 }
 
-type node struct {
-	key   interface{}
-	value interface{}
-	pri   int
-	cnt   int
-	left  *node
-	right *node
+// PriorityQueue は優先度付きキューを表す
+type PriorityQueue struct {
+	list *PriorityQueueList
 }
 
-func NewTreap(comparator func(a, b interface{}) int) *Treap {
-	return &Treap{nil, false, comparator}
+// Smaller は aがbより小さいかどうかを判断します。
+func Smaller(a, b int) bool {
+	return a < b
 }
 
-// NewIntTreap は、int型のキーを使用し、昇順に保存するTreapを作成して返します。
-func NewIntTreap() *Treap {
-	return NewTreap(func(a, b interface{}) int {
-		aa, bb := a.(int), b.(int)
-		if aa == bb {
-			return 0
-		}
-		if aa < bb {
-			return -1
-		}
-		return +1
-	})
+// Bigger は aがbより大きいかどうかを判断します。
+func Bigger(a, b int) bool {
+	return b < a
 }
 
-// NewRevIntTreap は、int型のキーを使用し、降順に保存するTreapを作成して返します。
-func NewRevIntTreap() *Treap {
-	return NewTreap(func(a, b interface{}) int {
-		aa, bb := a.(int), b.(int)
-		if aa == bb {
-			return 0
-		}
-		if aa < bb {
-			return +1
-		}
-		return -1
-	})
-}
-
-// Len は、このTreapに含まれる要素の数を返します。
-func (t *Treap) Len() int {
-	return t._count(t.root)
-}
-
-// Get は、keyに対応する値を探して返します。 存在しない場合はnilを返します。
-func (t *Treap) Get(key interface{}) interface{} {
-	n := t.root
-	for n != nil {
-		c := t.comparator(key, n.key)
-		if c == 0 {
-			return n.value
-		} else if c < 0 {
-			n = n.left
-		} else {
-			n = n.right
-		}
+// NewIntPriorityQueue は 優先度をpriorで判断する優先度付きキューを返します。
+func NewIntPriorityQueue(prior func(a, b int) bool) PriorityQueue {
+	return PriorityQueue{
+		&PriorityQueueList{
+			make([]int, 0, 100),
+			prior,
+		},
 	}
-
-	return nil
 }
 
-// GetKthは k (1-indexed)番目のキーと対応する値を返します。
-// 該当する要素が存在しない場合は (nil, nil) を返します。
-func (t *Treap) GetKth(k int) (interface{}, interface{}) {
-	if k < 0 || t.Len() < k {
-		return nil, nil
-	}
-	a, b := t._split(t.root, k)
-
-	n := a
-	var p *node = nil
-	for n != nil {
-		p = n
-		n = n.right
-	}
-	if p == nil {
-		return nil, nil
-	}
-	t.root = t._merge(a, b)
-
-	return p.key, p.value
+// Push は優先度付きキューに要素を一つ追加します。
+func (pq PriorityQueue) Push(value int) {
+	heap.Push(pq.list, value)
 }
 
-// Find は、key以下で最大のキーを返します。
-// 対応するキーがなければnilを返します。
-func (t *Treap) Find(key interface{}) interface{} {
-	n := t.root
-	var ans *node
-
-	for n != nil {
-		c := t.comparator(key, n.key)
-		if c == 0 {
-			return key
-		}
-		if c < 0 {
-			n = n.left
-		} else {
-			ans = n
-			n = n.right
-		}
-	}
-
-	if ans == nil {
-		return nil
-	}
-	return ans.key
+// Pop は優先度付きキューから要素を一つ取り出します。
+func (pq PriorityQueue) Pop() int {
+	return heap.Pop(pq.list).(int)
 }
 
-// Put は、keyとそれに対応するvalueを保存し、古い値を返します。
-// すでにキーが登録されている場合、allowDupがtrueなら挿入、falseなら上書きされます。
-func (t *Treap) Put(key interface{}, value interface{}) interface{} {
-	n, v := t._put(t.root, key, value, rand.Intn(1<<60))
-	t.root = n
-	t._update(t.root)
-
+// Top は優先度つきキューの先頭要素を返します。
+func (pq PriorityQueue) Top() int {
+	v := heap.Pop(pq.list).(int)
+	heap.Push(pq.list, v)
 	return v
 }
 
-func (t *Treap) _put(n *node, key, value interface{}, pri int) (*node, interface{}) {
-	if n == nil {
-		return &node{key, value, pri, 1, nil, nil}, nil
-	}
-	c := t.comparator(key, n.key)
-	if c == 0 && !t.allowDup {
-		v := n.value
-		n.value = value
-		return n, v
-	}
-	if c <= 0 {
-		nn, v := t._put(n.left, key, value, pri)
-		n.left = nn
-		if n.left.pri < n.pri {
-			n = t._rotatel(n)
-		}
-
-		return t._update(n), v
-	} else {
-		nn, v := t._put(n.right, key, value, pri)
-		n.right = nn
-		if n.right.pri < n.pri {
-			n = t._rotater(n)
-		}
-		return t._update(n), v
-	}
+// Empty は優先度付きキューが空かどうかを判断します。
+func (pq PriorityQueue) Empty() bool {
+	return pq.list.Len() == 0
 }
 
-func (t *Treap) _rotatel(n *node) *node {
-	result := n.left
-	x := result.right
-	result.right = n
-	n.left = x
-	t._update(n)
-	t._update(result)
-	return result
+// Swap は要素を交換します。
+func (list PriorityQueueList) Swap(i, j int) {
+	list.values[i], list.values[j] = list.values[j], list.values[i]
 }
 
-func (t *Treap) _rotater(n *node) *node {
-	result := n.right
-	x := result.left
-	result.left = n
-	n.right = x
-	t._update(n)
-	t._update(result)
-	return result
+// Less は要素を比較し、優先度が低いかどうかを判断します
+func (list PriorityQueueList) Less(i, j int) bool {
+	return list.prior(list.values[i], list.values[j])
 }
 
-func (t *Treap) Remove(key interface{}) interface{} {
-	n, v := t._remove(t.root, key)
-	t.root = t._update(n)
-	return v
+// Len は要素の数を返します。
+func (list PriorityQueueList) Len() int {
+	return len(list.values)
 }
 
-func (t *Treap) _remove(n *node, key interface{}) (*node, interface{}) {
-	if n == nil {
-		return nil, nil
-	}
-	c := t.comparator(key, n.key)
-	if c == 0 {
-		// このノードを削除する
-		v := n.value
-		n = t._merge(n.left, n.right)
-		t._update(n)
-		return n, v
-	}
-	if c < 0 {
-		r := n
-		nn, v := t._remove(n.left, key)
-		r.left = nn
-		if r.left != nil && r.left.pri < r.pri {
-			r = t._rotatel(r)
-		}
-		return t._update(r), v
-	} else {
-		r := n
-		nn, v := t._remove(n.right, key)
-		r.right = nn
-		if r.right != nil && r.right.pri < r.pri {
-			r = t._rotater(r)
-		}
-		return t._update(r), v
-	}
+// Pop は要素を取り出して返します。
+func (list *PriorityQueueList) Pop() interface{} {
+	old := list.values
+	n := len(old)
+	item := old[n-1]
+	values := old[:n-1]
+	list.values = values
+	return item
 }
 
-func (t *Treap) _count(n *node) int {
-	if n == nil {
-		return 0
-	}
-	return n.cnt
-}
-
-func (t *Treap) _update(n *node) *node {
-	if n != nil {
-		n.cnt = t._count(n.left) + t._count(n.right) + 1
-	}
-
-	return n
-}
-
-func (t *Treap) _merge(l, r *node) *node {
-	if l == nil || r == nil {
-		if r == nil {
-			return l
-		} else {
-			return r
-		}
-	}
-	if l.pri < r.pri {
-		l.right = t._merge(l.right, r)
-		return t._update(l)
-	} else {
-		r.left = t._merge(l, r.left)
-		return t._update(r)
-	}
-}
-
-func (t *Treap) _split(n *node, nth int) (*node, *node) {
-	if n == nil {
-		return nil, nil
-	}
-	if nth <= t._count(n.left) {
-		a, b := t._split(n.left, nth)
-		n.left = b
-		return a, t._update(n)
-	} else {
-		a, b := t._split(n.right, nth-t._count(n.left)-1)
-		n.right = a
-		return t._update(n), b
-	}
+// Push は要素を追加します。
+func (list *PriorityQueueList) Push(item interface{}) {
+	list.values = append(list.values, item.(int))
 }
 
 func calc() {
@@ -456,24 +280,10 @@ func calc() {
 	}
 
 	// 事前準備
-	used := NewRevIntTreap()
-	cand := NewIntTreap()
-	mapadd := func(t *Treap, key int) {
-		c := t.Get(key)
-		if c == nil {
-			t.Put(key, 1)
-		} else {
-			t.Put(key, c.(int)+1)
-		}
-	}
-	mapdel := func(t *Treap, key int) {
-		c := t.Get(key)
-		if c == 1 {
-			t.Remove(key)
-		} else {
-			t.Put(key, c.(int)-1)
-		}
-	}
+	used := map[int]int{}
+	usedq := NewIntPriorityQueue(func(a, b int) bool { return a > b })
+	cand := map[int]int{}
+	candq := NewIntPriorityQueue(func(a, b int) bool { return a < b })
 
 	head := sort.IntSlice{}
 	for i := 0; i < m; i++ {
@@ -484,27 +294,34 @@ func calc() {
 	for i := 0; i < k; i++ {
 		v := head[i]
 		stadd(v)
-		mapadd(used, v)
+		used[v]++
+		usedq.Push(v)
 	}
 	for i := k; i < m; i++ {
-		mapadd(cand, head[i])
+		cand[head[i]]++
+		candq.Push(head[i])
 	}
 
 	ans := []int{}
-
 	for i := 0; i < n-m+1; i++ {
 		ans = append(ans, st.all())
 		// 抜ける値
 		v1 := a[i]
 
-		c := 1
-		if used.Get(v1) == nil {
+		size := k
+		if used[v1] == 0 {
 			// 使っていなければ無視する
-			mapdel(cand, v1)
+			cand[v1]--
+			if cand[v1] == 0 {
+				delete(cand, v1)
+			}
 		} else {
 			// 使っていればそれを削除する
-			c++
-			mapdel(used, v1)
+			size--
+			used[v1]--
+			if used[v1] == 0 {
+				delete(used, v1)
+			}
 			stsub(v1)
 		}
 
@@ -513,23 +330,38 @@ func calc() {
 		}
 
 		// 現在の最大値を候補に戻す
-		_v, _ := used.GetKth(1)
-		v := _v.(int)
-		stsub(v)
-		mapadd(cand, v)
-		mapdel(used, v)
-		debug("pushback", _v)
+		if size != 0 {
+			for {
+				p := usedq.Pop()
+				// debug("pushback", i, len(used), p, used[p])
+				if used[p] != 0 {
+					stsub(p)
+					used[p]--
+					cand[p]++
+					candq.Push(p)
+					size--
+					break
+				}
+			}
+		}
+
+		// debug("pushback", _v)
 
 		// 追加分
-		mapadd(cand, a[i+m])
+		cand[a[i+m]]++
+		candq.Push(a[i+m])
 
-		for j := 0; j < c; j++ {
-			_v2, _ := cand.GetKth(1)
-			v2 := _v2.(int)
-			mapdel(cand, v2)
-
-			stadd(v2)
-			mapadd(used, v2)
+		for j := size; j < k; j++ {
+			for {
+				p := candq.Pop()
+				if cand[p] != 0 {
+					stadd(p)
+					cand[p]--
+					used[p]++
+					usedq.Push(p)
+					break
+				}
+			}
 		}
 	}
 
