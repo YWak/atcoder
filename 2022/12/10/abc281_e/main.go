@@ -27,7 +27,7 @@ var out *Out
 
 func calc() {
 	n, m, k := in.NextInt3()
-	a := in.NextInt()
+	a := in.NextInts(n)
 }
 
 func main() {
