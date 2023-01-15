@@ -292,7 +292,7 @@ func calc() {
 			if tc[last] < sc[last] {
 				ok = false
 			}
-			for i := first; i < last; i++ {
+			for i := first + 1; i < last; i++ {
 				if tc[i] != sc[i] {
 					ok = false
 				}
