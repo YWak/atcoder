@@ -28,25 +28,24 @@ var out *Out
 var w []int
 var memo []int
 
-func ans(n int) int {
+// n日の最高生産性をm日未満おきの休みで実現する
+func ans(n, m int) int {
 	if n == 0 {
+		return 0
+	}
+	if n == 1 {
 		return 0
 	}
 	if memo[n] == -1 {
 		// n日あるときの最高効率
-		for i := 1; i < n; i++ {
+		for i := m - 1; i >= 1; i-- {
 			// i日おきの休みを設定して残りを最高効率にしたときの最大値
-			t := n / (i + 1)
-			if n%t == 0 {
-				// debug(n, i, "a", t*w[i])
-				chmax(&memo[n], t*w[i])
-			} else {
-				if 2 <= i+t && i+t <= len(w) {
-					// debug(n, i, "b", (t-1)*w[i]+w[i+t-1])
-					chmax(&memo[n], (t-1)*w[i]+w[i+t-1])
-				}
-				// debug(n, i, "c", t*w[i]+ans(n%t))
-				chmax(&memo[n], t*w[i]+ans(n%t))
+			t := i + 1
+			for j := 1; j*t <= n; j++ {
+				// j回採用して残りを使う
+				k := j*w[i] + ans(n-j*t, i)
+				// debug(n, i, j, n-j*t, k)
+				chmax(&memo[n], k)
 			}
 		}
 	}
@@ -65,13 +64,15 @@ func calc() {
 			w[i] += a[min(i-j, j+1)-1]
 		}
 	}
+
 	memo = make([]int, n+1)
 	for i := range memo {
 		memo[i] = -1
 	}
 	// debug(w)
 	// ans[i]はi日あるときの最高効率
-	out.Println(ans(n))
+	out.Println(ans(n, n))
+	// debug(memo)
 }
 
 func main() {
