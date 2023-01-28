@@ -42,6 +42,11 @@ func dfs(curr, prev int) bool {
 func calc() {
 	n, m := in.NextInt2()
 	g = make([][]int, n)
+	if n != m+1 {
+		out.YesNo(false)
+		return
+	}
+
 	for i := 0; i < m; i++ {
 		u, v := in.NextInt2d(-1, -1)
 		g[u] = append(g[u], v)
