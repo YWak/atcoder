@@ -25,41 +25,60 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-var g [][]int
-
-func dfs(curr, prev int) bool {
-	if len(g[curr]) == 2 || prev == -1 {
-		for _, v := range g[curr] {
-			if v == prev {
-				continue
-			}
-			return dfs(v, curr)
-		}
-	}
-	return len(g[curr]) == 1 && g[curr][0] == prev
-}
-
-func calc() {
+func solve() bool {
 	n, m := in.NextInt2()
-	g = make([][]int, n)
+	// 木でなければNG
 	if n != m+1 {
-		out.YesNo(false)
-		return
+		return false
 	}
 
+	g := make([][]int, n)
 	for i := 0; i < m; i++ {
 		u, v := in.NextInt2d(-1, -1)
 		g[u] = append(g[u], v)
 		g[v] = append(g[v], u)
 	}
 
+	// 開始地点
+	s := -1
 	for i := 0; i < n; i++ {
 		if len(g[i]) == 1 {
-			out.YesNo(dfs(i, -1))
-			return
+			s = i
+			break
 		}
 	}
-	out.YesNo(false)
+	if s == -1 {
+		return false
+	}
+
+	// sから順番に探索する
+	used := map[int]bool{s: true}
+	i := s
+	for {
+		if i == s {
+			i = g[i][0]
+			continue
+		}
+		used[i] = true
+		if len(g[i]) == 1 {
+			break
+		}
+		if len(g[i]) != 2 {
+			return false
+		}
+		if used[g[i][0]] && !used[g[i][1]] {
+			i = g[i][1]
+		} else if used[g[i][1]] && !used[g[i][0]] {
+			i = g[i][0]
+		} else {
+			return false
+		}
+	}
+	return len(used) == n
+}
+
+func calc() {
+	out.YesNo(solve())
 }
 
 func main() {
