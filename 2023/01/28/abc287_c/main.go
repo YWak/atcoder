@@ -27,6 +27,18 @@ var out *Out
 
 var g [][]int
 
+func dfs(curr, prev int) bool {
+	if len(g[curr]) == 2 || prev == -1 {
+		for _, v := range g[curr] {
+			if v == prev {
+				continue
+			}
+			return dfs(v, curr)
+		}
+	}
+	return len(g[curr]) == 1 && g[curr][0] == prev
+}
+
 func calc() {
 	n, m := in.NextInt2()
 	g = make([][]int, n)
@@ -35,19 +47,14 @@ func calc() {
 		g[u] = append(g[u], v)
 		g[v] = append(g[v], u)
 	}
-	a := 0
-	b := 0
-	c := 0
+
 	for i := 0; i < n; i++ {
 		if len(g[i]) == 1 {
-			a++
-		} else if len(g[i]) == 2 {
-			b++
-		} else {
-			c++
+			out.YesNo(dfs(i, -1))
+			return
 		}
 	}
-	out.YesNo(c == 0 && a == 2 && b == n-2)
+	out.YesNo(false)
 }
 
 func main() {
