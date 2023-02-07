@@ -3,7 +3,6 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"io"
 	"math"
@@ -27,89 +26,6 @@ var in *In
 var out *Out
 
 type edge struct{ u, v, cost int }
-
-// PriorityQueueListは優先度付きキューのリストを表す
-type PriorityQueueList struct {
-	values []*edge
-	prior  func(a, b *edge) bool
-}
-
-// PriorityQueue は優先度付きキューを表す
-type PriorityQueue struct {
-	list *PriorityQueueList
-}
-
-// Smaller は aがbより小さいかどうかを判断します。
-func Smaller(a, b int) bool {
-	return a < b
-}
-
-// Bigger は aがbより大きいかどうかを判断します。
-func Bigger(a, b int) bool {
-	return b < a
-}
-
-// NewIntPriorityQueue は 優先度をpriorで判断する優先度付きキューを返します。
-func NewIntPriorityQueue(prior func(a, b *edge) bool) PriorityQueue {
-	return PriorityQueue{
-		&PriorityQueueList{
-			make([]*edge, 0, 100),
-			prior,
-		},
-	}
-}
-
-// Push は優先度付きキューに要素を一つ追加します。
-func (pq PriorityQueue) Push(value *edge) {
-	heap.Push(pq.list, value)
-}
-
-// Pop は優先度付きキューから要素を一つ取り出します。
-func (pq PriorityQueue) Pop() *edge {
-	return heap.Pop(pq.list).(*edge)
-}
-
-// Top は優先度つきキューの先頭要素を返します。
-func (pq PriorityQueue) Top() *edge {
-	v := heap.Pop(pq.list).(*edge)
-	heap.Push(pq.list, v)
-	return v
-}
-
-// Empty は優先度付きキューが空かどうかを判断します。
-func (pq PriorityQueue) Empty() bool {
-	return pq.list.Len() == 0
-}
-
-// Swap は要素を交換します。
-func (list PriorityQueueList) Swap(i, j int) {
-	list.values[i], list.values[j] = list.values[j], list.values[i]
-}
-
-// Less は要素を比較し、優先度が低いかどうかを判断します
-func (list PriorityQueueList) Less(i, j int) bool {
-	return list.prior(list.values[i], list.values[j])
-}
-
-// Len は要素の数を返します。
-func (list PriorityQueueList) Len() int {
-	return len(list.values)
-}
-
-// Pop は要素を取り出して返します。
-func (list *PriorityQueueList) Pop() interface{} {
-	old := list.values
-	n := len(old)
-	item := old[n-1]
-	values := old[:n-1]
-	list.values = values
-	return item
-}
-
-// Push は要素を追加します。
-func (list *PriorityQueueList) Push(item interface{}) {
-	list.values = append(list.values, item.(*edge))
-}
 
 // UnionFind : UnionFind構造を保持する構造体
 type UnionFind struct {
@@ -180,6 +96,8 @@ func calc() {
 		a, b, z := in.NextInt3d(-1, -1, 0)
 		edges = append(edges, &edge{a, b, z})
 	}
+	sort.Slice(edges, func(i, j int) bool { return edges[i].cost < edges[j].cost })
+
 	ans := INF18
 	for t := 0; t < 4; t++ {
 		esize := n - 1
@@ -191,9 +109,10 @@ func calc() {
 		if useY {
 			esize++
 		}
-		pq := NewIntPriorityQueue(func(a, b *edge) bool {
-			return a.cost < b.cost
-		})
+
+		uf := ufNew(n + 2)
+		c := 0
+		used := 0
 		for _, e := range edges {
 			if !useX && e.v == n {
 				continue
@@ -201,20 +120,16 @@ func calc() {
 			if !useY && e.v == n+1 {
 				continue
 			}
-			pq.Push(e)
-		}
 
-		uf := ufNew(n + 2)
-		c := 0
-		used := 0
-		for used != esize && !pq.Empty() {
-			e := pq.Pop()
 			if uf.Same(e.u, e.v) {
 				continue
 			}
 			c += e.cost
 			uf.Unite(e.u, e.v)
 			used++
+			if used == esize {
+				break
+			}
 		}
 		if used == esize {
 			chmin(&ans, c)
