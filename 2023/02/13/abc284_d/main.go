@@ -56,17 +56,11 @@ func calc() {
 			}
 			// 二乗してn/pになる値を探す
 			nn := n / p
-			ok, ng := 1, n
-			for ng-ok > 1 {
-				mid := (ok + ng) / 2
-				if nn/mid <= mid {
-					ok = mid
-				} else {
-					ng = mid
-				}
-			}
-			if ok*ok == nn {
-				out.Println(ok, p)
+			q := sort.Search(nn, func(i int) bool {
+				return i >= nn/i
+			})
+			if q == nn/q && nn%q == 0 {
+				out.Println(q, p)
 				break
 			}
 		}
