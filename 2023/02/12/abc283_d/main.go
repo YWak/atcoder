@@ -28,13 +28,18 @@ var out *Out
 func calc() {
 	s := in.NextBytes()
 
-	balls := NewIntInt(len(s)+1, 26, 0)
-	prev := make([]int, len(s)+1)
+	balls := NewIntInt(len(s), 26, 0)
+	prev := make([]int, len(s))
 	level := 0
-	box := 0
+	box := make([]int, 26)
 
 	ans := true
 	for i, b := range s {
+		if i > 0 {
+			for j, c := range balls[i-1] {
+				balls[i][j] += c
+			}
+		}
 		if b == '(' {
 			level++
 		} else if b == ')' {
@@ -44,22 +49,19 @@ func calc() {
 			j := prev[level]
 			for c := 0; c < 26; c++ {
 				if balls[j][c] != balls[i][c] {
-					box -= 1 << c
+					box[c] = 0
 				}
 			}
 		} else {
 			b -= 'a'
 			// 箱に既に値が入っていれば失敗
-			if (box>>b)&1 == 1 {
+			if box[b] == 1 {
 				ans = false
 				break
 			}
-			box |= 1 << b
+			box[b] = 1
 			// アルファベットを更新する
-			for j, c := range balls[i] {
-				balls[i+1][j] = c
-			}
-			balls[i+1][int(b)]++
+			balls[i][int(b)]++
 		}
 		prev[level] = i
 	}
