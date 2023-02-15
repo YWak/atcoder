@@ -35,7 +35,7 @@ func calc() {
 		}
 	}
 	ans := 0
-	for p := 1; p < 1<<n; p++ {
+	for p := 1; p < 1<<m; p++ {
 		t := 0
 		for i, v := range a {
 			if nthbit(p, i) == 1 {
