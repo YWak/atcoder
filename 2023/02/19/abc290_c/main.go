@@ -35,6 +35,8 @@ func calc() {
 	for i := 0; i < k; i++ {
 		if ex[i] {
 			ans = i + 1
+		} else {
+			break
 		}
 	}
 	out.Println(ans)
