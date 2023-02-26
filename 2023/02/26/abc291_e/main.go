@@ -27,6 +27,7 @@ var out *Out
 
 func calc() {
 	n, m := in.NextInt2()
+	// 連結していること、次の候補がひとつであること
 	g := make([][]int, n)
 	ref := make([]int, n)
 	hist := map[int]bool{}
@@ -46,9 +47,11 @@ func calc() {
 			queue = append(queue, i)
 		}
 	}
-	ok := len(queue) == 1
+	ok := true
 	s := queue[0]
+	done := 0
 	for len(queue) > 0 {
+		done++
 		p := queue[0]
 		queue = queue[1:]
 		if len(queue) != 0 {
@@ -61,6 +64,7 @@ func calc() {
 			}
 		}
 	}
+	ok = ok && done == n
 	out.YesNo(ok)
 	if !ok {
 		return
