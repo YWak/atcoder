@@ -29,14 +29,8 @@ func calc() {
 	n, m := in.NextInt2()
 	g := make([][]int, n)
 	ref := make([]int, n)
-	hist := map[int]bool{} // 重複する情報を削除しておく
 	for i := 0; i < m; i++ {
 		x, y := in.NextInt2d(-1, -1)
-		p := y*N10_6 + x
-		if hist[p] {
-			continue
-		}
-		hist[p] = true
 		g[x] = append(g[x], y)
 		ref[y]++
 	}
@@ -49,12 +43,13 @@ func calc() {
 		}
 	}
 	ok := true
-	s := queue[0]
-	done := make([]bool, n)
 
+	ans := make([]int, n)
+	t := 1
 	for len(queue) > 0 {
 		p := queue[0]
-		done[p] = true
+		ans[p] = t
+		t++
 
 		queue = queue[1:]
 		if len(queue) != 0 {
@@ -68,25 +63,15 @@ func calc() {
 		}
 	}
 	// やり残しがない
-	for i := range done {
-		if !done[i] {
+	for _, a := range ans {
+		if a == 0 {
 			ok = false
 		}
 	}
 	out.YesNo(ok)
-	if !ok {
-		return
+	if ok {
+		out.PrintIntsLn(ans)
 	}
-	ans := make([]int, n)
-	p := s
-	for t := 1; true; t++ {
-		ans[p] = t
-		if len(g[p]) == 0 {
-			break
-		}
-		p = g[p][0]
-	}
-	out.PrintIntsLn(ans)
 }
 
 func main() {
