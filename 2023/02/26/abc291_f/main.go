@@ -25,9 +25,59 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+func infarray(n int) []int {
+	a := make([]int, n)
+	for i := 0; i < n; i++ {
+		a[i] = INF18
+	}
+	return a
+}
 func calc() {
 	n, m := in.NextInt2()
-	s := make([][]bool, n)
+	ss := make([][]byte, n)
+	for i := 0; i < n; i++ {
+		ss[i] = in.NextBytes()
+	}
+	// dp1[i]は都市1から都市iに行くための最短経路
+	dp1 := infarray(n)
+	dp1[0] = 0
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+			if ss[i][j] == '1' {
+				chmin(&dp1[i+j+1], dp1[i]+1)
+			}
+		}
+	}
+
+	// dpn[i]は都市iから都市nに行くための最短経路
+	dpn := infarray(n)
+	dpn[n-1] = 0
+	for i := n - 1; i >= 0; i-- {
+		for j := 0; j < m; j++ {
+			ii := i - j - 1
+			if ii >= 0 && ss[ii][j] == '1' {
+				chmin(&dpn[ii], dpn[i]+1)
+			}
+		}
+	}
+	ans := []int{}
+	for k := 1; k < n-1; k++ {
+		a := INF18
+		// iからi+tにワープすることを考える
+		for t := 2; t <= m; t++ {
+			for i := max(0, k-t+1); i < k; i++ {
+				if ss[i][t-1] == '1' { // 直通なので、ワープできる
+					chmin(&a, dp1[i]+dpn[i+t]+1)
+				}
+			}
+		}
+
+		if a >= INF18 {
+			a = -1
+		}
+		ans = append(ans, a)
+	}
+	out.PrintIntsLn(ans)
 }
 
 func main() {
