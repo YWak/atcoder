@@ -27,10 +27,9 @@ var out *Out
 
 func calc() {
 	n, m := in.NextInt2()
-	// 連結していること、次の候補がひとつであること
 	g := make([][]int, n)
 	ref := make([]int, n)
-	hist := map[int]bool{}
+	hist := map[int]bool{} // 重複する情報を削除しておく
 	for i := 0; i < m; i++ {
 		x, y := in.NextInt2d(-1, -1)
 		p := y*N10_6 + x
@@ -41,6 +40,8 @@ func calc() {
 		g[x] = append(g[x], y)
 		ref[y]++
 	}
+
+	// 連結していること、次の候補がひとつであること
 	queue := []int{}
 	for i := 0; i < n; i++ {
 		if ref[i] == 0 {
@@ -49,10 +50,12 @@ func calc() {
 	}
 	ok := true
 	s := queue[0]
-	done := 0
+	done := make([]bool, n)
+
 	for len(queue) > 0 {
-		done++
 		p := queue[0]
+		done[p] = true
+
 		queue = queue[1:]
 		if len(queue) != 0 {
 			ok = false
@@ -64,17 +67,20 @@ func calc() {
 			}
 		}
 	}
-	ok = ok && done == n
+	// やり残しがない
+	for i := range done {
+		if !done[i] {
+			ok = false
+		}
+	}
 	out.YesNo(ok)
 	if !ok {
 		return
 	}
 	ans := make([]int, n)
 	p := s
-	t := 1
-	for {
+	for t := 1; true; t++ {
 		ans[p] = t
-		t++
 		if len(g[p]) == 0 {
 			break
 		}
