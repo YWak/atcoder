@@ -47,26 +47,20 @@ func solve() bool {
 	pq := NewIntPriorityQueue(Smaller)
 	i := 0
 	now := 1
-	for i < n || !pq.Empty() {
-		// キューに入れる
-		for i < n && now >= rs[i].l { // 左側の制約が解消している条件
-			pq.Push(rs[i].r)
-			i++
-		}
+	for {
 		// キューが空の場合はlまでスキップしておく
 		if pq.Empty() {
 			if i == n {
 				return true
 			}
-
 			// 次のlまでスキップする
-			now = rs[i].l
+			now = max(rs[i].l, now)
+		}
 
-			// 再度キューに入れる
-			for i < n && now >= rs[i].l { // 左側の制約が解消している条件
-				pq.Push(rs[i].r)
-				i++
-			}
+		// キューに入れる
+		for i < n && now >= rs[i].l { // 左側の制約が解消している条件
+			pq.Push(rs[i].r)
+			i++
 		}
 
 		// 右の制約が厳しいものから箱に入れていく
@@ -77,7 +71,6 @@ func solve() bool {
 		}
 		now++
 	}
-	return true
 }
 
 // PriorityQueueListは優先度付きキューのリストを表す
