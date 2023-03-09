@@ -46,6 +46,24 @@ func debug(args ...interface{}) {
 }
 
 // ==================================================
+// 構造
+// ==================================================
+type pair struct {
+	a, b int
+}
+
+// sortPairsはpairの配列をソートします。
+func sortPairs(array *[]*pair) {
+	sort.Slice(*array, func(i, j int) bool {
+		pi, pj := (*array)[i], (*array)[j]
+		if pi.a != pj.a {
+			return pi.a < pj.a
+		}
+		return pi.b < pj.b
+	})
+}
+
+// ==================================================
 // 入出力操作
 // ==================================================
 type In struct {
@@ -110,6 +128,13 @@ func (in *In) NextInt2() (int, int) {
 // NextInt2d は 次の2つの入力を数値n1,n2として読み込んで、n1+d1, n2+d2を返します。
 func (in *In) NextInt2d(d1, d2 int) (int, int) {
 	return in.NextInt() + d1, in.NextInt() + d2
+}
+
+// NextPairは、次の2つの入力を数値として読み込んで返します。
+func (in *In) NextPair() *pair {
+	p := pair{}
+	p.a, p.b = in.NextInt2()
+	return &p
 }
 
 // NextInt3 は 次の3つの入力を数値として読み込んで返します。

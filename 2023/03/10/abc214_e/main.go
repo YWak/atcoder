@@ -26,21 +26,35 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-type Range struct{ l, r int }
+type pair struct {
+	a, b int
+}
+
+// readPairは標準入力から値を読み込みます。
+func readPair() *pair {
+	p := pair{}
+	p.a, p.b = in.NextInt2()
+	return &p
+}
+
+// sortPairsはpairの配列をソートします。
+func sortPairs(array *[]*pair) {
+	sort.Slice(*array, func(i, j int) bool {
+		pi, pj := (*array)[i], (*array)[j]
+		if pi.a != pj.a {
+			return pi.a < pj.a
+		}
+		return pi.b < pj.b
+	})
+}
 
 func solve() bool {
 	n := in.NextInt()
-	rs := make([]Range, n)
+	rs := make([]*pair, n)
 	for i := 0; i < n; i++ {
-		rs[i].l, rs[i].r = in.NextInt2()
+		rs[i] = readPair()
 	}
-	// lの早い順、同率ならrの順
-	sort.Slice(rs, func(i, j int) bool {
-		if rs[i].l != rs[j].l {
-			return rs[i].l < rs[j].l
-		}
-		return rs[i].r < rs[j].r
-	})
+	sortPairs(&rs)
 
 	// 基本的にはgreedyに入れていく
 	// now >= lであるようなボールをキューに入れ、rの早い順に箱に入れていく
@@ -54,12 +68,12 @@ func solve() bool {
 				return true
 			}
 			// 次のlまでスキップする
-			now = max(rs[i].l, now)
+			now = max(rs[i].a, now)
 		}
 
 		// キューに入れる
-		for i < n && now >= rs[i].l { // 左側の制約が解消している条件
-			pq.Push(rs[i].r)
+		for i < n && now >= rs[i].a { // 左側の制約が解消している条件
+			pq.Push(rs[i].b)
 			i++
 		}
 
