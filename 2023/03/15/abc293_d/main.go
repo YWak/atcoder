@@ -25,34 +25,14 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-var done []bool
-
-func dfs(g [][]int, curr, prev int, hist map[int]bool) bool {
-	ans := false
-	hist[curr] = true
-	done[curr] = true
-	for _, next := range g[curr] {
-		if next == prev {
-			continue
-		}
-		if hist[next] {
-			ans = true
-			break
-		}
-		ans = ans || dfs(g, next, curr, hist)
-	}
-	hist[curr] = false
-	return ans
-}
-
 func calc() {
 	n := in.NextInt()
 	m := in.NextInt()
+	uf := ufNew(n * 2)
+	ans := map[int]bool{}
 
-	g := make([][]int, n*2) // [0:n)赤 [n:n*2) 青
 	for i := 0; i < n; i++ {
-		g[i] = append(g[i], n+i)
-		g[n+i] = append(g[n+i], i)
+		uf.Unite(i, n+i)
 	}
 	for i := 0; i < m; i++ {
 		a := in.NextInt() - 1
@@ -66,24 +46,69 @@ func calc() {
 		if d == "B" {
 			c += n
 		}
-		g[a] = append(g[a], c)
-		g[c] = append(g[c], a)
+		if !uf.Unite(a, c) {
+			ans[uf.Root(a)] = true
+		}
 	}
 
-	done = make([]bool, n*2)
-	ans1 := 0
-	ans2 := 0
-	for i := range g {
-		if done[i] {
-			continue
-		}
-		if dfs(g, i, -1, map[int]bool{}) {
-			ans1++
-		} else {
-			ans2++
-		}
+	all := map[int]bool{}
+	for i := 0; i < n; i++ {
+		all[uf.Root(i)] = true
 	}
-	out.Println(ans1, ans2)
+	out.Println(len(ans), len(all)-len(ans))
+}
+
+// UnionFind : UnionFind構造を保持する構造体
+type UnionFind struct {
+	par []int // i番目のノードに対応する親
+}
+
+// [0, n)のノードを持つUnion-Findを作る
+func ufNew(n int) UnionFind {
+	uf := UnionFind{par: make([]int, n)}
+
+	for i := 0; i < n; i++ {
+		uf.par[i] = -1
+	}
+
+	return uf
+}
+
+// Root はxのルートを得る
+func (uf *UnionFind) Root(x int) int {
+	if uf.par[x] < 0 {
+		return x
+	}
+	uf.par[x] = uf.Root(uf.par[x])
+	return uf.par[x]
+}
+
+// Unite はxとyを併合する。集合の構造が変更された(== 呼び出し前は異なる集合だった)かどうかを返す
+func (uf *UnionFind) Unite(x, y int) bool {
+	rx := uf.Root(x)
+	ry := uf.Root(y)
+
+	if rx == ry {
+		return false
+	}
+	if uf.par[rx] > uf.par[ry] {
+		rx, ry = ry, rx
+	}
+	uf.par[rx] += uf.par[ry]
+	uf.par[ry] = rx
+	return true
+}
+
+// Same はxとyが同じノードにいるかを判断する
+func (uf *UnionFind) Same(x, y int) bool {
+	rx := uf.Root(x)
+	ry := uf.Root(y)
+	return rx == ry
+}
+
+// Size は xの集合のサイズを返します。
+func (uf *UnionFind) Size(x int) int {
+	return -uf.par[uf.Root(x)]
 }
 
 func main() {
