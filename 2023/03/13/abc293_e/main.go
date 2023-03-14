@@ -63,19 +63,25 @@ func calc() {
 	if a == 0 {
 		ans = 0
 	} else if a == 1 {
-		ans = 1 % m
+		ans = x % m
 	} else {
 		b := func(n int) *big.Int { return big.NewInt(int64(n)) }
+		sub := func(x, y *big.Int) *big.Int { return b(0).Sub(x, y) }
 		mul := func(x, y *big.Int) *big.Int { return b(1).Mul(x, y) }
 		div := func(x, y *big.Int) *big.Int { return b(1).Div(x, y) }
 		pow := func(x, y, z *big.Int) *big.Int { return b(1).Exp(x, y, z) }
+		mod := func(x, y *big.Int) *big.Int { return b(1).Mod(x, y) }
 
 		am := mul(b(a-1), b(m))
 		t := pow(b(a), b(x), am)
-		t.Sub(t, b(1))
-		t = div(t, b(a-1))
-		t = t.Mod(t, b(m))
-		ans = int(t.Mod(t, b(m)).Int64())
+		t = sub(t, b(1))
+		if t.Cmp(b(0)) < 0 {
+			t.Add(t, b(m))
+		}
+
+		r := div(t, b(a-1))
+		r = mod(r, b(m))
+		ans = int(r.Int64())
 		if ans < 0 {
 			ans += m
 		}
