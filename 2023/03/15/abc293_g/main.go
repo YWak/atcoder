@@ -56,7 +56,7 @@ func calc() {
 	})
 	l, r := 0, 0
 	t := 0
-	c := map[int]int{}
+	c := make([]int, 200020)
 
 	// k個から3つ選ぶ組合せ
 	select3 := func(k int) int {
