@@ -199,9 +199,6 @@ func (g *Geo) NewCircumscribedCircle3(a, b, c *FPoint) *FCircle {
 	l1 := g.PerpendicularBisector(a, b)
 	l2 := g.PerpendicularBisector(b, c)
 
-	if l1 == nil || l2 == nil {
-		return nil
-	}
 	o := l1.crossing(l2)
 	if o == nil {
 		return nil
