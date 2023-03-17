@@ -198,8 +198,14 @@ func (g *Geo) NewCircumscribedCircle3(a, b, c *FPoint) *FCircle {
 	// 垂直二等分線の交点
 	l1 := g.PerpendicularBisector(a, b)
 	l2 := g.PerpendicularBisector(b, c)
-	o := l1.crossing(l2)
 
+	if l1 == nil || l2 == nil {
+		return nil
+	}
+	o := l1.crossing(l2)
+	if o == nil {
+		return nil
+	}
 	return &FCircle{o: o, r: o.dist(a)}
 }
 
@@ -239,7 +245,7 @@ func (g *Geo) SmallestEnclosingCircle(points []*FPoint) *FCircle {
 					continue
 				}
 				c := g.NewCircumscribedCircle3(p, q, r)
-				if (circle == nil || circle.r > c.r) && ok(c) {
+				if c != nil && (circle == nil || circle.r > c.r) && ok(c) {
 					circle = c
 				}
 			}
