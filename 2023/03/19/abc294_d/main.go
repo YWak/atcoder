@@ -51,6 +51,7 @@ func calc() {
 				x := ev3.Pop()
 				if !ev2[x] {
 					out.Println(x)
+					ev3.Push(x)
 					break
 				}
 			}
