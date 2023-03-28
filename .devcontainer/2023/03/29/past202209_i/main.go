@@ -26,36 +26,30 @@ var in *In
 var out *Out
 
 func solve(n, a, m int) int {
+	n-- // 0-indexed
+
 	// 何日でループするか？
 	used := make([]bool, m)
-	s := 0
+	s := make([]int, m+1)
 	l := -1
 	sad := func(i int) int {
 		j := i + 1
 		k := divceil(a*j, m)
 		return k*m - a*j
 	}
-	for i := 0; i <= m*3; i++ {
+	for i := 0; i <= m; i++ {
 		t := sad(i)
-		if !used[t] {
-			s += t
-			used[t] = true
-		} else {
-			if l == -1 {
-				l = i
-			}
-			if sad(i) != sad(i-l) {
-				panic(fmt.Sprintf("sad(%d) != sad(%d) [%d, %d]", i, i-l, sad(i), sad(i-l)))
-			}
+		s[i] = t
+		if i > 0 {
+			s[i] += s[i-1]
 		}
+		if used[t] {
+			l = i
+			break
+		}
+		used[t] = true
 	}
-	loop := n / l
-	rest := n % l
-	ans := s * loop
-	for i := 0; i < rest; i++ {
-		ans += sad(i)
-	}
-	return ans
+	return s[l-1]*(n/l) + s[n%l]
 }
 
 func calc() {
