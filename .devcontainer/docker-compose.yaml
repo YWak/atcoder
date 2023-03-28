@@ -1,8 +1,10 @@
 version: "3.7"
 services:
-    dev:
-        build:
-            context: ./
-        init: true
-        volumes:
-            - ./__
+  dev:
+    image: ywak/atcoder:latest
+    init: true
+    volumes:
+      - ../:/home/user/work
+    environment:
+      LOCAL_UID: 1000
+      LOCAL_GID: 1000
