@@ -28,12 +28,21 @@ var out *Out
 func calc() {
 	n, m := in.NextInt2()
 	ans := INF18
-	for a := 1; a <= min(N10_6, n) && a*a <= m; a++ {
+	for a := 1; a <= n; a++ {
 		b := divceil(m, a)
-
-		if b <= n {
-			chmin(&ans, a*b)
+		if b > n {
+			continue
 		}
+		if a > b {
+			break
+		}
+
+		ab := a * b
+		if ab < m {
+			continue
+		}
+
+		chmin(&ans, ab)
 	}
 	if ans == INF18 {
 		ans = -1
