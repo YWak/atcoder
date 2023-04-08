@@ -30,25 +30,28 @@ var ind [][]int
 
 func solve(k, s, t int) int {
 	n := len(dir)
-	ss := s / n
-	tt := t / n
+	// ss := s / n
+	// tt := t / n
 	s, t = s%n, t%n
 
 	// たどり着けなければ-1
 	if dir[s][t] == INF18 {
 		return -1
 	}
+	return dir[s][t]
 
-	if ss == 0 || tt == 0 { // 直接いけるので、そのパターンを探す
-		return dir[s][t]
-	}
+	// // グリッドが同じなら直接を考えられる
+	// if ss == tt {
+	// 	return dir[s][t]
+	// }
 
-	// 最低2手かかるので、直接つながっているパターンは使えないため2手以上かかるパターンを探す
-	if ind[s][t] == INF18 {
-		return -1
-	}
+	// // 2手以上かかるパターンが必要だけどそういうパターンがなければ-1
+	// if ind[s][t] == INF18 {
+	// 	return -1
+	// }
 
-	return max(ind[s][t], dir[s][t])
+	// // 最低2手かかるので、直接つながっているパターンは使えないため2手以上かかるパターンを探す
+	// return ind[s][t]
 }
 
 func calc() {
