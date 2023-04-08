@@ -39,13 +39,16 @@ func solve(k, s, t int) int {
 		return -1
 	}
 
-	if ss != 0 && tt != 0 && dir[s][t] == 1 {
-		// 2手以上かけて行くパターンを探す
-		return ind[s][t]
+	if ss == 0 || tt == 0 { // 直接いけるので、そのパターンを探す
+		return dir[s][t]
 	}
 
-	// それ以外は通常どおり
-	return dir[s][t]
+	// 最低2手かかるので、直接つながっているパターンは使えないため2手以上かかるパターンを探す
+	if ind[s][t] == INF18 {
+		return -1
+	}
+
+	return max(ind[s][t], dir[s][t])
 }
 
 func calc() {
@@ -61,7 +64,6 @@ func calc() {
 		for j := 0; j < n; j++ {
 			if mat[i][j] == 1 {
 				dir[i][j] = 1
-				ind[i][j] = 1
 			}
 		}
 	}
@@ -71,11 +73,7 @@ func calc() {
 		for i := 0; i < n; i++ {
 			for j := 0; j < n; j++ {
 				chmin(&dir[i][j], dir[i][u]+dir[u][j])
-
-				v := ind[i][u] + ind[u][j]
-				if (ind[i][j] == 1 && v < INF18) || ind[i][j] < v {
-					ind[i][j] = v
-				}
+				chmin(&ind[i][j], dir[i][u]+dir[u][j])
 			}
 		}
 	}
