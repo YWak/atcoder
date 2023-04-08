@@ -25,18 +25,48 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
+func solve(a, b int) int {
+	if a > b {
+		a, b = b, a
+	}
+
+	diff := abs(a - b)
+	if diff == 0 {
+		return 1
+	}
+
+	ans := 0
+	for a > 0 {
+		g := gcd(a, b)
+		a /= g
+		b /= g
+
+		if b-a == 1 {
+			ans += a
+			break
+		}
+
+		t := b
+		for div := 1; div*div <= (b - a); div++ {
+			if (b-a)%div != 0 {
+				continue
+			}
+			if div > 1 {
+				chmin(&t, b%div)
+			}
+			chmin(&t, a%((b-a)/div))
+		}
+		ans += t
+		a -= t
+		b -= t
+	}
+	return ans
+}
+
 func calc() {
 	a, b := in.NextInt2()
 
-	ans := 0
-	for a >= 1 && b >= 1 {
-		g := gcd(a, b)
-		t := min(a/g, b/g)
-		ans += t
-		debug(a, b, g, t)
-		a, b = a-g*t, b-g*t
-	}
-	out.Println(ans)
+	out.Println(solve(a, b))
 }
 
 func gcd(a, b int) int {
