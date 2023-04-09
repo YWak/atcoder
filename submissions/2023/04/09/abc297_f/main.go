@@ -37,15 +37,19 @@ func calc() {
 		fact[i] = mod.mul(fact[i-1], i)
 	}
 	// pはx * yの中にk個を選ぶ場合の数
+	memo := NewIntInt(h+1, w+1, -1)
 	p := func(x, y int) int {
 		if x <= 0 || y <= 0 || k > x*y {
 			return 0
 		}
-		ret := fact[x*y]
-		mod.chdiv(&ret, fact[k])
-		mod.chdiv(&ret, fact[x*y-k])
+		if memo[x][y] == -1 {
+			ret := fact[x*y]
+			mod.chdiv(&ret, fact[k])
+			mod.chdiv(&ret, fact[x*y-k])
+			memo[x][y] = ret
+		}
 
-		return ret
+		return memo[x][y]
 	}
 
 	for s := 1; s <= h; s++ {
