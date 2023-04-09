@@ -28,23 +28,16 @@ var out *Out
 func calc() {
 	n, l, r := in.NextInt3()
 	a := in.NextInts(n)
+
 	lr := l + r
-	for i, v := range a {
-		a[i] = v % lr
-	}
 
-	first := 0
-	second := 0
-
+	ans := 0
 	for _, v := range a {
-		if v == 1 || l <= v && v <= r {
-			first++
-		} else {
-			second++
-		}
+		v %= lr
+		ans ^= v / l
 	}
 
-	if first%2 == 1 {
+	if ans != 0 {
 		out.Println("First")
 	} else {
 		out.Println("Second")
