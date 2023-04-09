@@ -37,7 +37,7 @@ func calc() {
 	second := 0
 
 	for _, v := range a {
-		if l <= v && v <= r {
+		if v == 1 || l <= v && v <= r {
 			first++
 		} else {
 			second++
