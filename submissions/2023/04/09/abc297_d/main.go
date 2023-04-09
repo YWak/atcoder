@@ -33,13 +33,13 @@ func calc() {
 			a, b = b, a
 		}
 
-		if a == 1 {
-			ans += b - 1
-			b = 1
-		} else {
-			ans += b / a
-			b = b % a
+		if a == 0 {
+			ans--
+			break
 		}
+
+		ans += b / a
+		b = b % a
 	}
 	out.Println(ans)
 }
