@@ -3,6 +3,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"io"
 	"math"
@@ -29,40 +30,132 @@ func calc() {
 	n := in.NextInt()
 	Q := in.NextInt()
 
-	boxes := make([][]int, n+1)
-	cards := make([][]int, 220000)
+	boxes := make([]*PriorityQueue, n+1)
+	cards := make([]*PriorityQueue, 220000)
 
-	ans := [][]int{}
-	ts := []int{}
 	for q := 0; q < Q; q++ {
 		t := in.NextInt()
 		if t == 1 {
 			i, j := in.NextInt2()
-			boxes[j] = append(boxes[j], i)
-			cards[i] = append(cards[i], j)
+			if boxes[j] == nil {
+				boxes[j] = NewIntPriorityQueue(Smaller)
+			}
+			if cards[i] == nil {
+				cards[i] = NewIntPriorityQueue(Smaller)
+			}
+			boxes[j].Push(i)
+			cards[i].Push(j)
 		} else if t == 2 {
 			i := in.NextInt()
-			ans = append(ans, append([]int{}, boxes[i]...))
-			ts = append(ts, t)
+			ans := []int{}
+			for !boxes[i].Empty() {
+				v := boxes[i].Pop()
+				ans = append(ans, v)
+			}
+			out.PrintIntsLn(ans)
+			for _, v := range ans {
+				boxes[i].Push(v)
+			}
 		} else {
 			i := in.NextInt()
-			ans = append(ans, append([]int{}, cards[i]...))
-			ts = append(ts, t)
-		}
-	}
-
-	for i, v := range ans {
-		sort.Ints(v)
-		delim := ""
-		for j, u := range v {
-			if ts[i] == 3 && j > 0 && u == v[j-1] {
-				continue
+			ans := []int{}
+			for !cards[i].Empty() {
+				v := cards[i].Pop()
+				l := len(ans)
+				if l > 0 && ans[l-1] == v {
+					continue
+				}
+				ans = append(ans, v)
 			}
-			out.Printf("%s%d", delim, u)
-			delim = " "
+			out.PrintIntsLn(ans)
+			for _, v := range ans {
+				cards[i].Push(v)
+			}
 		}
-		out.Println()
 	}
+}
+
+// PriorityQueueListは優先度付きキューのリストを表す
+type PriorityQueueList struct {
+	values []int
+	prior  func(a, b int) bool
+}
+
+// PriorityQueue は優先度付きキューを表す
+type PriorityQueue struct {
+	list *PriorityQueueList
+}
+
+// Smaller は aがbより小さいかどうかを判断します。
+func Smaller(a, b int) bool {
+	return a < b
+}
+
+// Bigger は aがbより大きいかどうかを判断します。
+func Bigger(a, b int) bool {
+	return b < a
+}
+
+// NewIntPriorityQueue は 優先度をpriorで判断する優先度付きキューを返します。
+func NewIntPriorityQueue(prior func(a, b int) bool) *PriorityQueue {
+	return &PriorityQueue{
+		&PriorityQueueList{
+			make([]int, 0, 100),
+			prior,
+		},
+	}
+}
+
+// Push は優先度付きキューに要素を一つ追加します。
+func (pq PriorityQueue) Push(value int) {
+	heap.Push(pq.list, value)
+}
+
+// Pop は優先度付きキューから要素を一つ取り出します。
+func (pq PriorityQueue) Pop() int {
+	return heap.Pop(pq.list).(int)
+}
+
+// Top は優先度つきキューの先頭要素を返します。
+func (pq PriorityQueue) Top() int {
+	v := heap.Pop(pq.list).(int)
+	heap.Push(pq.list, v)
+	return v
+}
+
+// Empty は優先度付きキューが空かどうかを判断します。
+func (pq PriorityQueue) Empty() bool {
+	return pq.list.Len() == 0
+}
+
+// Swap は要素を交換します。
+func (list PriorityQueueList) Swap(i, j int) {
+	list.values[i], list.values[j] = list.values[j], list.values[i]
+}
+
+// Less は要素を比較し、優先度が低いかどうかを判断します
+func (list PriorityQueueList) Less(i, j int) bool {
+	return list.prior(list.values[i], list.values[j])
+}
+
+// Len は要素の数を返します。
+func (list PriorityQueueList) Len() int {
+	return len(list.values)
+}
+
+// Pop は要素を取り出して返します。
+func (list *PriorityQueueList) Pop() interface{} {
+	old := list.values
+	n := len(old)
+	item := old[n-1]
+	values := old[:n-1]
+	list.values = values
+	return item
+}
+
+// Push は要素を追加します。
+func (list *PriorityQueueList) Push(item interface{}) {
+	list.values = append(list.values, item.(int))
 }
 
 func main() {
