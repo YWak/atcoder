@@ -44,6 +44,7 @@ func calc() {
 		} else if t == 2 {
 			p := mod.mul(heads[h], mod.pow(10, l))
 			l--
+			h++
 			mod.chsub(&ans, p)
 		} else if t == 3 {
 			out.Println(ans)
