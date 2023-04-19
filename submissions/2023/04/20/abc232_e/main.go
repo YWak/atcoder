@@ -25,7 +25,8 @@ const N10_6 = int(1e6)
 var in *In
 var out *Out
 
-const mod = mod998244353
+const mod = 998244353
+const same, diff = 1, 0
 
 func calc() {
 	h, w, k := in.NextInt3()
@@ -36,134 +37,39 @@ func calc() {
 	// x軸がi(1: ゴール, 0: その他)
 	// y軸がj(1: ゴール, 0: その他)
 	// にいる場合の数
-	h = mod.norm(h)
-	w = mod.norm(w)
-	h1, w1 := mod.sub(h, 1), mod.sub(w, 1)
-	h2, w2 := mod.sub(h, 2), mod.sub(w, 2)
+	h %= mod
+	w %= mod
+	h1, h2, w1, w2 := h-1, h-2, w-1, w-2
 
 	dp := [2][2]int{}
-	dp[chi(x1 == x2, 1, 0)][chi(y1 == y2, 1, 0)] = 1
+	dp[chi(y1 == y2, same, diff)][chi(x1 == x2, same, diff)] = 1
 
 	for t := 0; t < k; t++ {
 		nx := [2][2]int{}
-		// x軸について移動する場合
-		for y := 0; y < 2; y++ {
-			mod.chadd(&nx[0][y], mod.mul(dp[0][y], w2)) // 合っていないところから合っていないところへ
-			mod.chadd(&nx[1][y], mod.mul(dp[0][y], 1))  // 合っていないところから合っているところへ
-			mod.chadd(&nx[0][y], mod.mul(dp[1][y], w1)) // 合っているところから合っていないところへ
-		}
-		// y軸について移動する場合
-		for x := 0; x < 2; x++ {
-			mod.chadd(&nx[x][0], mod.mul(dp[x][0], h2))
-			mod.chadd(&nx[x][1], mod.mul(dp[x][0], 1))
-			mod.chadd(&nx[x][0], mod.mul(dp[x][1], h1))
-		}
+
+		nx[diff][diff] += dp[diff][diff] * (h2 + w2)
+		nx[diff][diff] += dp[same][diff] * w1
+		nx[diff][diff] += dp[diff][same] * h1
+		nx[diff][diff] %= mod
+
+		nx[diff][same] += dp[diff][diff]
+		nx[diff][same] += dp[diff][same] * w2
+		nx[diff][same] += dp[same][same] * w1
+		nx[diff][same] %= mod
+
+		nx[same][diff] += dp[diff][diff]
+		nx[same][diff] += dp[same][diff] * h2
+		nx[same][diff] += dp[same][same] * h1
+		nx[same][diff] %= mod
+
+		nx[same][same] += dp[same][diff]
+		nx[same][same] += dp[diff][same]
+		nx[same][same] %= mod
 
 		dp = nx
 	}
 
-	out.Println(dp[1][1])
-}
-
-type mint int
-
-const mod998244353 = mint(998244353)
-const mod1000000007 = mint(1000000007)
-
-// normはaをmod mの値に変換します
-func (mod mint) norm(a int) int {
-	if a < 0 || a >= int(mod) {
-		a %= int(mod)
-	}
-	if a < 0 {
-		a += int(mod)
-	}
-	return a
-}
-
-// addは a+b (mod m)を返します。
-func (mod mint) add(a, b int) int {
-	ab := a + b
-	if ab >= int(mod) {
-		ab %= int(mod)
-	}
-	return ab
-}
-
-// subは a-b (mod m)を返します。
-func (mod mint) sub(a, b int) int {
-	ab := a - b
-	if ab < 0 {
-		ab += int(mod)
-	}
-	return ab
-}
-
-// mulは a*b (mod m)を返します。
-func (mod mint) mul(a, b int) int {
-	return (a * b) % int(mod)
-}
-
-// powは(x^n) mod m を返します。
-func (mod mint) pow(x, n int) int {
-	if n == 0 {
-		return 1
-	}
-
-	x = x % int(mod)
-	if x == 0 {
-		return 0
-	}
-
-	ans := 1
-	for n > 0 {
-		if n%2 == 1 {
-			ans = (ans * x) % int(mod)
-		}
-		x = (x * x) % int(mod)
-		n /= 2
-	}
-
-	return ans
-}
-
-// invはmod mにおけるaの逆元を返します。
-func (mod mint) inv(a int) int {
-	// 拡張ユークリッドの互除法
-	b, u, v := int(mod), 1, 0
-	for b > 0 {
-		t := a / b
-		a -= t * b
-		a, b = b, a
-		u -= t * v
-		u, v = v, u
-	}
-	return mod.norm(u)
-}
-
-// divはa / b (mod m)を返します。
-func (mod mint) div(a, b int) int {
-	return mod.mul(a, mod.inv(b))
-}
-
-// chaddはa + b (mod m)の結果をaに設定します。
-func (mod mint) chadd(a *int, b int) {
-	*a = mod.add(*a, b)
-}
-
-// chsubはa - b (mod m)の結果をaに設定します。
-func (mod mint) chsub(a *int, b int) {
-	*a = mod.sub(*a, b)
-}
-
-// chmulはa * b (mod m)の結果をaに設定します。
-func (mod mint) chmul(a *int, b int) {
-	*a = mod.mul(*a, b)
-}
-
-// chdivはa / b (mod m)の結果をaに設定します。
-func (mod mint) chdiv(a *int, b int) {
-	*a = mod.div(*a, b)
+	out.Println(dp[same][same])
 }
 
 func main() {
