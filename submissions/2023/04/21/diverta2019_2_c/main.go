@@ -31,7 +31,7 @@ func calc() {
 	sort.Ints(a)
 
 	ans := make([]*pair, 0)
-	for i := 1; i < n; i++ {
+	for i := 1; i < n-1; i++ {
 		if a[i] > 0 {
 			break
 		}
