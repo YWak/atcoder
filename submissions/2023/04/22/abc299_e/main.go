@@ -29,10 +29,7 @@ func calc() {
 	n, m := in.NextInt2()
 
 	g := make([][]int, n)
-	ans := make([]byte, n)
-	for i := range ans {
-		ans[i] = '1'
-	}
+
 	for i := 0; i < m; i++ {
 		u, v := in.NextInt2d(-1, -1)
 		g[u] = append(g[u], v)
@@ -42,6 +39,10 @@ func calc() {
 	k := in.NextInt()
 
 	// 全部黒として、近いところを白で埋めてからもう一度確認する
+	ans := make([]byte, n)
+	for i := range ans {
+		ans[i] = '1'
+	}
 	deleted := map[int]bool{}
 	for t := 0; t < k; t++ {
 		p, d := in.NextInt2d(-1, 0)
@@ -58,12 +59,11 @@ func calc() {
 			u := queue[0]
 			queue = queue[1:]
 
-			if dist[u] >= d {
-				continue
+			if dist[u] < d {
+				ans[u] = '0'
+				deleted[u] = true
 			}
 
-			ans[u] = '0'
-			deleted[u] = true
 			for _, v := range g[u] {
 				if dist[v] != INF18 {
 					continue
