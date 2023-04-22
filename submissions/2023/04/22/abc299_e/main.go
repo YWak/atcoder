@@ -42,18 +42,18 @@ func calc() {
 	k := in.NextInt()
 
 	// 全部黒として、近いところを白で埋めてからもう一度確認する
-	left := n
-	for i := 0; i < k; i++ {
+	deleted := map[int]bool{}
+	for t := 0; t < k; t++ {
 		p, d := in.NextInt2d(-1, 0)
 
-		used := make([]bool, n)
 		dist := make([]int, n)
-		for j := 0; j < n; j++ {
-			dist[j] = INF18
+		for i := 0; i < n; i++ {
+			dist[i] = INF18
 		}
+
+		// pからスタートして、距離がd未満である点を全部白にする
 		queue := []int{p}
 		dist[p] = 0
-		used[p] = true
 		for len(queue) > 0 {
 			u := queue[0]
 			queue = queue[1:]
@@ -63,25 +63,18 @@ func calc() {
 			}
 
 			ans[u] = '0'
-			left--
+			deleted[u] = true
 			for _, v := range g[u] {
-				if used[v] {
+				if dist[v] != INF18 {
 					continue
 				}
-				used[v] = true
 				dist[v] = dist[u] + 1
 				queue = append(queue, v)
 			}
 		}
 	}
 
-	ok := false
-	// 黒が存在すること
-	for _, v := range ans {
-		if v == '1' {
-			ok = true
-		}
-	}
+	ok := len(deleted) < n
 	out.YesNo(ok)
 	if ok {
 		out.Println(string(ans))
