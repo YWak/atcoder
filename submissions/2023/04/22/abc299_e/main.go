@@ -27,7 +27,12 @@ var out *Out
 
 func calc() {
 	n, m := in.NextInt2()
+
 	g := make([][]int, n)
+	ans := make([]byte, n)
+	for i := range ans {
+		ans[i] = '1'
+	}
 	for i := 0; i < m; i++ {
 		u, v := in.NextInt2d(-1, -1)
 		g[u] = append(g[u], v)
@@ -37,38 +42,35 @@ func calc() {
 	k := in.NextInt()
 
 	// 全部黒として、近いところを白で埋めてからもう一度確認する
-	ps := make([]int, k)
-	ds := make([]int, k)
-	ans := make([]byte, n)
-	for i := range ans {
-		ans[i] = '1'
-	}
-	for i := range ps {
-		ps[i], ds[i] = in.NextInt2d(-1, 0)
+	left := n
+	for i := 0; i < k; i++ {
+		p, d := in.NextInt2d(-1, 0)
 
 		used := make([]bool, n)
 		dist := make([]int, n)
 		for j := 0; j < n; j++ {
 			dist[j] = INF18
 		}
-		queue := []int{ps[i]}
-		dist[ps[i]] = 0
+		queue := []int{p}
+		dist[p] = 0
+		used[p] = true
 		for len(queue) > 0 {
-			p := queue[0]
+			u := queue[0]
 			queue = queue[1:]
 
-			if dist[p] >= ds[i] {
+			if dist[u] >= d {
 				continue
 			}
 
-			ans[p] = '0'
-			for _, q := range g[p] {
-				if used[q] {
+			ans[u] = '0'
+			left--
+			for _, v := range g[u] {
+				if used[v] {
 					continue
 				}
-				used[q] = true
-				dist[q] = dist[p] + 1
-				queue = append(queue, q)
+				used[v] = true
+				dist[v] = dist[u] + 1
+				queue = append(queue, v)
 			}
 		}
 	}
