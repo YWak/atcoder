@@ -42,7 +42,7 @@ func calc() {
 		}
 	}
 
-	out.Printf("! %d\n", r)
+	out.Printf("! %d\n", l)
 }
 
 func main() {
