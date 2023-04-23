@@ -26,112 +26,28 @@ var in *In
 var out *Out
 
 func calc() {
-	_s := in.NextBytes()
-	n := len(_s)
-	s := make([]int, n)
+	n, m := in.NextInt2()
+	a, b := in.NextInt2()
+	c := in.NextInts(m)
 
-	// dp[i][j][k][l]はi文字目からj文字目までの部分文字列
-}
-
-type mint int
-
-const mod998244353 = mint(998244353)
-const mod1000000007 = mint(1000000007)
-
-// normはaをmod mの値に変換します
-func (mod mint) norm(a int) int {
-	if a < 0 || a >= int(mod) {
-		a %= int(mod)
-	}
-	if a < 0 {
-		a += int(mod)
-	}
-	return a
-}
-
-// addは a+b (mod m)を返します。
-func (mod mint) add(a, b int) int {
-	ab := a + b
-	if ab >= int(mod) {
-		ab %= int(mod)
-	}
-	return ab
-}
-
-// subは a-b (mod m)を返します。
-func (mod mint) sub(a, b int) int {
-	ab := a - b
-	if ab < 0 {
-		ab += int(mod)
-	}
-	return ab
-}
-
-// mulは a*b (mod m)を返します。
-func (mod mint) mul(a, b int) int {
-	return (a * b) % int(mod)
-}
-
-// powは(x^n) mod m を返します。
-func (mod mint) pow(x, n int) int {
-	if n == 0 {
-		return 1
-	}
-
-	x = x % int(mod)
-	if x == 0 {
-		return 0
-	}
-
-	ans := 1
-	for n > 0 {
-		if n%2 == 1 {
-			ans = (ans * x) % int(mod)
+	now := n
+	ans := -1
+	for i, v := range c {
+		if now <= a {
+			now += b
 		}
-		x = (x * x) % int(mod)
-		n /= 2
+		now -= v
+		if now < 0 {
+			ans = i + 1
+			break
+		}
 	}
 
-	return ans
-}
-
-// invはmod mにおけるaの逆元を返します。
-func (mod mint) inv(a int) int {
-	// 拡張ユークリッドの互除法
-	b, u, v := int(mod), 1, 0
-	for b > 0 {
-		t := a / b
-		a -= t * b
-		a, b = b, a
-		u -= t * v
-		u, v = v, u
+	if ans == -1 {
+		out.Println("complete")
+	} else {
+		out.Println(ans)
 	}
-	return mod.norm(u)
-}
-
-// divはa / b (mod m)を返します。
-func (mod mint) div(a, b int) int {
-	return mod.mul(a, mod.inv(b))
-}
-
-// chaddはa + b (mod m)の結果をaに設定します。
-func (mod mint) chadd(a *int, b int) {
-	*a = mod.add(*a, b)
-}
-
-// chsubはa - b (mod m)の結果をaに設定します。
-func (mod mint) chsub(a *int, b int) {
-	*a = mod.sub(*a, b)
-}
-
-// chmulはa * b (mod m)の結果をaに設定します。
-func (mod mint) chmul(a *int, b int) {
-	*a = mod.mul(*a, b)
-}
-
-// chdivはa / b (mod m)の結果をaに設定します。
-func (mod mint) chdiv(a *int, b int) {
-	*a = mod.div(*a, b)
 }
 
 func main() {
