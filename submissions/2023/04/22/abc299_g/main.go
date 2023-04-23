@@ -35,11 +35,10 @@ func calc() {
 
 	// reqは a[i]を飛ばせないとBが作れないところまでのインデックス
 	req := []int{}
-	for i, v := range a {
-		if i == g[v][len(g[v])-1] {
-			req = append(req, i)
-		}
+	for i := 1; i <= m; i++ {
+		req = append(req, g[i][len(g[i])-1])
 	}
+	sort.Ints(req)
 
 	st := NewRangeMinQuery()
 	st.initAsArray(a)
@@ -51,7 +50,6 @@ func calc() {
 
 		// [l, r)で最小の値を取得し、その値を使用する
 		p := st.query(l, r)
-
 		var nx int
 		if p == INF18 {
 			// 区間にある数はすべてどこかで採用した。スキップする。
@@ -68,7 +66,6 @@ func calc() {
 					nx = i + 1 // 見つけた位置の次に移動する
 					found = true
 				}
-				a[i] = INF18
 				st.update(i, INF18)
 			}
 		}
