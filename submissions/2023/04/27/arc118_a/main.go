@@ -31,17 +31,15 @@ func calc() {
 
 	// 100+tまでにいくつあるか？
 	f := func(a int) int { return (100 + t) * (a + 1) / 100 }
-	pat := make([]int, 100+t)
-	for a := 0; a < 100+t; a++ {
-		pat[a] = f(a)
-	}
 	nex := []int{}
-	for i := 0; i < len(pat)-1; i++ {
-		if pat[i]+1 < pat[i+1] {
-			nex = append(nex, pat[i]+1)
+	for a := 0; a < 100; a++ {
+		for b := f(a) + 1; b < f(a+1); b++ {
+			nex = append(nex, b)
 		}
 	}
-	n--
+
+	n-- // 0-indexed
+	debug(nex)
 	ans := n/len(nex)*(100+t) + nex[n%len(nex)]
 	out.Println(ans)
 }
