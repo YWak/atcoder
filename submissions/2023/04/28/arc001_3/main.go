@@ -74,17 +74,14 @@ func solve(board [][]byte) (ans bool, ret [][]byte) {
 	}
 
 	check := func() bool {
-		// 配置チェック
-		for r := 0; r < 8; r++ {
-		}
-
-		// 斜めチェック
 		for r1 := 0; r1 < 8; r1++ {
+			// 配置チェック
 			c1 := p[r1]
 			if cs[r1] != -1 && cs[r1] != c1 {
 				return false
 			}
 
+			// 斜めチェック
 			for r2 := r1 + 1; r2 < 8; r2++ {
 				c2 := p[r2]
 
