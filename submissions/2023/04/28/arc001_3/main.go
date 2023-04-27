@@ -52,67 +52,53 @@ func (p *Permutation) next() bool {
 func solve(board [][]byte) (ans bool, ret [][]byte) {
 	ans = false
 
-	cs := make([]int, 9) // cs[r]は r行目に存在するクイーンの位置
-	rs := make([]int, 9) // rs[c]は c行目に存在するクイーンの位置
-
-	for r := 1; r <= 8; r++ {
-		for c := 1; c <= 8; c++ {
-			b := board[r-1][c-1]
-
-			if b == '.' {
+	cs := make([]int, 8)
+	for r := 0; r < 8; r++ {
+		cs[r] = -1
+		for c := 0; c < 8; c++ {
+			if board[r][c] != 'Q' {
 				continue
 			}
+			// 縦重複チェック
+			if cs[r] != -1 {
+				return
+			}
+
 			cs[r] = c
-			rs[c] = r
 		}
 	}
 
-	// 埋まっていない行に対して、埋まっていない列の全パターンを試す
-	_cs := []int{}
-	_rs := []int{}
-	for t := 1; t <= 8; t++ {
-		if rs[t] == 0 {
-			_cs = append(_cs, t)
-		}
-		if cs[t] == 0 {
-			_rs = append(_rs, t)
-		}
-	}
-
-	// 空きが5個ずつないと失敗する
-	if len(_cs) != 5 || len(_rs) != 5 {
-		return
-	}
-
-	p := make(Permutation, 5)
+	p := make(Permutation, 8)
 	for i := range p {
 		p[i] = i
 	}
 
-	// 5! * 64^2程度
-	for {
-		// 割り当て
-		for i := 0; i < 5; i++ {
-			r, c := _rs[i], _cs[p[i]]
-			rs[c] = r
-			cs[r] = c
+	check := func() bool {
+		// 配置チェック
+		for r := 0; r < 8; r++ {
 		}
 
-		// 斜めの重複がないかを試す
-		ok := true
-	loop:
-		for r1 := 1; r1 <= 8; r1++ {
-			for r2 := r1 + 1; r2 <= 8; r2++ {
-				c1, c2 := cs[r1], cs[r2]
+		// 斜めチェック
+		for r1 := 0; r1 < 8; r1++ {
+			c1 := p[r1]
+			if cs[r1] != -1 && cs[r1] != c1 {
+				return false
+			}
 
-				// r2 > r1, c1 != c2
-				if r2-r1 == abs(c2-c1) {
-					ok = false
-					break loop
+			for r2 := r1 + 1; r2 < 8; r2++ {
+				c2 := p[r2]
+
+				if abs(r2-r1) == abs(c2-c1) {
+					return false
 				}
 			}
 		}
-		if ok {
+
+		return true
+	}
+
+	for {
+		if check() {
 			ans = true
 			break
 		}
@@ -129,7 +115,7 @@ func solve(board [][]byte) (ans bool, ret [][]byte) {
 	ret = make([][]byte, 8)
 	for r := 0; r < 8; r++ {
 		ret[r] = []byte("........")
-		ret[r][cs[r+1]-1] = 'Q'
+		ret[r][p[r]] = 'Q'
 	}
 
 	return
