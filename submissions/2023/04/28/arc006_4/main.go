@@ -47,8 +47,8 @@ var C = [][]byte{
 	[]byte(".ooo."),
 }
 
-func dfs(board [][]byte, i, j int, checked map[int]bool) (u, d, l, r int) {
-	x := i*N10_6 + j
+func dfs(i, j int) (u, d, l, r int) {
+	x := i*w + j
 	checked[x] = true
 
 	u, d, l, r = i, i, j, j
@@ -60,17 +60,17 @@ func dfs(board [][]byte, i, j int, checked map[int]bool) (u, d, l, r int) {
 			}
 
 			ni, nj := i+di, j+dj
-			if ni < 0 || ni == len(board) || nj < 0 || nj == len(board[i]) {
+			if ni < 0 || ni == h || nj < 0 || nj == w {
 				continue
 			}
 			if board[ni][nj] == '.' {
 				continue
 			}
-			if checked[ni*N10_6+nj] {
+			if checked[ni*w+nj] {
 				continue
 			}
 
-			_u, _d, _l, _r := dfs(board, ni, nj, checked)
+			_u, _d, _l, _r := dfs(ni, nj)
 			chmin(&u, _u)
 			chmax(&d, _d)
 			chmin(&l, _l)
@@ -81,9 +81,10 @@ func dfs(board [][]byte, i, j int, checked map[int]bool) (u, d, l, r int) {
 	return
 }
 
-func minimize(board [][]byte, i1, i2, j1, j2 int) [][]byte {
+func minimize(i1, i2, j1, j2 int) [][]byte {
 	r := (i2 - i1) / 5
 	if r != (j2-j1)/5 {
+		debugb(i1, i2, j1, j2)
 		panic("rate error")
 	}
 	ans := make([][]byte, 5)
@@ -97,13 +98,18 @@ func minimize(board [][]byte, i1, i2, j1, j2 int) [][]byte {
 	return ans
 }
 
-func debugb(board [][]byte, i1, i2, j1, j2 int) {
-	for i := max(i1, 0); i < min(i2, len(board)); i++ {
-		debug(string(board[i][max(j1, 0):min(j2, len(board[i]))]))
+func debugb(i1, i2, j1, j2 int) {
+	debug(i1, i2, j1, j2)
+	i1 -= 2
+	i2 += 2
+	j1 -= 2
+	j2 += 2
+	for i := max(i1, 0); i < min(i2, h); i++ {
+		debug(string(board[i][max(j1, 0):min(j2, w)]))
 	}
 }
 
-func solve(board [][]byte, h, w int) (a, b, c int) {
+func solve() (a, b, c int) {
 	// 事前準備
 	// 5x5のパターンを全部作る
 	m := map[int]int{}
@@ -121,21 +127,19 @@ func solve(board [][]byte, h, w int) (a, b, c int) {
 			if v != 'o' {
 				continue
 			}
-			i1, i2, j1, j2 := dfs(board, i, j, map[int]bool{})
+			i1, i2, j1, j2 := dfs(i, j)
 			i2, j2 = i2+1, j2+1
 
 			if (i2-i1)%5 != 0 {
-				debug(i1, i2, j1, j2)
-				debugb(board, i1, i2, j1, j2)
+				debugb(i1, i2, j1, j2)
 				panic(fmt.Sprintf("range error i %d %d", i1, i2))
 			}
 			if (j2-j1)%5 != 0 {
-				debug(i1, i2, j1, j2)
-				debugb(board, i1, i2+2, j1, j2+2)
+				debugb(i1, i2, j1, j2)
 				panic(fmt.Sprintf("range error j %d %d", j1, j2))
 			}
 
-			x := minimize(board, i1, i2, j1, j2)
+			x := minimize(i1, i2, j1, j2)
 			ans[m[comp(x)]]++
 
 			for r := i1; r < i2; r++ {
@@ -174,14 +178,19 @@ func rotate(b [][]byte) [][]byte {
 	return r
 }
 
+var h, w int
+var board [][]byte
+var checked []bool
+
 func calc() {
-	h, w := in.NextInt2()
-	board := make([][]byte, h)
+	h, w = in.NextInt2()
+	checked = make([]bool, h*w+1)
+	board = make([][]byte, h)
 	for i := 0; i < h; i++ {
 		board[i] = in.NextBytes()
 	}
 
-	out.Println(solve(board, h, w))
+	out.Println(solve())
 }
 
 func main() {
