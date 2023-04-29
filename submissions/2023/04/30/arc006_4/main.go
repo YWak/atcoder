@@ -27,27 +27,29 @@ var out *Out
 
 func calc() {
 	h, w := in.NextInt2()
-	f := make([][]byte, h)
+	prev := make([]byte, w)
 	uf := ufNew(h * w)
 	idx := func(i, j int) int32 { return int32(i*w + j) }
 
-	di := []int{0, -1, -1, -1}
-	dj := []int{-1, -1, +0, +1}
-
 	for i := 0; i < h; i++ {
-		f[i] = in.NextBytes()
-		for j, v := range f[i] {
+		s := in.NextBytes()
+		for j, v := range s {
 			if v == '.' {
 				continue
 			}
-			for t := 0; t < 4; t++ {
-				r, c := i+di[t], j+dj[t]
-				if r < 0 || c < 0 || c == w || f[r][c] == '.' {
+			if j > 0 && s[j-1] == 'o' {
+				uf.Unite(idx(i, j-1), idx(i, j))
+			}
+			for d := -1; d <= +1; d++ {
+				c := j + d
+				if c < 0 || c == w || prev[c] == '.' {
 					continue
 				}
-				uf.Unite(idx(i, j), idx(r, c))
+				uf.Unite(idx(i, j), idx(i-1, c))
 			}
 		}
+
+		prev = s
 	}
 	sq := make([]bool, h*w+1)
 	for i := 1; i*i < len(sq); i++ {
