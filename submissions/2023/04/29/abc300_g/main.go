@@ -26,15 +26,6 @@ var in *In
 var out *Out
 
 func solve(n int, ps []int) int {
-	es := make([]int, len(ps))
-	for i, p := range ps {
-		t := 1
-		for t <= n {
-			es[i]++
-			t *= p
-		}
-	}
-
 	list := [][]int{{1}, {1}}
 
 	for i := 0; i < len(ps); i++ {
@@ -46,13 +37,8 @@ func solve(n int, ps []int) int {
 		l := len(list[t])
 		for j := 0; j < l; j++ {
 			p := ps[i]
-			for e := 1; e < es[i]; e++ {
-				v := list[t][j] * p
-				if v > n {
-					break
-				}
+			for v := list[t][j] * p; v <= n; v *= p {
 				list[t] = append(list[t], v)
-				p *= ps[i]
 			}
 		}
 	}
