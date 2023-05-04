@@ -6,7 +6,7 @@ fi
 
 # cd $(dirname $(readlin -f $0)) || exit
 
-target=$(dirname "$(pwd)submissions/$1/a")
+target=$(dirname "$(pwd)/submissions/$1/a")
 base=$(dirname $(readlink -f $0))
 mkdir -p "$target"
 ! [ -f "$target/main.go" ] && cat "$base/.vscode/template.go" > "$target/main.go"
