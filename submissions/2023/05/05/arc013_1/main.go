@@ -30,13 +30,47 @@ func calc() {
 	p, q, r := in.NextInt3()
 
 	ans := 0
+	a := []int{n, m, l}
+	b := []int{p, q, r}
+	idx := Permutation{0, 1, 2}
 
-	for i := 0; i < 2; i++ {
-		chmax(&ans, (n/p)*(m/q)*(l/r))
-		p, q = q, p
+	for {
+		t := 1
+		for i := 0; i < 3; i++ {
+			t *= a[i] / b[idx[i]]
+		}
+		chmax(&ans, t)
+
+		if !idx.next() {
+			break
+		}
 	}
 
 	out.Println(ans)
+}
+
+type Permutation []int
+
+func (p *Permutation) next() bool {
+	for i := len(*p) - 2; i >= 0; i-- {
+		if (*p)[i] > (*p)[i+1] {
+			continue
+		}
+		j := len(*p)
+		for {
+			j--
+			if (*p)[i] < (*p)[j] {
+				break
+			}
+		}
+		(*p)[i], (*p)[j] = (*p)[j], (*p)[i]
+		for k, l := i+1, len(*p)-1; k < l; k, l = k+1, l-1 {
+			(*p)[k], (*p)[l] = (*p)[l], (*p)[k]
+		}
+		return true
+
+	}
+	return false
 }
 
 func main() {
