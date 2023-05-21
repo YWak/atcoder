@@ -16,14 +16,17 @@ test:
 	@rm a.out
 
 submit:
-	@gottani | oj submit /dev/stdin
+	@gottani > _main.go 
+	@oj submit _main.go
+	@rm _main.go
 
 save:
-	@$(eval target = `./bin/dirname.py`)
-	@mkdir -p submissions/$(target)
-	@mv -f test submissions/$(target)
-	@mv -f main.go submissions/$(target)/main.go.out
-	@cp -f $(OJ_HISTORY) submissions/$(target)/
+	@$(eval target = submissions/`./bin/dirname.py`)
+	@mkdir -p $(target)
+	@rm -rf $(target)/test
+	@mv -f test $(target)
+	@mv -f main.go $(target)/main.go.out
+	@cp -f $(OJ_HISTORY) $(target)/
 
 restore:
 	@[ -z "$(dir)" ] && echo 'no dir' && exit 1 || true
