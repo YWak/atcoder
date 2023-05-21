@@ -8,8 +8,12 @@ init:
 test:
 	go build -o a.out main.go
 	oj test
+	rm a.out
 
 submit:
 	oj submit main.go
 
 save:
+	target := `date +%Y/%m/%d`${dir}
+	mkdir -p submissions/$(target)
+	mv main.go test submissions/$(target)
