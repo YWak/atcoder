@@ -5,6 +5,8 @@
 *.so
 *.dylib
 
+__pycache__
+
 # Test binary, build with `go test -c`
 *.test
 
