@@ -14,6 +14,8 @@ submit:
 	oj submit main.go
 
 save:
-	target := `date +%Y/%m/%d`${dir}
+	$(eval target = `date +%Y/%m/%d`/${dir})
 	mkdir -p submissions/$(target)
-	mv main.go test submissions/$(target)
+	mv test submissions/$(target)
+	mv main.go submissions/$(target)/main.go.out
+	cp ~/.local/share/online-judge-tools/download-history.jsonl
