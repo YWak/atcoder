@@ -1,4 +1,4 @@
-package fgeo
+package geo
 
 import "math"
 

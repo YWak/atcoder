@@ -6,12 +6,15 @@ import (
 	"os"
 
 	io "github.com/ywak/atcoder/lib/io"
+	"github.com/ywak/atcoder/lib/math"
 )
 
 var in *io.In
 var out *io.Out
 
 func calc() {
+	a, b := in.NextInt2()
+	out.Println(math.Divceil(a, b))
 
 }
 
