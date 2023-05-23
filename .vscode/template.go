@@ -3,13 +3,13 @@ package main
 
 import (
 	"fmt"
-	"math"
+	gomath "math"
 	"math/bits"
 	"os"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
-	mymath "github.com/ywak/atcoder/lib/math"
+	"github.com/ywak/atcoder/lib/math"
 )
 
 var in *io.In
@@ -40,57 +40,57 @@ func debug(args ...interface{}) {
 // ==================================================
 
 // INF18 は最大値を表す数
-const INF18 = mymath.INF18
+const INF18 = math.INF18
 
 // INF9 は最大値を表す数
-const INF9 = mymath.INF9
+const INF9 = math.INF9
 
 // N10_6は10^6
-const N10_6 = mymath.N10_6
+const N10_6 = math.N10_6
 
 // max は aとbのうち大きい方を返します。
 func max(a, b int) int {
-	return mymath.Max(a, b)
+	return math.Max(a, b)
 }
 
 // min は aとbのうち小さい方を返します。
 func min(a, b int) int {
-	return mymath.Min(a, b)
+	return math.Min(a, b)
 }
 
 // chmax は aとbのうち大きい方をaに設定します。
 func chmax(a *int, b int) {
-	mymath.Chmax(a, b)
+	math.Chmax(a, b)
 }
 
 // chmin は aとbのうち小さい方をaに設定します。
 func chmin(a *int, b int) {
-	mymath.Chmin(a, b)
+	math.Chmin(a, b)
 }
 
 // abs は aの絶対値を返します。
 func abs(a int) int {
-	return mymath.Abs(a)
+	return math.Abs(a)
 }
 
 // pow は aのb乗を返します。
 func pow(a, b int) int {
-	return mymath.Pow(a, b)
+	return math.Pow(a, b)
 }
 
 // divceil は a/b の結果を正の無限大に近づけるように丸めて返します。
 func divceil(a, b int) int {
-	return mymath.Divceil(a, b)
+	return math.Divceil(a, b)
 }
 
 // divfloor は a/b の結果を負の無限大に近づけるように丸めて返します。
 func divfloor(a, b int) int {
-	return mymath.Divfloor(a, b)
+	return math.Divfloor(a, b)
 }
 
 // powmod は (x^n) mod m を返します。
 func powmod(x, n, m int) int {
-	return mymath.Powmod(x, n, m)
+	return math.Powmod(x, n, m)
 }
 
 // chiはcondがtrueのときok, falseのときngを返します。
@@ -125,9 +125,9 @@ func extmul(a, b int) (int, int) {
 	}
 	if a == 0 || b == 0 {
 		return 0, 0
-	} else if a > 0 && b > 0 && a > math.MaxInt64/b {
+	} else if a > 0 && b > 0 && a > gomath.MaxInt64/b {
 		return 0, +1
-	} else if a > math.MinInt64/b {
+	} else if a > gomath.MinInt64/b {
 		return 0, -1
 	}
 	return a * b, 0
