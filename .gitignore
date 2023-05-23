@@ -14,4 +14,5 @@ __pycache__
 a.out
 
 main.go
+_main.go
 test/*
