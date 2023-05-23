@@ -1,0 +1,68 @@
+//lint:file-ignore U1000 using template
+package main
+
+import (
+	"fmt"
+	"os"
+
+	io "github.com/ywak/atcoder/lib/io"
+	"github.com/ywak/atcoder/lib/math"
+)
+
+var in *io.In
+var out *io.Out
+
+func calc() {
+	const INF18 = math.INF18
+
+	h, w := in.NextInt2()
+	f := make([][]byte, h)
+	for i := range f {
+		f[i] = in.NextBytes()
+	}
+	pat := []byte("snuke")
+	ans := make([]string, 5)
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			for di := -1; di <= +1; di++ {
+				for dj := -1; dj <= +1; dj++ {
+					if di == 0 && dj == 0 {
+						continue
+					}
+
+					ok := true
+					for k, c := range pat {
+						ii, jj := i+di*k, j+dj*k
+						ans[k] = fmt.Sprintf("%d %d", ii+1, jj+1)
+						if ii < 0 || ii == h || jj < 0 || jj == w || f[ii][jj] != c {
+							ok = false
+							break
+						}
+					}
+					if ok {
+						i, j, di, dj = INF18, INF18, INF18, INF18
+					}
+				}
+			}
+		}
+	}
+	for _, v := range ans {
+		out.Println(v)
+	}
+}
+
+func main() {
+	// interactiveならfalseにすること。
+	in, out = io.InitIo(true)
+	defer out.Flush()
+
+	calc()
+}
+
+var isDebugMode = os.Getenv("AT_DEBUG") == "1"
+
+func debug(args ...interface{}) {
+	if isDebugMode {
+		fmt.Fprintln(os.Stderr, args...)
+	}
+}
