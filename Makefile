@@ -7,36 +7,39 @@ OJ_HISTORY := $(HISTORY_DIR)/$(HISTORY_FILE)
 
 init:
 	oj download "${url}"
-	@cp .vscode/template.go main.go
-	@code ./main.go
+	cp .vscode/template.go main.go
+	code ./main.go
 
 test:
-	@go build -o a.out main.go
-	@oj test
-	@rm a.out
+	mkdir -p sandbox
+	cp -f go.mod go.sum sandbox
+	gottani > sandbox/main.go
+	go build -o ./a.out sandbox/main.go
+	oj test
+	rm -rf a.out
 
 submit:
-	@gottani > _main.go 
-	@oj submit _main.go
-	@rm _main.go
+	gottani > _main.go 
+	oj submit _main.go
+	rm -rf _main.go
 
 save:
-	@$(eval target = submissions/`./bin/dirname.py`)
-	@mkdir -p $(target)
-	@rm -rf $(target)/test
-	@mv -f test $(target)
-	@mv -f main.go $(target)/main.go.out
-	@cp -f $(OJ_HISTORY) $(target)/
+	$(eval target = submissions/`./bin/dirname.py`)
+	mkdir -p $(target)
+	rm -rf $(target)/test
+	mv -f test $(target)
+	mv -f main.go $(target)/main.go.out
+	cp -f $(OJ_HISTORY) $(target)/
 
 restore:
-	@[ -z "$(dir)" ] && echo 'no dir' && exit 1 || true
-	@[ -f main.go ] && echo 'main.go exists. do make save' && exit 1 || true
-	@rm -rf ./test
-	@if [ -d $(dir)/test ]; then \
+	[ -z "$(dir)" ] && echo 'no dir' && exit 1 || true
+	[ -f main.go ] && echo 'main.go exists. do make save' && exit 1 || true
+	rm -rf ./test
+	if [ -d $(dir)/test ]; then \
 		cp -r $(dir)/test . ;\
 		cp -f $(dir)/$(HISTORY_FILE) $(OJ_HISTORY) ;\
 	else \
 		oj download `./bin/url.py $(dir)`; \
 	fi
-	@cp $(dir)/main.go.out ./main.go
-	@code ./main.go
+	cp $(dir)/main.go.out ./main.go
+	code ./main.go

@@ -13,6 +13,7 @@ __pycache__
 # Output of the go coverage tool, specifically when used with LiteIDE
 a.out
 
+sandbox
 main.go
 _main.go
 test/*
