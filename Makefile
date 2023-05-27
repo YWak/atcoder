@@ -41,5 +41,5 @@ restore:
 	else \
 		oj download `./bin/url.py $(dir)`; \
 	fi
-	cp $(dir)/main.go.out ./main.go
+	cp -f $(dir)/main.go.out ./main.go
 	code ./main.go
