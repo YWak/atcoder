@@ -21,7 +21,7 @@ func calc() {
 	a := in.NextInts(n * 3)
 
 	// heads[i]はa[0]からa[i]までの要素のうち、上位n要素の合計
-	heads := make([]int, n*3)
+	heads := make([]int, n*2)
 	hpq := ds.NewSmallerIntPriorityQueue()
 	for i := 0; i < n; i++ {
 		heads[n-1] += a[i]
@@ -34,7 +34,7 @@ func calc() {
 	}
 
 	// tails[i]はa[i]からa[n*3-1]までの要素のうち、下位n要素の合計
-	tails := make([]int, n*3+1)
+	tails := make([]int, n*2+1)
 	tpq := ds.NewBiggerIntPriorityQueue()
 	for i := n * 2; i < n*3; i++ {
 		tails[2*n] += a[i]
@@ -45,11 +45,9 @@ func calc() {
 		v := tpq.Pop()
 		tails[i] = tails[i+1] + a[i] - v
 	}
-	debug(heads)
-	debug(tails)
 
 	ans := -INF18
-	for i := n; i < n*2; i++ {
+	for i := n - 1; i < n*2; i++ {
 		chmax(&ans, heads[i]-tails[i+1])
 	}
 
