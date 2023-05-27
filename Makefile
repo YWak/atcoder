@@ -3,7 +3,15 @@ HISTORY_FILE := download-history.jsonl
 
 OJ_HISTORY := $(HISTORY_DIR)/$(HISTORY_FILE)
 
-.PHONY: init test submit save restore
+.PHONY: clean init test submit save restore
+
+clean:
+	rm -rf \
+	_main.go \
+	a.out \
+	main.go \
+	test \
+	sandbox
 
 init:
 	oj download "${url}"
