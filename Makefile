@@ -32,12 +32,15 @@ submit:
 	rm -rf _main.go
 
 save:
+	! [ -f main.go ] && echo 'main.go does not exist' && exit 1 || true
 	$(eval target = submissions/`./bin/dirname.py`)
 	mkdir -p $(target)
 	rm -rf $(target)/test
 	mv -f test $(target)
 	mv -f main.go $(target)/main.go.out
 	cp -f $(OJ_HISTORY) $(target)/
+	git add .
+	git commit
 
 restore:
 	[ -z "$(dir)" ] && echo 'no dir' && exit 1 || true

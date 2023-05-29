@@ -17,3 +17,4 @@ sandbox
 main.go
 _main.go
 test/*
+.envrc
