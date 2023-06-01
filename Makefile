@@ -40,7 +40,7 @@ save:
 	mv -f main.go $(target)/main.go.out
 	cp -f $(OJ_HISTORY) $(target)/
 	git add .
-	EDITOR=code git commit
+	EDITOR="code --wait" git commit
 
 restore:
 	[ -z "$(dir)" ] && echo 'no dir' && exit 1 || true
