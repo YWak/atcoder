@@ -22,7 +22,8 @@ func calc() {
 		if y == 0 {
 			return "ERROR"
 		}
-		return fmt.Sprintf("%.2f", float64(x)/float64(y))
+		v := x * 100 / y
+		return fmt.Sprintf("%.2f", float64(v)/100)
 	}
 	out.Println(solve())
 }
