@@ -23,52 +23,52 @@ func calc() {
 	s := in.NextBytes()
 
 	solve := func(p int) int {
-		ans := 1
+		// 高橋くんが常に出勤している日だけ選択肢がある
+		free := 0
 		for i := 0; i < p; i++ {
 			tak := true
 			for j := i; j < n; j += p {
-				if s[j] == '.' {
-					tak = false
-					break
-				}
+				tak = tak && s[j] == '#'
 			}
 			if tak {
-				// 高橋くんが常にいるならどちらでもいい。そうでなければ出勤するしかない
-				mod.Chmul(&ans, 2)
+				free++
 			}
 		}
-		return ans
+		return mod.Pow(2, free)
 	}
 
-	ans := 0
-	m := map[int]int{}
+	// 対象約数を調べて、各パターンで結果を確認する
 	ps := []int{}
-
 	for p := 1; p*p <= n; p++ {
-		m[p] = solve(p)
 		ps = append(ps, p)
-		mod.Chadd(&ans, m[p])
 
 		q := n / p
 		if q != n && q != p {
-			m[q] = solve(q)
 			ps = append(ps, q)
-			mod.Chadd(&ans, m[q])
 		}
 	}
-
 	sort.Ints(ps)
-	for i, p := range ps {
-		for j := i + 1; j < len(ps); j++ {
-			q := ps[j]
-			if q%p == 0 { // 割り切れるならpで定義したパターンはps[j]でも再現できる
-				mp := m[p]
-				mod.Chsub(&ans, mp)
-				m[q] = mod.Sub(m[q], mp)
+
+	m := make([]int, n)
+	for _, p := range ps {
+		m[p] = solve(p)
+	}
+
+	for _, p := range ps {
+		for _, q := range ps {
+			if p < q && q%p == 0 {
+				// 割り切れるならpで定義したパターンはqでも再現できるので、その分を引く。
+				// m[x]はすべてそのxでのみ定義できるパターンになるはず。
+				mod.Chsub(&m[q], m[p])
 			}
 		}
 	}
 
+	// 全パターンの合計が答え
+	ans := 0
+	for _, v := range m {
+		mod.Chadd(&ans, v)
+	}
 	out.Println(ans)
 }
 
