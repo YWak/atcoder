@@ -27,7 +27,7 @@ func calc() {
 			ans[j] = '0'
 			for x := -1; x <= 1; x++ {
 				for y := -1; y <= 1; y++ {
-					ii, jj := i+x, i+y
+					ii, jj := i+x, j+y
 
 					if ii < 0 || ii == n || jj < 0 || jj == m {
 						continue
