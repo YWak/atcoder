@@ -6,7 +6,6 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
-	"sort"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
@@ -38,28 +37,15 @@ func calc() {
 	}
 
 	// 対象約数を調べて、各パターンで結果を確認する
-	ps := []int{}
-	for p := 1; p*p <= n; p++ {
-		ps = append(ps, p)
-
-		q := n / p
-		if q != n && q != p {
-			ps = append(ps, q)
-		}
-	}
-	sort.Ints(ps)
-
 	m := make([]int, n)
-	for _, p := range ps {
+	for p := 1; p < n; p++ {
+		if n%p != 0 {
+			continue
+		}
 		m[p] = solve(p)
-	}
-
-	for _, p := range ps {
-		for _, q := range ps {
-			if p < q && q%p == 0 {
-				// 割り切れるならpで定義したパターンはqでも再現できるので、その分を引く。
-				// m[x]はすべてそのxでのみ定義できるパターンになるはず。
-				mod.Chsub(&m[q], m[p])
+		for q := 1; q < p; q++ {
+			if p%q == 0 {
+				mod.Chsub(&m[p], m[q])
 			}
 		}
 	}
