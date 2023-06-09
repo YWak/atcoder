@@ -6,6 +6,7 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
+	"strconv"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
@@ -16,13 +17,44 @@ var in *io.In
 var out *io.Out
 
 func calc(in *io.In, out *io.Out) {
+	t := strings.Split(in.NextString(), " ")
+	n, _ := strconv.Atoi(t[0])
+	l, _ := strconv.Atoi(t[1])
 
+	pos := make([]int, n)
+	for i := 0; i < n; i++ {
+		pos[i] = i + 1
+	}
+	for j := 0; j < l; j++ {
+		s := in.NextString()
+		nxt := make([]int, n)
+		for i := 0; i < n; i++ {
+			p := i * 2
+
+			if p > 0 && s[p-1] == '-' {
+				nxt[i-1] = pos[i]
+			} else if p+1 < len(s) && s[p+1] == '-' {
+				nxt[i+1] = pos[i]
+			} else {
+				nxt[i] = pos[i]
+			}
+		}
+
+		pos = nxt
+	}
+
+	s := in.NextString()
+	for i := 0; i < n; i++ {
+		if s[i*2] == 'o' {
+			out.Println(pos[i])
+		}
+	}
 }
 
 func main() {
 	in, out = io.InitIo(&io.InitIoProps{
 		DoBuffer: true,
-		ReadLine: false,
+		ReadLine: true,
 	})
 	defer out.Flush()
 

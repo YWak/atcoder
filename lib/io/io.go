@@ -8,8 +8,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-
-	math "github.com/ywak/atcoder/lib/math"
 )
 
 // ==================================================
@@ -25,14 +23,21 @@ type Out struct {
 	Flush  func()
 }
 
+type InitIoProps struct {
+	DoBuffer bool
+	ReadLine bool
+}
+
 // InitIo は inとoutを初期化します。
-func InitIo(buffer bool) (*In, *Out) {
+func InitIo(props *InitIoProps) (*In, *Out) {
 	bufsize := 4 * 1024 * 1024 // 4MB
 
 	// 入力はずっとバッファーでいいらしい。ほんとう？
 	// TODO バッファなしfmt.Fscanf(os.Stdin)だとTLEだった。要調査
 	_in := bufio.NewScanner(os.Stdin)
-	_in.Split(bufio.ScanWords)
+	if !props.ReadLine {
+		_in.Split(bufio.ScanWords)
+	}
 	_in.Buffer(make([]byte, bufsize), bufsize)
 	in := func() string {
 		_in.Scan()
@@ -43,7 +48,7 @@ func InitIo(buffer bool) (*In, *Out) {
 	var out io.Writer
 	var flush func()
 
-	if buffer {
+	if props.DoBuffer {
 		_out := bufio.NewWriterSize(os.Stdout, bufsize)
 		out = _out
 		flush = func() {
@@ -119,34 +124,6 @@ func (in *In) NextLongIntAsArray() []int {
 func (in *In) NextFloat() float64 {
 	f, _ := strconv.ParseFloat(in.NextString(), 64)
 	return f
-}
-
-// NextFloatAsInt は次の入力を実数rとして読み込み、r * 10^base の値を返します。
-func (in *In) NextFloatAsInt(base int) int {
-	if base%10 == 0 {
-		panic("baseは小数点の最大桁数を指定する")
-	}
-
-	s := in.NextString()
-	index := strings.IndexByte(s, '.')
-
-	// 小数点がなければそのまま返す
-	if index == -1 {
-		n, _ := strconv.Atoi(s)
-		return n * math.Pow(10, base)
-	}
-
-	// 末尾の0を消しておく
-	for s[len(s)-1] == '0' {
-		s = s[:len(s)-1]
-	}
-
-	// 整数部分 * 10^base + 小数部分 * 10^(足りない分)
-	s1, s2 := s[:index], s[index+1:]
-	n, _ := strconv.Atoi(s1)
-	m, _ := strconv.Atoi(s2)
-
-	return n*math.Pow(10, base) + m*math.Pow(10, base-len(s2))
 }
 
 // Println は引数をスペース区切りで出力し、最後に改行を出力します。
