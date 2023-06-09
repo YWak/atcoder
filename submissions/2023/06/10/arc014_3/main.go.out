@@ -13,7 +13,41 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
+	n := in.NextInt()
+	s := in.NextBytes()
 
+	now := []byte{}
+	for i, b := range s {
+		l := len(now)
+
+		if l > 0 {
+			// 消せるなら消す
+			if now[0] == b {
+				now = now[1:]
+				continue
+			}
+			if now[l-1] == b {
+				now = now[:l-1]
+				continue
+			}
+
+			// 消せなくて、次があるならその色を残す
+			if i+1 < n {
+				c := s[i+1]
+
+				if now[0] == c {
+					now = append(now, b)
+				} else {
+					now = append([]byte{b}, now...)
+				}
+				continue
+			}
+		}
+
+		now = append(now, b)
+	}
+
+	out.Println(len(now))
 }
 
 func main() {
