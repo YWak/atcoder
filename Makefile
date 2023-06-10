@@ -18,6 +18,14 @@ init:
 	cp .vscode/template.go main.go
 	code ./main.go
 
+# init-offline:
+# 	cp .vscode/template.go main.go
+#     mkdir -p test
+#     for i in `seq 5`; do
+#         touch test/Sample
+#     done
+# 	code ./main.go
+
 test:
 	mkdir -p sandbox
 	cp -f go.mod go.sum sandbox
@@ -27,7 +35,7 @@ test:
 	rm -rf a.out
 
 submit:
-	gottani > _main.go 
+	gottani > _main.go
 	oj submit _main.go
 	rm -rf _main.go
 

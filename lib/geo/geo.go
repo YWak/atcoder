@@ -19,8 +19,8 @@ var geo = Geo{}
 // tested:
 //
 //	https://atcoder.jp/contests/abc250/tasks/abc250_f
-func (g *Geo) NextPoint() *Point {
-	return &Point{in.NextInt(), in.NextInt()}
+func (g *Geo) NextPoint(a, b int) *Point {
+	return &Point{a, b}
 }
 
 func (g *Geo) NextFPoint() *FPoint {
