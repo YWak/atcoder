@@ -6,6 +6,7 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
+	"sort"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
@@ -17,50 +18,29 @@ func calc(in *io.In, out *io.Out) {
 
 	n := in.NextInt()
 	a := in.NextInts(n)
-	ss := []*sleep{{0, 0}}
-	for i := 1; i < n; i += 2 {
-		ss = append(ss, &sleep{a[i], a[i+1]})
+	sum := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		sum[i+1] = sum[i]
+		if i%2 == 0 && i > 0 {
+			sum[i+1] += a[i] - a[i-1]
+		}
 	}
-	ss = append(ss, &sleep{INF18, INF18})
-	sum := make([]int, n)
-	for i := 0; i < len(ss); i++ {
-		sum[i+1] = sum[i] + ss[i].to - ss[i].from
+	// calc(t)は時刻tまでの総睡眠時間
+	calc := func(t int) int {
+		i := sort.SearchInts(a, t) // t以上の値のなかで最小の値のインデックス
+		ans := sum[i]
+
+		if i%2 == 0 && i > 0 {
+			// iが起きた時刻 == 睡眠中
+			ans += t - a[i-1]
+		}
+		return ans
 	}
 
 	Q := in.NextInt()
-	debug(a)
-	debug(sum)
 	for q := 0; q < Q; q++ {
 		l, r := in.NextInt2()
-		// lを含む最大
-		ng, li := -1, len(ss)
-		for abs(li-ng) > 1 {
-			mid := (li + ng) / 2
-			if ss[li].to < l {
-				li = mid
-			} else {
-				ng = mid
-			}
-		}
-		ri, ng := len(ss), 0
-		for abs(ri-ng) > 1 {
-			mid := (ri + ng) / 2
-			if ss[ri].from <= r {
-				ri = mid
-			} else {
-				ng = mid
-			}
-		}
-
-		ans := sum[ri] - sum[li]
-		debug(q, li, ri, sum[ri], sum[li])
-		if li < len(ss) && ss[li].from <= l {
-			ans -= l - ss[li].from
-		}
-		if ri < len(ss) && ss[ri].to >= r {
-			ans -= ss[ri].to - r
-		}
-		out.Println(ans)
+		out.Println(calc(r) - calc(l))
 	}
 }
 
