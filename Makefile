@@ -14,9 +14,9 @@ clean:
 	sandbox
 
 init:
-	oj download "${url}"
 	cp .vscode/template.go main.go
 	code ./main.go
+	oj download "${url}"
 
 # init-offline:
 # 	cp .vscode/template.go main.go
