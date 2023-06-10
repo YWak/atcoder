@@ -6,7 +6,6 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
-	"sort"
 	"strings"
 
 	"github.com/ywak/atcoder/lib/ds"
@@ -24,8 +23,11 @@ func calc(in *io.In, out *io.Out) {
 	}
 
 	score := make([]int, n)
+	for i := 0; i < n; i++ {
+		score[i] = -1
+	}
 	queue := ds.NewIntPriorityQueue(func(a, b int) bool {
-		return score[a] > score[b]
+		return score[a] >= score[b]
 	})
 	for i := 0; i < k; i++ {
 		p, h := in.NextInt2d(-1, 0)
@@ -33,14 +35,12 @@ func calc(in *io.In, out *io.Out) {
 		queue.Push(p)
 	}
 	checked := make([]bool, n)
-	ans := []int{}
 	for queue.HasElements() {
 		u := queue.Pop()
 		if checked[u] {
 			continue
 		}
 		checked[u] = true
-		ans = append(ans, u+1)
 
 		s := score[u] - 1
 		if s < 0 {
@@ -51,15 +51,23 @@ func calc(in *io.In, out *io.Out) {
 			if checked[v] {
 				continue
 			}
-			if score[v] <= s {
+			if score[v] < s {
 				score[v] = s
 				queue.Push(v)
 			}
 		}
 	}
-	sort.Ints(ans)
-	out.Println(len(ans))
-	out.PrintIntsLn(ans)
+	ans := 0
+	ansi := []int{}
+	for i := 0; i < n; i++ {
+		if score[i] >= 0 {
+			ans++
+			ansi = append(ansi, i+1)
+		}
+	}
+
+	out.Println(ans)
+	out.PrintIntsLn(ansi)
 }
 
 func main() {
