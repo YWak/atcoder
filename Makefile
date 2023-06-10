@@ -44,7 +44,7 @@ save:
 	$(eval target = submissions/`./bin/dirname.py`)
 	mkdir -p $(target)
 	rm -rf $(target)/test
-	mv -f test $(target)
+	[ -d test ] && mv -f test $(target) || true
 	mv -f main.go $(target)/main.go.out
 	cp -f $(OJ_HISTORY) $(target)/
 	git add .
