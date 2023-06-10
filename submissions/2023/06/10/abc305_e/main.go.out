@@ -34,13 +34,8 @@ func calc(in *io.In, out *io.Out) {
 		score[p] = h
 		queue.Push(p)
 	}
-	checked := make([]bool, n)
 	for queue.HasElements() {
 		u := queue.Pop()
-		if checked[u] {
-			continue
-		}
-		checked[u] = true
 
 		s := score[u] - 1
 		if s < 0 {
@@ -48,9 +43,6 @@ func calc(in *io.In, out *io.Out) {
 		}
 
 		for _, v := range g[u] {
-			if checked[v] {
-				continue
-			}
 			if score[v] < s {
 				score[v] = s
 				queue.Push(v)
