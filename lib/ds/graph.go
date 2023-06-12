@@ -44,6 +44,11 @@ func (g *Graph) AddEdge(u, v int) {
 	g.AddWeightedEdge(u, v, 1)
 }
 
+// AddEdge1はuからv(1-indexed)への重み1の無向辺を追加します。
+func (g *Graph) AddEdge1(u, v int) {
+	g.AddEdge(u-1, v-1)
+}
+
 // AddWeightedEdge はuからvへ重みwの無向辺を追加します。
 func (g *Graph) AddWeightedEdge(u, v, w int) {
 	i := len(g.Edges)
