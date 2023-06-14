@@ -5,6 +5,11 @@ OJ_HISTORY := $(HISTORY_DIR)/$(HISTORY_FILE)
 
 .PHONY: clean init test submit save restore
 
+init:
+	cp .vscode/template.go main.go
+	code ./main.go
+	oj download "${url}"
+
 clean:
 	rm -rf \
 	_main.go \
@@ -12,11 +17,6 @@ clean:
 	main.go \
 	test \
 	sandbox
-
-init:
-	cp .vscode/template.go main.go
-	code ./main.go
-	oj download "${url}"
 
 # init-offline:
 # 	cp .vscode/template.go main.go
