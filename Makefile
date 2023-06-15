@@ -18,13 +18,11 @@ clean:
 	test \
 	sandbox
 
-# init-offline:
-# 	cp .vscode/template.go main.go
-#     mkdir -p test
-#     for i in `seq 5`; do
-#         touch test/Sample
-#     done
-# 	code ./main.go
+init-offline:
+	cp .vscode/template.go main.go
+	mkdir -p test
+	for i in `seq 5`; do touch "test/sample-$i"; done
+	code ./main.go
 
 test:
 	mkdir -p sandbox
