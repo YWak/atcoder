@@ -354,7 +354,7 @@ func (g *Graph) Lca(root int) *Lca {
 		x++
 	}
 
-	lca := Lca{n, 1, make([]int, n), NewInt2d(n, x, 0)}
+	lca := Lca{n, x, make([]int, n), NewInt2d(n, x, 0)}
 
 	// depthとparentの初期化
 	parent := make([]int, n)
