@@ -18,14 +18,28 @@ func calc(in *io.In, out *io.Out) {
 	a := make([]int, n)
 
 	ans := 0
+	if n == k {
+		for i := 0; i < Q; i++ {
+			x, y := in.NextInt2()
+			x--
+			ans += y - a[x]
+			a[x] = y
+			out.Println(ans)
+		}
+		return
+	}
+
 	upper := NewIntTreap()    // 上位k個の管理
 	lower := NewRevIntTreap() // 下位n-k個の管理
 	upper.Put(0, k)
 	lower.Put(0, n-k)
 
 	exists := func(m *Treap, t int) bool {
-		return m.Get(t) != nil
+		c := m.Get(t)
+		return c != nil && c != 0
 	}
+	exists(lower, 0)
+
 	add := func(m *Treap, v int) {
 		c := m.Get(v)
 		if c == nil {
@@ -58,11 +72,41 @@ func calc(in *io.In, out *io.Out) {
 		u := last(upper)
 		d := last(lower)
 
-        if before
-		// 上位にいてそのまま上位
-		// 下位にいてそのまま下位
-		// 上位にいて下位に落ちる
-		// 下位にいて上位に上がる
+		debug(q+1, before, after, u, d)
+		// 変化がなければそのまま
+		if before == after {
+			// nop
+		} else if before >= u {
+			if after >= d {
+				// 上位にいてそのまま上位
+				ans += after - before
+				sub(upper, before)
+				add(upper, after)
+			} else {
+				// 上位にいて下位に落ちる
+				ans += d - before
+				sub(upper, before)
+				add(upper, d)
+				sub(lower, d)
+				add(lower, after)
+			}
+		} else if before <= d {
+			if after < u {
+				// 下位にいてそのまま下位
+				sub(lower, before)
+				add(lower, after)
+			} else {
+				// 下位にいて上位に上がる
+				ans += after - u
+				sub(upper, u)
+				add(upper, after)
+				sub(lower, before)
+				add(lower, u)
+			}
+		} else {
+			panic(fmt.Sprintf("%d: before = %d, after = %d, u = %d, d = %d", q+1, before, after, u, d))
+		}
+		out.Println(ans)
 	}
 }
 
