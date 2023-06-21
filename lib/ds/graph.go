@@ -61,11 +61,11 @@ func (g *Graph) AddWeightedEdge(u, v, w int) {
 
 // AddDirectedEdgeはuからvへ重み1の有向辺を追加します。
 func (g *Graph) AddDirectedEdge(u, v int) {
-	g.AddDirecedWeightedEdge(u, v, 1)
+	g.AddDirectedWeightedEdge(u, v, 1)
 }
 
 // AddDirectedWeightedEdgeはuからvへ重みwの有向辺を追加します。
-func (g *Graph) AddDirecedWeightedEdge(u, v, w int) {
+func (g *Graph) AddDirectedWeightedEdge(u, v, w int) {
 	i := len(g.Edges)
 	e := Edge{u, v, w, i}
 	g.List[u] = append(g.List[u], &e)
