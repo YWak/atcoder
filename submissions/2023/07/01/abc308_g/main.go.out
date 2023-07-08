@@ -18,11 +18,10 @@ func str(node *rbt.Node) string {
 	if node == nil {
 		return "nil"
 	}
-	return fmt.Sprintf("%d(%d)", node.Key.(int), node.Key.(int)>>20)
+	return fmt.Sprint(node.Key)
 }
 
 func calc(in *io.In, out *io.Out) {
-	// 1個目のときは0番目として、2個目以降は1番目として、値を追加する
 	tree := rbt.NewWithIntComparator()
 	ans := rbt.NewWithIntComparator()
 
@@ -47,9 +46,8 @@ func calc(in *io.In, out *io.Out) {
 		if node == nil {
 			return -1
 		}
-		return node.Key.(int) >> 20
+		return node.Key.(int)
 	}
-	logs := map[int][]int{}
 
 	Q := in.NextInt()
 	for i := 0; i < Q; i++ {
@@ -57,57 +55,59 @@ func calc(in *io.In, out *io.Out) {
 		case 1:
 			x := in.NextInt()
 
-			xx := (x << 20) + i
-			logs[x] = append(logs[x], xx)
+			prev, prevExists := tree.Floor(x - 1)
+			next, nextExists := tree.Ceiling(x)
+			incr(tree, x)
 
-			prev, prevExists := tree.Floor(xx)
-			next, nextExists := tree.Ceiling(xx)
-			incr(tree, xx)
+			debug(i, "add", x, "between", str(prev), str(next))
+			curr := tree.GetNode(x)
 
-			// debug(i, "add", x, "between", str(prev), str(next))
-			curr := tree.GetNode(xx)
 			if prevExists && nextExists { // 割って入るので、元いた分を消す
-				// debug(i, "del ans", key(prev)^key(next))
-				decr(ans, key(prev)^key(next))
+				k := key(prev) ^ key(next)
+				debug(i, "del ans", k)
+				decr(ans, k)
 			}
 			if prevExists {
-				// debug(i, "add ans prev", key(prev)^key(curr))
-				incr(ans, key(prev)^key(curr))
+				k := key(prev) ^ key(curr)
+				debug(i, "add ans prev", k)
+				incr(ans, k)
 			}
 			if nextExists {
-				// debug(i, "add ans next", key(next)^key(curr))
-				incr(ans, key(curr)^key(next))
+				k := key(next) ^ key(curr)
+				debug(i, "add ans next", k)
+				incr(ans, k)
 			}
-			// debug(ans)
+			debug(ans)
 		case 2:
 			x := in.NextInt()
 
-			xx := logs[x][0]
-			logs[x] = logs[x][1:]
+			curr := tree.GetNode(x)
 
-			curr := tree.GetNode(xx)
+			decr(tree, x)
+			prev, prevExists := tree.Floor(x - 1)
+			next, nextExists := tree.Ceiling(x)
 
-			decr(tree, xx)
-			prev, prevExists := tree.Floor(xx)
-			next, nextExists := tree.Ceiling(xx)
-
-			// debug(i, "del", x, "between", str(prev), str(next))
+			debug(i, "del", x, "between", str(prev), str(next))
 
 			if prevExists && nextExists { // 割って入るので、元いた分を消す
-				// debug(i, "add ans", key(prev)^key(next))
-				incr(ans, key(prev)^key(next))
+				k := key(prev) ^ key(next)
+				debug(i, "add ans", k)
+				incr(ans, k)
 			}
 			if prevExists {
-				// debug(i, "del ans prev", key(prev)^key(curr))
-				decr(ans, key(prev)^key(curr))
+				k := key(prev) ^ key(curr)
+				debug(i, "del ans prev", k)
+				decr(ans, k)
 			}
 			if nextExists {
-				// debug(i, "del ans next", key(next)^key(curr))
-				decr(ans, key(curr)^key(next))
+				k := key(next) ^ key(curr)
+				debug(i, "del ans next", k)
+				decr(ans, k)
 			}
-			// debug(ans)
+			debug(ans)
 		case 3:
-			out.Println(ans.Left())
+			debug(i, "guess")
+			out.Println(ans.Left().Key)
 		}
 	}
 }
