@@ -7,8 +7,8 @@ OJ_HISTORY := $(HISTORY_DIR)/$(HISTORY_FILE)
 
 init:
 	cp .vscode/template.go main.go
-	code ./main.go
 	oj download "${url}"
+	code ./main.go
 
 clean:
 	rm -rf \
