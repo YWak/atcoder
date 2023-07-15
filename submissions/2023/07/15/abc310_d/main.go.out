@@ -35,37 +35,6 @@ func calc(in *io.In, out *io.Out) {
 		}
 	}
 
-	// 作成可能なチーム
-	teams := make([][]int, 1<<n)
-	for p1 := 0; p1 < 1<<n; p1++ {
-		if !can[p1] {
-			continue
-		}
-		// 最小の値は必ず使うようにする
-		k := n + 1
-		for i := 0; i < n; i++ {
-			if nthbit(p1, i) == 0 {
-				k = i
-				break
-			}
-		}
-
-		for p2 := 1; p2 < 1<<n; p2++ {
-			if !can[p2] {
-				continue
-			}
-			if p1&p2 != 0 {
-				continue
-			}
-			// p1で使っていない値のうち最小の値は必ず使う
-			if nthbit(p2, k) == 0 {
-				continue
-			}
-
-			teams[p1] = append(teams[p1], p2)
-		}
-	}
-
 	// patの人物が使用済みで、kチーム作成済みのときの場合の数
 	full := ((1 << n) - 1)
 	var dfs func(pat, k int) int
@@ -79,8 +48,26 @@ func calc(in *io.In, out *io.Out) {
 			return 0
 		}
 
+		// 最小の人物を決める
+		mi := n + 1
+		for i := 0; i < n; i++ {
+			if nthbit(p1, i) == 0 {
+				chmin(&mi, i)
+			}
+		}
+
 		c := 0
-		for _, p2 := range teams[p1] {
+		for p2 := 1; p2 < 1<<n; p2++ {
+			if nthbit(p2, mi) == 0 {
+				continue
+			}
+			if !can[p2] {
+				continue
+			}
+			if p1&p2 != 0 {
+				continue
+			}
+
 			c += dfs(p1|p2, k+1)
 		}
 
