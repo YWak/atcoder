@@ -43,7 +43,7 @@ func NewRangeMaxQuery() *SegmentTree {
 		-1,
 		[]int{},
 		SegmentTreeFunctions{
-			func() int { return 0 },
+			func() int { return -math.INF18 },
 			func(a, b int) int { return math.Max(a, b) },
 		},
 	}
