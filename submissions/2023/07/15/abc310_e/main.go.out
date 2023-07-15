@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
@@ -16,6 +17,30 @@ func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	s := in.NextBytes()
 
+	dp := ds.NewInt2d(n+1, 2, 0)
+	ans := 0
+	for i, b := range s {
+		if b == '0' {
+			// 次に行く
+			dp[i+1][1] += dp[i][0]
+			dp[i+1][1] += dp[i][1]
+
+			// ここから始める
+			dp[i+1][0] += 1
+		} else {
+			// 次に行く
+			dp[i+1][1] += dp[i][0]
+			dp[i+1][0] += dp[i][1]
+			// ここから始める
+			dp[i+1][1] += 1
+		}
+		// debug(i, b-'0', dp[i+1])
+
+		// ここでやめる
+		ans += dp[i+1][1]
+	}
+
+	out.Println(ans)
 }
 
 func main() {
