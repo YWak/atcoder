@@ -92,6 +92,16 @@ func powmod(x, n, m int) int {
 	return math.Powmod(x, n, m)
 }
 
+// gcdはaとbの最大公約数を返します。
+func gcd(a, b int) int {
+	return math.Gcd(a, b)
+}
+
+// lcmはaとbの最小公倍数を返します。
+func lcm(a, b int) int {
+	return math.Lcm(a, b)
+}
+
 // chiはcondがtrueのときok, falseのときngを返します。
 func chi(cond bool, ok, ng int) int {
 	if cond {

@@ -95,3 +95,24 @@ func Powmod(x, n, m int) int {
 	}
 	return ans
 }
+
+func Gcd(a, b int) int {
+	if b > a {
+		a, b = b, a
+	}
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
+}
+
+func Lcm(a, b int) int {
+	aa, bb := a, b
+	if bb > aa {
+		aa, bb = bb, aa
+	}
+	for bb != 0 {
+		aa, bb = bb, aa%bb
+	}
+	return a / aa * b
+}

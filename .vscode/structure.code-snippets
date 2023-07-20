@@ -1,20 +1,4 @@
 {
-    "Pair": {
-        "scope": "go",
-        "description": "ペアの実装",
-        "prefix": "_pair",
-        "body":[
-            "type pair struct {",
-            "    a, b int",
-            "}",
-            "",
-            "type pairs []pair",
-            "",
-            "func (a pairs) Len() int           { return len(a) }",
-            "func (a pairs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }",
-            "func (a pairs) Less(i, j int) bool { return a[i].a < a[j].a || a[i].a == a[j].a && a[i].b < a[j].b }",
-        ]
-    },
     "Treap": {
         "scope": "go",
         "description": "平衝二分探索木によるマップ。",

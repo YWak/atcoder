@@ -1,39 +1,4 @@
 {
-    "greatest common divider in int": {
-        "scope": "go",
-        "prefix": "_gcd",
-        "description": "最大公約数 gcd(int, int) の実装",
-        "body": [
-            "func gcd(a, b int) int {",
-            "    if b > a {",
-            "        a, b = b, a",
-            "    }",
-            "    for b != 0 {",
-            "        a, b = b, a%b",
-            "    }",
-            "    return a",
-            "}",
-            ""
-        ]
-    },
-    "least common multiple in int": {
-        "scope": "go",
-        "prefix": "_lcm",
-        "description": "最小公倍数 lcm(int, int)の実装",
-        "body": [
-            "func lcm(a, b int) int {",
-            "    aa, bb := a, b",
-            "    if bb > aa {",
-            "        aa, bb = bb, aa",
-            "    }",
-            "    for bb != 0 {",
-            "        aa, bb = bb, aa%bb",
-            "    }",
-            "    return a / aa * b",
-            "}",
-            ""
-        ]
-    },
     "dividers asc int": {
         "scope": "go",
         "prefix": "_dividers-asc",
@@ -148,35 +113,6 @@
             "    return true",
             "}",
             ""
-        ]
-    },
-    "Next Permutation": {
-        "scope": "go",
-        "prefix": "_permutation",
-        "body": [
-            "type Permutation []int",
-            "",
-            "func (p *Permutation) next() bool {",
-            "    for i := len(*p) - 2; i >= 0; i-- {",
-            "        if (*p)[i] > (*p)[i+1] {",
-            "            continue",
-            "        }",
-            "        j := len(*p)",
-            "        for {",
-            "             j--",
-            "             if (*p)[i] < (*p)[j] {",
-            "                 break",
-            "             }",
-            "        }",
-            "        (*p)[i], (*p)[j] = (*p)[j], (*p)[i]",
-            "        for k, l := i+1, len(*p)-1; k < l; k, l = k+1, l-1 {",
-            "            (*p)[k], (*p)[l] = (*p)[l], (*p)[k]",
-            "        }",
-            "        return true",
-            "",
-            "    }",
-            "    return false",
-            "}",
         ]
     },
     "multi-bytes number": {
