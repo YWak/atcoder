@@ -1,5 +1,7 @@
 package math
 
+import "sort"
+
 type Permutation struct {
 	values []int
 }
@@ -14,7 +16,14 @@ func NewPermutationFrom(s, n int) *Permutation {
 		values[i] = s + i
 	}
 
-	return &Permutation{values: values}
+	return NewPermutationFromArray(values)
+}
+
+func NewPermutationFromArray(values []int) *Permutation {
+	_values := append([]int{}, values...)
+	sort.Ints(_values)
+
+	return &Permutation{values: _values}
 }
 
 func (p *Permutation) Get(i int) int {
