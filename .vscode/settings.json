@@ -7,7 +7,6 @@
     // "go.gocodeAutoBuild": true,
     // "go.buildOnSave": "package",
     // "go.vetOnSave": "package",
-    "go.autocompleteUnimportedPackages": true,
     "[go]": {
         "editor.snippetSuggestions": "top",
         "editor.formatOnSave": true,
