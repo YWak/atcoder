@@ -6,9 +6,9 @@ import (
 
 type SegmentTreeFunctions struct {
 	// 単位元を返します
-	e func() int
+	E func() int
 	// 計算結果を返します
-	calc func(a, b int) int
+	Calc func(a, b int) int
 }
 
 type SegmentTree struct {
@@ -19,7 +19,7 @@ type SegmentTree struct {
 	nodes []int
 
 	// このsegment treeの値を操作する関数群
-	f SegmentTreeFunctions
+	F SegmentTreeFunctions
 }
 
 // NewSegmentTreeは区間和を扱うSegmentTreeを返します。
@@ -78,7 +78,7 @@ func (st *SegmentTree) Init(n int) {
 	st.n = x / 2
 	st.nodes = make([]int, x)
 	for i := 0; i < x; i++ {
-		st.nodes[i] = st.f.e()
+		st.nodes[i] = st.F.E()
 	}
 }
 
@@ -101,7 +101,7 @@ func (st *SegmentTree) InitAsArray(vals []int) {
 		st.nodes[i+st.n] = v
 	}
 	for i := st.n - 1; i > 0; i-- {
-		st.nodes[i] = st.f.calc(st.nodes[i*2], st.nodes[i*2+1])
+		st.nodes[i] = st.F.Calc(st.nodes[i*2], st.nodes[i*2+1])
 	}
 }
 
@@ -118,7 +118,7 @@ func (st *SegmentTree) Update(i, value int) {
 		if t == 0 {
 			break
 		}
-		st.nodes[t] = st.f.calc(st.nodes[t*2], st.nodes[t*2+1])
+		st.nodes[t] = st.F.Calc(st.nodes[t*2], st.nodes[t*2+1])
 	}
 }
 
@@ -127,15 +127,15 @@ func (st *SegmentTree) Update(i, value int) {
 //
 //	https://atcoder.jp/contests/abl/tasks/abl_d
 func (st *SegmentTree) Query(l, r int) int {
-	ret := st.f.e()
+	ret := st.F.E()
 	for ll, rr := l+st.n, r+st.n; ll < rr; ll, rr = ll/2, rr/2 {
 		if ll%2 == 1 {
-			ret = st.f.calc(ret, st.nodes[ll])
+			ret = st.F.Calc(ret, st.nodes[ll])
 			ll++
 		}
 		if rr%2 == 1 {
 			rr--
-			ret = st.f.calc(st.nodes[rr], ret)
+			ret = st.F.Calc(st.nodes[rr], ret)
 		}
 	}
 
