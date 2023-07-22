@@ -8,37 +8,60 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
-	g := ds.NewGraph(n)
+	a := make([]int, n)
 	for i := 0; i < n; i++ {
 		v := in.NextInt() - 1
-		g.AddDirectedEdge(i, v)
+		a[i] = v
 	}
 
-	scc := g.Scc()
+	stat := make([]int, n)
+	var dfs func(curr int) []int
+	dfs = func(curr int) []int {
+		if stat[curr] == 1 { // 未定
+			// currからcurrまでをたどって解とする
+			ans := []int{}
+			c := curr
+			for len(ans) == 0 || c != curr {
+				ans = append(ans, c+1)
+				c = a[c]
+			}
+			return ans
+		}
+		if stat[curr] == 2 {
+			return []int{}
+		}
 
-	ans := []int{}
-	for _, t := range scc.Components {
-		if len(t) == 1 {
+		stat[curr] = 1
+		next := a[curr]
+		if stat[next] == 1 {
+			return []int{}
+		}
+
+		ans := dfs(next)
+		// ダメなら無効化しておく
+		if len(ans) == 0 {
+			stat[curr] = 2
+		}
+		return ans
+	}
+
+	for i := 0; i < n; i++ {
+		if stat[i] == 2 {
 			continue
 		}
-		for _, c := range t {
-			ans = append(ans, c+1)
+		ans := dfs(i)
+		if len(ans) != 0 {
+			out.Println(len(ans))
+			out.PrintIntsLn(ans)
+			break
 		}
-		break
 	}
-	for i, j := 0, len(ans)-1; i < j; i, j = i+1, j-1 {
-		ans[i], ans[j] = ans[j], ans[i]
-	}
-
-	out.Println(len(ans))
-	out.PrintIntsLn(ans)
 }
 
 func main() {
