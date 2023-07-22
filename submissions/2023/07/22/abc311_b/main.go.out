@@ -21,11 +21,11 @@ func calc(in *io.In, out *io.Out) {
 
 	ans := 0
 	for l := 0; l < d; l++ {
-		for r := l; r < d; r++ {
+		for r := l; r <= d; r++ {
 			ok := true
 			for i := 0; i < n; i++ {
-				for _, v := range s[i] {
-					if v == 'x' {
+				for j := l; j < r; j++ {
+					if s[i][j] == 'x' {
 						ok = false
 					}
 				}
