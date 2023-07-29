@@ -8,27 +8,66 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
-	type cube struct{ x1, x2, y1, y2, z1, z2, i int }
-
 	n := in.NextInt()
-	cs := []*cube{}
+
+	cube := ds.NewInt3d(101, 101, 101, -1)
+
 	for i := 0; i < n; i++ {
 		x1, y1, z1 := in.NextInt3()
 		x2, y2, z2 := in.NextInt3()
-		cs = append(cs, &cube{x1, x2, y1, y2, z1, z2, i})
+
+		for x := x1; x < x2; x++ {
+			for y := y1; y < y2; y++ {
+				for z := z1; z < z2; z++ {
+					cube[x][y][z] = i
+				}
+			}
+		}
 	}
 
-	for _, c1 := range cs {
-		ans := 0
-		// z1 == z2かつxy面が接している
-		// x1 == x2かつzy面が接している
-		// y1 == y2かつxz面が接している
-		out.Println(ans)
+	ans := make([]map[int]int, n)
+	for i := 0; i < n; i++ {
+		ans[i] = map[int]int{}
+	}
+	ng := func(t int) bool { return t < 0 || t == 101 }
+
+	for x1 := range cube {
+		for y1 := range cube[x1] {
+			for z1 := range cube[x1][y1] {
+				dxyz := [][]int{
+					{+1, 0, 0},
+					{-1, 0, 0},
+					{0, +1, 0},
+					{0, -1, 0},
+					{0, 0, +1},
+					{0, 0, -1},
+				}
+				// 上下左右を考える
+				for _, d := range dxyz {
+					x2, y2, z2 := x1+d[0], y1+d[1], z1+d[2]
+					// 隣と同じ？
+					if ng(x2) || ng(y2) || ng(z2) {
+						continue
+					}
+					c1 := cube[x1][y1][z1]
+					c2 := cube[x2][y2][z2]
+					if c1 == -1 || c2 == -1 || c1 == c2 {
+						continue
+					}
+					ans[c1][c2]++
+					ans[c2][c1]++
+				}
+			}
+		}
+	}
+	for _, m := range ans {
+		out.Println(len(m))
 	}
 }
 
