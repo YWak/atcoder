@@ -37,3 +37,18 @@ func NewBool2d(a, b int, value bool) [][]bool {
 
 	return arr
 }
+
+func NewFloat2d(a, b int, value float64) [][]float64 {
+	arr := make([][]float64, a)
+	for i := range arr {
+		arr[i] = make([]float64, b)
+
+		if value != 0 {
+			for j := range arr[i] {
+				arr[i][j] = value
+			}
+		}
+	}
+
+	return arr
+}
