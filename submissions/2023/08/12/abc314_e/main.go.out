@@ -35,8 +35,8 @@ func calc(in *io.In, out *io.Out) {
 	}
 	memo[0] = 0
 
-	var dp func(point int) float64
-	dp = func(point int) float64 {
+	var dfs func(point int) float64
+	dfs = func(point int) float64 {
 		if point < 0 {
 			return 0
 		}
@@ -44,19 +44,20 @@ func calc(in *io.In, out *io.Out) {
 			ans := 2e18
 
 			for _, r := range rs {
-				k := 0.0
+				p := 0.0
 				zero := 0
 				for _, s := range r.s {
 					if s == 0 {
 						zero++
 					} else {
-						k += dp(point-s) + r.c
+						p += dfs(point-s) + r.c
 					}
 				}
 				// 調整
-				k /= r.p - float64(zero)
-				if ans > k {
-					ans = k
+				z := float64(zero)
+				a := (p + z*r.c) / (r.p - z)
+				if ans > a {
+					ans = a
 				}
 			}
 
@@ -66,7 +67,7 @@ func calc(in *io.In, out *io.Out) {
 		return memo[point]
 	}
 
-	out.Printf("%.10f\n", dp(m))
+	out.Printf("%.21f\n", dfs(m))
 }
 
 func main() {
