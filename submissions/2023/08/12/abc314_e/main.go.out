@@ -8,26 +8,65 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
 	type R struct {
-		c int
+		c float64
+		p float64
 		s []int
 	}
 	n, m := in.NextInt2()
-	rs := make([]R, n)
+	rs := make([]*R, n)
 	for i := 0; i < n; i++ {
-		rs[i].c = in.NextInt()
+		r := R{}
+		r.c = in.NextFloat()
 		p := in.NextInt()
-		rs[i].s = in.NextInts(p)
+		r.p = float64(p)
+		r.s = in.NextInts(p)
+		rs[i] = &r
 	}
 
-	// dp[i]はiポイントもっているときにかかる金額の期待値
-	dp := ds.NewFloat2d(a, b, value)
+	memo := make([]float64, m+1)
+	for i := range memo {
+		memo[i] = -1
+	}
+	memo[0] = 0
+
+	var dp func(point int) float64
+	dp = func(point int) float64 {
+		if point < 0 {
+			return 0
+		}
+		if memo[point] == -1 {
+			ans := 2e18
+
+			for _, r := range rs {
+				k := 0.0
+				zero := 0
+				for _, s := range r.s {
+					if s == 0 {
+						zero++
+					} else {
+						k += dp(point-s) + r.c
+					}
+				}
+				// 調整
+				k /= r.p - float64(zero)
+				if ans > k {
+					ans = k
+				}
+			}
+
+			memo[point] = ans
+		}
+
+		return memo[point]
+	}
+
+	out.Printf("%.10f\n", dp(m))
 }
 
 func main() {
