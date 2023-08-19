@@ -8,17 +8,73 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
 	h, w := in.NextInt2()
-	cs := make([][]byte, h)
+
+	f := make([][]byte, h)
+	hcs := ds.NewInt2d(h, 26, 0) // hcs[i][c]はi行目に色cがいくつあるか
+	wcs := ds.NewInt2d(w, 26, 0) // wcs[i][c]はi列目に色cがいくつあるか
 	for i := 0; i < h; i++ {
-		cs[i] = in.NextBytes()
+		f[i] = in.NextBytes()
+
+		for j, c := range f[i] {
+			cc := int(c - 'a')
+			hcs[i][cc]++
+			wcs[j][cc]++
+		}
 	}
 
+	hs := map[int]bool{}
+	for i := 0; i < h; i++ {
+		hs[i] = true
+	}
+	ws := map[int]bool{}
+	for i := 0; i < w; i++ {
+		ws[i] = true
+	}
+
+	for {
+		// 行のことを考える
+		rowToBeRemoved := map[int]int{}
+		for i := range hs {
+			for c, v := range hcs[i] {
+				if len(ws) >= 2 && v == len(ws) {
+					rowToBeRemoved[i] = c // 消す候補に入れる
+				}
+			}
+		}
+		// 列のことを考える
+		colToBeRemvoed := map[int]int{}
+		for i := range ws {
+			for c, v := range wcs[i] {
+				if len(hs) >= 2 && v == len(hs) {
+					colToBeRemvoed[i] = c // 消す候補に入れる
+				}
+			}
+		}
+		for v, c := range rowToBeRemoved {
+			delete(hs, v)
+			for i := range wcs {
+				wcs[i][c]--
+			}
+		}
+		for v, c := range colToBeRemvoed {
+			delete(ws, v)
+			for i := range hcs {
+				hcs[i][c]--
+			}
+		}
+		if len(rowToBeRemoved) == 0 && len(colToBeRemvoed) == 0 {
+			break
+		}
+	}
+
+	out.Println(len(hs) * len(ws))
 }
 
 func main() {
