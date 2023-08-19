@@ -22,21 +22,43 @@ func calc(in *io.In, out *io.Out) {
 		y[i] = in.NextFloat()
 	}
 
-	// dp[i][j]は、i番目のチェックポイントまで見て、最後にjにいるときのsの値
+	// dp[i][j]は、i番目のチェックポイントまで見て、これまでj個無視したときのsの最小値
 	// 最大値はn*sqrt(2)*10^4 < 2*10^8程度
 	dp := ds.NewFloat2d(n+1, n+1, 1e10)
 	dp[0][0] = 0
-	fchmax := func(a *float64, b float64) { *a = gomath.Max(*a, b) }
+	dist := func(i, j int) float64 {
+		_x := x[i] - x[j]
+		_y := y[i] - y[j]
+		return gomath.Sqrt(_x*_x + _y*_y)
+	}
+
+	fchmin := func(a *float64, b float64) { *a = gomath.Min(*a, b) }
 	for i := 0; i < n; i++ {
 		for j := 0; j < n; j++ {
-			if j > i {
-				// 不可能なのでそのままコピーする
-				dp
+			for k := 0; k < n; k++ {
+				if i-k < 0 || j-k < 0 {
+					break
+				}
+				fchmin(&dp[i+1][j], dp[i-k][j-k]+dist(i, i-k))
 			}
 		}
 	}
 
-	out.Printf("%.10f\n", dp[n][n])
+	ans := 1e10
+	for i := n; i > 0; i-- {
+		t := n - i
+		c := gomath.Pow(2.0, float64(t))
+		if t == 0 {
+			c = 0.0
+		}
+		if c > 1e10 {
+			continue
+		}
+		debug(dp[n][i], c)
+		fchmin(&ans, dp[n][i]+c)
+	}
+
+	out.Printf("%.10f\n", ans)
 }
 
 func main() {
