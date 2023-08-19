@@ -24,7 +24,8 @@ func calc(in *io.In, out *io.Out) {
 
 	// dp[i][j]は、i番目のチェックポイントまで見て、これまでj個無視したときのsの最小値
 	// 最大値はn*sqrt(2)*10^4 < 2*10^8程度
-	dp := ds.NewFloat2d(n+1, n+1, 1e10)
+	const mx = 1e10
+	dp := ds.NewFloat2d(n+1, n+1, mx)
 	dp[0][0] = 0
 	dist := func(i, j int) float64 {
 		_x := x[i] - x[j]
@@ -33,25 +34,32 @@ func calc(in *io.In, out *io.Out) {
 	}
 
 	fchmin := func(a *float64, b float64) { *a = gomath.Min(*a, b) }
+	smin := map[int]float64{}
+	for i := 0; i < n*2; i++ {
+		smin[+i] = mx
+		smin[-i] = mx
+	}
+
+	// dp[i][j]はi番目まで見てチェックポイントをj個無視したときの最小値
 	for i := 0; i < n; i++ {
 		for j := 0; j < n; j++ {
 			for k := 0; k < n; k++ {
-				if i-k < 0 || j-k < 0 {
-					break
+				// k個無視したときを考える
+				if i-1-k >= 0 && j-k >= 0 {
+					fchmin(&dp[i+1][j], dp[i-k][j-k]+dist(i, i-1-k))
 				}
-				fchmin(&dp[i+1][j], dp[i-k][j-k]+dist(i, i-k))
 			}
 		}
 	}
 
-	ans := 1e10
+	ans := mx
 	for i := n; i > 0; i-- {
 		t := n - i
 		c := gomath.Pow(2.0, float64(t))
 		if t == 0 {
 			c = 0.0
 		}
-		if c > 1e10 {
+		if c > mx {
 			continue
 		}
 		debug(dp[n][i], c)
