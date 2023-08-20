@@ -14,19 +14,17 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
+	const t = 60
+	const mx = 1e10
 	n := in.NextInt()
 	x := make([]float64, n)
 	y := make([]float64, n)
+
 	for i := 0; i < n; i++ {
 		x[i] = in.NextFloat()
 		y[i] = in.NextFloat()
 	}
 
-	// dp[i][j]は、i番目のチェックポイントまで見て、これまでj個無視したときのsの最小値
-	// 最大値はn*sqrt(2)*10^4 < 2*10^8程度
-	const mx = 1e10
-	dp := ds.NewFloat2d(n+1, n+1, mx)
-	dp[0][0] = 0
 	dist := func(i, j int) float64 {
 		_x := x[i] - x[j]
 		_y := y[i] - y[j]
@@ -34,36 +32,36 @@ func calc(in *io.In, out *io.Out) {
 	}
 
 	fchmin := func(a *float64, b float64) { *a = gomath.Min(*a, b) }
-	smin := map[int]float64{}
-	for i := 0; i < n*2; i++ {
-		smin[+i] = mx
-		smin[-i] = mx
-	}
+
+	// dp[i][j]は、i番目のチェックポイントにいて、これまでj個無視したときのsの最小値
+	// 最大値はn*sqrt(2)*10^4 < 2*10^8程度
+	dp := ds.NewFloat2d(n, t+1, mx)
+	dp[0][0] = 0
 
 	// dp[i][j]はi番目まで見てチェックポイントをj個無視したときの最小値
 	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			for k := 0; k < n; k++ {
-				// k個無視したときを考える
-				if i-1-k >= 0 && j-k >= 0 {
-					fchmin(&dp[i+1][j], dp[i-k][j-k]+dist(i, i-1-k))
+		for j := 0; j <= t; j++ { // j番目を決めたい
+			for k := 1; k <= t; k++ { // k個先に行くことを考える
+				ii := i + k       // iのk個前からやってくる
+				jj := j + (k - 1) // ペナルティは(k-1)だけ増える
+				if ii >= n {
+					continue
 				}
+				if jj > t {
+					continue
+				}
+				fchmin(&dp[ii][jj], dp[i][j]+dist(i, ii))
 			}
 		}
 	}
 
 	ans := mx
-	for i := n; i > 0; i-- {
-		t := n - i
-		c := gomath.Pow(2.0, float64(t))
-		if t == 0 {
+	for k, v := range dp[n-1] {
+		c := gomath.Pow(2.0, float64(k-1))
+		if k == 0 {
 			c = 0.0
 		}
-		if c > mx {
-			continue
-		}
-		debug(dp[n][i], c)
-		fchmin(&ans, dp[n][i]+c)
+		fchmin(&ans, v+c)
 	}
 
 	out.Printf("%.10f\n", ans)
