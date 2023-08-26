@@ -8,12 +8,94 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
+const mod = math.Mod998244353
+
 func calc(in *io.In, out *io.Out) {
-	n, a, b, c := in.NextInt4()
+	pats := []int{0, 3, 5, 6} // ある桁で取れるbitのパターン 000,011,101,110
+
+	n := in.NextInt()
+	a := in.NextInts(3)
+
+	keta := 1
+	for 1<<(keta-1) <= n {
+		keta++
+	}
+
+	dp := ds.NewInt3d(keta+1, 1000, 64, 0)
+	dp[keta][0][0b000111] = 1
+
+	m := make([]int, 3)
+	isMax := make([]bool, 3)
+	hasOne := make([]bool, 3)
+
+	for i := keta; i > 0; i-- {
+		ii := i - 1
+		for j := range dp[i] {
+			ok1 := true
+			for t, v := range a {
+				m[t] = j / pow(10, t) % 10
+				ok1 = ok1 && m[t] < v
+			}
+			if !ok1 {
+				continue
+			}
+
+			for k := range dp[i][j] {
+				for t := range a {
+					isMax[t] = nthbit(k, t) == 1
+					hasOne[t] = nthbit(k, t+3) == 1
+				}
+
+				for _, p := range pats {
+					// 最大値フラグが立っていて、nのビットが0なのに1を要求されたら無理
+					ok2 := true
+					for t := range a {
+						if isMax[t] && nthbit(n, ii) == 0 && nthbit(p, t) == 1 {
+							ok2 = false
+						}
+					}
+					if !ok2 {
+						continue
+					}
+
+					// 各あまりの管理
+					jj := 0
+					for t, v := range a {
+						jj += ((m[t] + nthbit(p, t)<<ii) % v) * pow(10, t)
+					}
+
+					kk := 0
+					for t := range a {
+						// 最大値フラグは、現在立っていてnと同じ値になるとき立つ
+						if isMax[t] && nthbit(n, ii) == nthbit(p, t) {
+							kk |= 1 << t
+						}
+						// ゼロフラグは、もともと0で設定されるビットも0のときに立つ
+						if hasOne[t] || nthbit(p, t) == 1 {
+							kk |= 1 << (t + 3)
+						}
+					}
+					mod.Chadd(&dp[ii][jj][kk], dp[i][j][k])
+				}
+			}
+		}
+	}
+
+	// 最大値フラグに拘らず、0ビット目まで決まっていてあまりがすべて0のときを考えればいい
+	ans := 0
+	for s, v := range dp[0][0] {
+		if s&0b111000 == 0b111000 {
+			mod.Chadd(&ans, v)
+		}
+	}
+
+	// 0を含む値を引く
+	out.Println(ans)
 }
 
 func main() {
