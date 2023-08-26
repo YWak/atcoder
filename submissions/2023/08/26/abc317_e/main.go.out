@@ -49,10 +49,10 @@ func calc(in *io.In, out *io.Out) {
 			}
 			for k := 1; k < max(h, w); k++ {
 				ii, jj := i+di*k, j+dj*k
-				if isOut(ii, jj) || a[ii][jj] != '.' {
+				if isOut(ii, jj) || a[ii][jj] != '.' && a[ii][jj] != '!' {
 					break
 				}
-				a[ii][jj] = '#'
+				a[ii][jj] = '!'
 			}
 		}
 	}
@@ -71,7 +71,7 @@ func calc(in *io.In, out *io.Out) {
 		d := []int{0, -1, 0, +1, 0}
 		for t := 0; t < 4; t++ {
 			ii, jj := p.i+d[t], p.j+d[t+1]
-			if isOut(ii, jj) || a[ii][jj] == '#' {
+			if isOut(ii, jj) || a[ii][jj] == '#' || a[ii][jj] == '!' {
 				continue
 			}
 			cost := c[p.i][p.j] + 1
