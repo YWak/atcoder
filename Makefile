@@ -21,7 +21,7 @@ clean:
 init-offline:
 	cp .vscode/template.go main.go
 	mkdir -p test
-	for i in `seq 5`; do touch "test/sample-$i"; done
+	for i in `seq 5`; do touch "test/sample-$$i.in"; touch "test/sample-$$i.out"; done
 	code ./main.go
 
 test:
