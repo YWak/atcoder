@@ -15,38 +15,35 @@ import (
 func calc(in *io.In, out *io.Out) {
 	n, m := in.NextInt2()
 	l := in.NextInts(n)
-	ml := INF18
-	for _, v := range l {
-		chmin(&ml, v)
-	}
 
 	// wのウィンドウに表示できるか？
 	check := func(w int) bool {
-		ls := 0
+		ls := 1
 		curr := 0
 		for _, v := range l {
-			nx := curr + v
-			if curr != 0 {
-				nx++
+			if w < v {
+				return false
 			}
 
-			if nx == w { // ちょうど入る
-				curr = 0
-				ls++
-			} else if nx < w { // 入る
+			nx := curr
+			if curr != 0 { // 既に単語が入っていれば空白が入る
+				nx++
+			}
+			nx += v // そのあと単語が入る
+
+			if nx <= w {
+				// まだ入るのでそのまま
 				curr = nx
 			} else { // 入らないので次の行
-				ls++
 				curr = v
+				ls++
 			}
 		}
-		if curr != 0 {
-			ls++
-		}
+
 		return ls <= m
 	}
 
-	ok, ng := INF18, ml-1
+	ok, ng := INF18, 0
 	for abs(ok-ng) > 1 {
 		mid := (ok + ng) / 2
 		if check(mid) {
