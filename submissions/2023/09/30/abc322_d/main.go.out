@@ -84,23 +84,21 @@ func calc(in *io.In, out *io.Out) {
 		if len(ps) == 0 {
 			ok := true
 			for i := 0; i < 4; i++ {
-				debug(field[i])
 				for j := 0; j < 4; j++ {
 					ok = ok && field[i][j] == 1
 				}
 			}
-			debug("========")
 			return ok
 		}
 
 		// 4パターンについて、すべての開始位置で試す
 		for _, p := range ps[0] {
 			for i := 0; i < 4; i++ {
-				if i+len(p.buf) >= 4 {
+				if i+len(p.buf) > 4 {
 					continue
 				}
 				for j := 0; j < 4; j++ {
-					if j+len(p.buf[0]) >= 4 {
+					if j+len(p.buf[0]) > 4 {
 						continue
 					}
 
