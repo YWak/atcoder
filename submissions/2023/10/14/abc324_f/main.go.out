@@ -20,11 +20,44 @@ func calc(in *io.In, out *io.Out) {
 	n, m := in.NextInt2()
 	g := make([][]*Edge, n)
 	for i := 0; i < m; i++ {
-		u, v := in.NextInt2d(-1, -1)
+		u, v := in.NextInt2()
+		u--
+		v--
 		b, c := in.NextInt2()
 		g[u] = append(g[u], &Edge{v, b, c})
-		g[v] = append(g[v], &Edge{u, b, c})
 	}
+
+	// target以上のスコアを取ることができるかどうか
+	check := func(target float64) bool {
+		score := make([]float64, n)
+		for i := 1; i < n; i++ {
+			score[i] = -1e18
+		}
+
+		for i := 0; i < n; i++ {
+			for _, e := range g[i] {
+				// スコアを最大化する
+				if score[i] == -1e18 {
+					continue
+				}
+				score[e.to] = gomath.Max(score[e.to], score[i]+float64(e.b)-target*float64(e.c))
+			}
+		}
+
+		return score[n-1] >= 0.0
+	}
+
+	ok, ng := 0.0, 1e18
+	for t := 0; t < 500; t++ {
+		mid := (ok + ng) / 2
+		if check(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	out.Printf("%.16f\n", ok)
 }
 
 func main() {
