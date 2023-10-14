@@ -17,10 +17,13 @@ func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	s := in.NextBytes()
 	sort.Slice(s, func(i, j int) bool { return s[i] < s[j] })
-
 	ans := 0
+	// dp[i][j][k]はi番目まで見て
 	for r := 1; r < 10000000; r++ { // 10^7
 		p := []byte(fmt.Sprint(r * r))
+		if len(p) > n {
+			break
+		}
 		for len(p) < n {
 			p = append(p, '0')
 		}
@@ -34,6 +37,7 @@ func calc(in *io.In, out *io.Out) {
 			}
 		}
 		if ok {
+			// debug(r * r)
 			ans++
 		}
 	}
