@@ -50,9 +50,11 @@ func calc(in *io.In, out *io.Out) {
 			return head+1+tail >= lt
 		}
 		if ls == lt {
+			// 同じ文字数なら差分は1以下になるはず
 			return head+1+tail >= lt
 		}
 		if ls == lt+1 {
+			// 短くなるなら差分
 			return head+tail >= lt
 		}
 		return head+1+tail >= lt
