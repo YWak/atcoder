@@ -51,3 +51,7 @@ func (p *Permutation) Next() bool {
 	}
 	return false
 }
+
+func (p *Permutation) Reset() {
+	sort.Ints(p.values)
+}
