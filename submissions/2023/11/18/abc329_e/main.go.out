@@ -33,37 +33,32 @@ func calc(in *io.In, out *io.Out) {
 
 			doloop := false
 			// この前後で消せるかどうかを判定する
-			for ot := 0; ot < m; ot++ { // lがtのot番目とする
-				if t[ot] != s[l] {
+			for o := 0; o < m; o++ { // lがtのot番目とする
+				from := l - o
+				to := from + m
+				// debug(i, l, o, s0, s0+m, s0 < 0, s0+m > i+1)
+				if from < 0 || to > i+1 { //iまでしか扱えないので
 					continue
 				}
-				// tはot-m+1〜ot+1まで回る
-				if ot-m+1 < 0 || ot+1 > i {
-					continue
-				}
-				// sはl-ot+1〜l-ot+m+1まで回る
-				if l+(ot-m+1) < 0 || l+ot+1 > i {
-					continue
-				}
-
+				// debug(string(s[s0:s0+m]), string(t))
 				ok := true
 				for j := 0; j < m; j++ {
-					is := l + ot - m + 1 + j
-					if s[is] != '#' && s[is] != t[j] {
+					if s[from+j] != '#' && s[from+j] != t[j] {
 						ok = false
 						break
 					}
 				}
+
 				if ok {
 					// この状況で消す
 					for j := 0; j < m; j++ {
-						s[l+ot-m+1+j] = '#'
+						s[from+j] = '#'
 					}
 					doloop = true
 					break
 				}
 			}
-			debug(i, string(s), doloop)
+			// debug(i, string(s), doloop)
 			if !doloop {
 				break
 			}
