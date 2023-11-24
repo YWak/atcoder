@@ -6,65 +6,55 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
+	"strconv"
 	"strings"
 
-	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
-	n, m, k := in.NextInt3()
+	n, _ := in.NextInt2()
 	g := make([][]int, n+1)
-	for i := 0; i < m; i++ {
-		a, b := in.NextInt2()
-		g[a] = append(g[a], b)
-		g[b] = append(g[b], a)
+	p := make([]int, n+1)
+	for i := range p {
+		p[i] = -1
 	}
-	left := make([]int, n+1)
-	for i := range left {
-		left[i] = -1
-	}
-
-	type pair struct{ p, x int }
-	pq := ds.NewPriorityQueue(func(a, b interface{}) bool {
-		pa, pb := a.(*pair), b.(*pair)
-		return pa.x > pb.x
-	})
-
-	for i := 0; i < k; i++ {
-		p, h := in.NextInt2()
-		left[p] = h
-		pq.Push(&pair{p, h})
-	}
-
-	for pq.HasElements() {
-		p := pq.Pop().(*pair)
-		x := p.x - 1
-		if x < 0 {
-			continue
+	done := make([]bool, n+1)
+	curr := 1
+	for {
+		done[curr] = true
+		s := in.NextString()
+		if s == "OK" {
+			return
 		}
 
-		for _, q := range g[p.p] {
-			if left[q] < x {
-				pq.Push(&pair{q, x})
-				left[q] = x
+		_k, _ := strconv.ParseInt(s, 10, 64)
+		k := int(_k)
+		g[curr] = []int{}
+		for i := 0; i < k; i++ {
+			v := in.NextInt()
+			g[curr] = append(g[curr], v)
+			if p[v] == -1 {
+				p[v] = curr
 			}
 		}
-	}
-	ans := []int{}
-	for i, v := range left {
-		if v >= 0 {
-			ans = append(ans, i)
+		nx := p[curr]
+		for _, v := range g[curr] {
+			if v == n {
+				nx = v
+			} else if !done[v] {
+				nx = v
+			}
 		}
+		out.Println(nx)
+		curr = nx
 	}
-	out.Println(len(ans))
-	out.PrintIntsLn(ans)
 }
 
 func main() {
 	in, out := io.InitIo(&io.InitIoProps{
-		DoBuffer: true,
+		DoBuffer: false,
 		ReadLine: false,
 	})
 	defer out.Flush()

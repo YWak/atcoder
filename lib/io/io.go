@@ -24,7 +24,10 @@ type Out struct {
 }
 
 type InitIoProps struct {
+	// バッファを行うかどうか。
 	DoBuffer bool
+
+	// 行単位で読むか、改行単位で読むか。
 	ReadLine bool
 }
 

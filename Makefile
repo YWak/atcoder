@@ -3,7 +3,7 @@ HISTORY_FILE := download-history.jsonl
 
 OJ_HISTORY := $(HISTORY_DIR)/$(HISTORY_FILE)
 
-.PHONY: clean init test submit save restore
+.PHONY: clean gottani init test submit save restore
 
 init:
 	cp .vscode/template.go main.go
@@ -24,10 +24,12 @@ init-offline:
 	for i in `seq 5`; do touch "test/sample-$$i.in"; touch "test/sample-$$i.out"; done
 	code ./main.go
 
-test:
+gottani:
 	mkdir -p sandbox
 	cp -f go.mod go.sum sandbox
 	gottani > sandbox/main.go
+
+test: gottani
 	go build -o ./a.out sandbox/main.go
 	oj test
 	rm -rf a.out

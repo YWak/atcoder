@@ -18,7 +18,7 @@ func calc(in *io.In, out *io.Out) {
 
 func main() {
 	in, out := io.InitIo(&io.InitIoProps{
-		DoBuffer: true,
+		DoBuffer: true, // インタラクティブならfalseにすること。
 		ReadLine: false,
 	})
 	defer out.Flush()
