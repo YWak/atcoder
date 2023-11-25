@@ -19,8 +19,10 @@ func calc(in *io.In, out *io.Out) {
 	for i, v := range a {
 		if v <= l {
 			ans[i] = l
-		} else {
+		} else if v >= r {
 			ans[i] = r
+		} else {
+			ans[i] = v
 		}
 	}
 	out.PrintIntsLn(ans)
