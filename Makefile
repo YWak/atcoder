@@ -34,10 +34,10 @@ test: gottani
 	oj test
 	rm -rf a.out
 
-submit:
-	gottani > _main.go
+submit: gottani
+	cp sandbox/main.go _main.go
 	oj submit _main.go
-	rm -rf _main.go
+	rm -f _main.go
 
 save:
 	! [ -f main.go ] && echo 'main.go does not exist' && exit 1 || true
