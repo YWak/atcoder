@@ -16,6 +16,18 @@ type LazySegmentTree[V, F any] struct {
 
 // NewLazySegmentTreeは遅延評価セグメントツリーの実装を返します。
 // Vは扱うモノイドの型、Fはモノイドに適用する写像をあらわします。
+//
+// 例えば range add range max queryの場合、以下のようになります。
+//
+// st := NewLazySegmentTree[int, int](
+//
+//	max,
+//	func(f, x int) int { return f + x },
+//	func(f, g int) int { return f + g },
+//	func() int { return 0 },
+//	func() int { return 0 },
+//
+// )
 func NewLazySegmentTree[V, F any](
 	operate func(a, b V) V,
 	mapping func(f F, x V) V,
