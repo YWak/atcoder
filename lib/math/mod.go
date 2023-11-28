@@ -1,5 +1,7 @@
 package math
 
+import "fmt"
+
 type ModInt int
 
 const Mod998244353 = ModInt(998244353)
@@ -99,4 +101,77 @@ func (mod ModInt) Chmul(a *int, b int) {
 // Chdivはa / b (mod m)の結果をaに設定します。
 func (mod ModInt) Chdiv(a *int, b int) {
 	*a = mod.Div(*a, b)
+}
+
+type Combination interface {
+	// Factはnの階乗を返します。
+	Fact(n int) int
+
+	// Permはn個のモノからr個取り出して並べる順列の個数を返します。
+	Perm(n, k int) int
+
+	// Chooseはn個のモノからr個取り出す組み合わせの個数を返します。
+	Choose(n, k int) int
+
+	// RepChooseはn個のモノから重複を許して取り出す組み合わせの個数を返します。
+	RepChoose(n, k int) int
+}
+
+type factCombination struct {
+	mod   ModInt
+	fact  []int
+	ifact []int
+}
+
+func (com *factCombination) init(n int) {
+	mod := com.mod
+	com.fact = make([]int, n+1)
+	com.ifact = make([]int, n+1)
+
+	com.fact[1] = 1
+	for i := 2; i <= n; i++ {
+		com.fact[i] = mod.Mul(com.fact[i-1], i)
+	}
+
+	com.ifact[n] = mod.Inv(com.fact[n])
+	for i := n - 1; i > 0; i-- {
+		com.ifact[i] = mod.Mul(com.ifact[i+1], i)
+	}
+}
+
+func (com *factCombination) Fact(n int) int {
+	return com.fact[n]
+}
+
+func (com *factCombination) Perm(n, r int) int {
+	if n <= 0 || r <= 0 || n < r {
+		return 1
+	}
+	return com.mod.Mul(com.fact[n], com.ifact[n-r])
+}
+
+func (com *factCombination) Choose(n, r int) int {
+	if n <= 0 || r <= 0 || n < r {
+		return 1
+	}
+	return com.mod.Mul(com.fact[n], com.mod.Mul(com.ifact[r], com.ifact[n-r]))
+}
+
+func (com *factCombination) RepChoose(n, r int) int {
+	return com.Choose(n+r-1, r)
+}
+
+var _ Combination = &factCombination{}
+
+const MAX_FACT_SIZE = int(1e7)
+
+// 組合せの計算を行うモジュールを返します。
+func (mod ModInt) NewComination(nmax, kmax int) Combination {
+	if nmax > MAX_FACT_SIZE && kmax > MAX_FACT_SIZE {
+		panic(fmt.Sprintf("nmax and kmax must not be greater than %d", MAX_FACT_SIZE))
+	}
+
+	c := factCombination{mod: mod}
+	c.init(Max(nmax, kmax))
+	return &c
 }
