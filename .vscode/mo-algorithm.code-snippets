@@ -17,7 +17,7 @@
             "    qs[i] = &query{l, r, i, -1}",
             "  }",
             "",
-            "  bs := n / min(n, int(math.Sqrt(float64(Q))))",
+            "  bs := n / min(n, int(gomath.Sqrt(float64(Q))))",
             "",
             "  sort.Slice(qs, func(i, j int) bool {",
             "    bi := qs[i].l / bs",
