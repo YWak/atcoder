@@ -167,7 +167,7 @@ const MAX_FACT_SIZE = int(1e7)
 
 // 組合せの計算を行うモジュールを返します。
 func (mod ModInt) NewComination(nmax, kmax int) Combination {
-	if nmax > MAX_FACT_SIZE && kmax > MAX_FACT_SIZE {
+	if nmax > MAX_FACT_SIZE || kmax > MAX_FACT_SIZE {
 		panic(fmt.Sprintf("nmax and kmax must not be greater than %d", MAX_FACT_SIZE))
 	}
 
