@@ -33,26 +33,22 @@ func calc(in *io.In, out *io.Out) {
 	sum := func(x1, y1, x2, y2 int) int {
 		return s[x2][y2] - s[x1][y2] - s[x2][y1] + s[x1][y1]
 	}
+	sum2 := func(x1, y1 int) int {
+		x := divfloor(x1, n)
+		y := divfloor(y1, n)
+
+		debug(x, y)
+		return sum(0, 0, n, n)*x*y + sum(0, 0, n, y1%n)*x + sum(0, 0, x1%n, n)*y - sum(0, 0, x1%n, y1%n)
+	}
 
 	for q := 0; q < Q; q++ {
 		a, b, c, d := in.NextInt4()
-		x1 := divceil(a+1, n)*n - (a + 1)
-		y1 := divceil(b+1, n)*n - (b + 1)
-		x2 := c - divfloor(c, n)*n
-		y2 := d - divfloor(d, n)*n
-		row := (divfloor(c, n) - divceil(a, n)) * n
-		col := (divfloor(d, n) - divceil(b, n)) * n
-		debug(x1, y1, x2, y2, row, col)
-		ans := sum(0, 0, n, n) * row * col
-		ans += sum(0, n, y1, n) * col
-		ans += sum(0, n, 0, y2) * col
-		ans += sum(x1, 0, n, n) * row
-		ans += sum(x2, 0, n, n) * row
-		ans += sum(x1, y1, n, n) // 左上
-		ans += sum(x2, y1, n, n) // 右上
-		ans += sum(x1, 0, n, y2) // 左下
-		ans += sum(0, 0, x2, y2) // 右下
-		out.Println(ans)
+		s1 := sum2(c, d)
+		s2 := sum2(a, d)
+		s3 := sum2(c, b)
+		s4 := sum2(a, b)
+		debug(s1, s2, s3, s4)
+		out.Println(s1 - s2 - s3 + s4)
 	}
 }
 
