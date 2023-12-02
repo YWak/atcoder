@@ -30,24 +30,33 @@ func calc(in *io.In, out *io.Out) {
 			}
 		}
 	}
+	// [0, n)の範囲で[x1, x2), [y1, y2)の合計を返します。
 	sum := func(x1, y1, x2, y2 int) int {
 		return s[x2][y2] - s[x1][y2] - s[x2][y1] + s[x1][y1]
 	}
-	sum2 := func(x1, y1 int) int {
-		x := divfloor(x1, n)
-		y := divfloor(y1, n)
 
-		debug(x, y)
-		return sum(0, 0, n, n)*x*y + sum(0, 0, n, y1%n)*x + sum(0, 0, x1%n, n)*y - sum(0, 0, x1%n, y1%n)
+	// [0, x), [0, y)の合計を返します
+	sum2 := func(x, y int) int {
+		nx := divfloor(x, n)
+		ny := divfloor(y, n)
+
+		a1 := sum(0, 0, n, y%n)
+		a2 := sum(0, 0, x%n, n)
+		a3 := sum(0, 0, x%n, y%n)
+
+		ans := sum(0, 0, n, n) * nx * ny // 全体の合計
+		ans += a1 * nx
+		ans += a2 * ny
+		ans += a3
+		return ans
 	}
 
 	for q := 0; q < Q; q++ {
 		a, b, c, d := in.NextInt4()
-		s1 := sum2(c, d)
-		s2 := sum2(a, d)
-		s3 := sum2(c, b)
+		s1 := sum2(c+1, d+1)
+		s2 := sum2(a, d+1)
+		s3 := sum2(c+1, b)
 		s4 := sum2(a, b)
-		debug(s1, s2, s3, s4)
 		out.Println(s1 - s2 - s3 + s4)
 	}
 }
