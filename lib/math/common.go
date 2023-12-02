@@ -26,13 +26,19 @@ func Min(a, b int) int {
 }
 
 // Chmaxはaとbのうち大きい方をaに設定します。
-func Chmax(a *int, b int) {
+// 変更されたかどうかを返します。
+func Chmax(a *int, b int) bool {
+	o := *a
 	*a = Max(*a, b)
+	return *a != o
 }
 
 // Chminはaとbのうち小さい方をaに設定します。
-func Chmin(a *int, b int) {
+// 変更されたかどうかを返します。
+func Chmin(a *int, b int) bool {
+	o := *a
 	*a = Min(*a, b)
+	return *a != o
 }
 
 // Absはaの絶対値を返します。
