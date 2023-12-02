@@ -16,11 +16,11 @@ func calc(in *io.In, out *io.Out) {
 	M, D := in.NextInt2()
 	y, m, d := in.NextInt3()
 	d++
-	if d >= D {
+	if d > D {
 		d = 1
 		m++
 	}
-	if m >= M {
+	if m > M {
 		m = 1
 		y++
 	}
