@@ -29,9 +29,19 @@ func calc(in *io.In, out *io.Out) {
 		ws[p] = c
 	}
 
+	// 部分集合の列挙
+	// s: もとの集合, t: 部分集合, u: 補集合
+	for t := s; t >= 0; t-- {
+		t &= s
+		// u := (^t) & s
+	}
 	// 分散mが実現できるか？
 	check := func(m float64) bool {
+		avg := 0.0
 
+		for p := 0; p < 1<<n; p++ {
+
+		}
 	}
 
 	ok, ng := 1e18, 0.0
