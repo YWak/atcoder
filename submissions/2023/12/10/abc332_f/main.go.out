@@ -8,39 +8,208 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 const mod = math.Mod998244353
 
+// 当初の期待値にxをかけてyを足す
+type P struct {
+	mul, add int
+}
+
+type LazySegmentTree struct {
+	// Initは長さnの配列として初期化します
+	Init func(n int) *LazySegmentTree
+
+	// InitByArrayはarrとして初期化します。
+	InitByArray func(arr []int) *LazySegmentTree
+
+	// Updateは[l, r)をfで更新します。
+	Update func(l, r int, f *P)
+
+	// Queryは[l, r)の値を返します。
+	Query func(l, r int) int
+}
+
+// NewLazySegmentTreeは遅延評価セグメントツリーの実装を返します。
+// Vは扱うモノイドの型、Fはモノイドに適用する写像をあらわします。
+//
+// 例えば range add range max queryの場合、以下のようになります。
+//
+// st := NewLazySegmentTree[int, int](
+//
+//	max,
+//	func(f, x int) int { return f + x },
+//	func(f, g int) int { return f + g },
+//	func() int { return 0 },
+//	func() int { return 0 },
+//
+// )
+func NewLazySegmentTree(
+	operate func(a, b int) int,
+	mapping func(f *P, x int) int,
+	composition func(f, g *P) *P,
+	e func() int,
+	id func() *P,
+) *LazySegmentTree {
+	st := &LazySegmentTree{}
+	var log int
+	var size int
+	var data []int
+	var lazy []*P
+
+	update := func(k int) {
+		data[k] = operate(data[k*2+0], data[k*2+1])
+	}
+
+	// 初期化
+	// tested:
+	//   https://atcoder.jp/contests/typical90/tasks/typical90_ac
+	st.Init = func(n int) *LazySegmentTree {
+		arr := make([]int, n)
+		for i := 0; i < n; i++ {
+			arr[i] = e()
+		}
+		return st.InitByArray(arr)
+	}
+
+	// 配列による初期化
+	// tested:
+	//   https://atcoder.jp/contests/typical90/tasks/typical90_ac
+	st.InitByArray = func(arr []int) *LazySegmentTree {
+		n := len(arr)
+		size = 1
+		log = 0
+		for size < n {
+			size *= 2
+			log++
+		}
+		data = make([]int, size*2)
+		for i := 0; i < n; i++ {
+			data[size+i] = arr[i]
+		}
+		for i := size - 1; i >= 1; i-- {
+			update(i)
+		}
+		lazy = make([]*P, size)
+		for i := range lazy {
+			lazy[i] = id()
+		}
+
+		return st
+	}
+
+	applyAll := func(k int, f *P) {
+		data[k] = mapping(f, data[k])
+		if k < size {
+			lazy[k] = composition(f, lazy[k])
+		}
+	}
+	push := func(k int) {
+		applyAll(2*k+0, lazy[k])
+		applyAll(2*k+1, lazy[k])
+		lazy[k] = id()
+	}
+	// [l, r)の値を取得する。
+	// tested:
+	//   https://atcoder.jp/contests/typical90/tasks/typical90_ac
+	st.Query = func(l, r int) int {
+		if l == r {
+			return e()
+		}
+		l, r = l+size, r+size
+		for i := log; i >= 1; i-- {
+			if (l>>i)<<i != l {
+				push(l >> i)
+			}
+			if (r>>i)<<i != r {
+				push(r >> i)
+			}
+		}
+		sml, smr := e(), e()
+		for l < r {
+			if l%2 == 1 {
+				sml = operate(sml, data[l])
+				l++
+			}
+			if r%2 == 1 {
+				r--
+				smr = operate(data[r], smr)
+			}
+			l >>= 1
+			r >>= 1
+		}
+
+		return operate(sml, smr)
+	}
+
+	// [l, r)の値をfで更新する
+	// tested:
+	//   https://atcoder.jp/contests/typical90/tasks/typical90_ac
+	st.Update = func(l, r int, f *P) {
+		if l == r {
+			return
+		}
+		l, r = l+size, r+size
+		for i := log; i >= 1; i-- {
+			if (l>>i)<<i != l {
+				push(l >> i)
+			}
+			if (r>>i)<<i != r {
+				push((r - 1) >> i)
+			}
+		}
+		ll, rr := l, r
+		for ll < rr {
+			if ll%2 == 1 {
+				applyAll(ll, f)
+				ll++
+			}
+			if rr%2 == 1 {
+				rr--
+				applyAll(rr, f)
+			}
+			ll >>= 1
+			rr >>= 1
+		}
+		for i := 1; i <= log; i++ {
+			if (l>>i)<<i != l {
+				update(l >> i)
+			}
+			if (r>>i)<<i != r {
+				update((r - 1) >> i)
+			}
+		}
+	}
+
+	return st
+}
+
 func calc(in *io.In, out *io.Out) {
 	n, m := in.NextInt2()
 	a := in.NextInts(n)
-    st := ds.NewLazySegmentTree[]()
 
-	up.f.e = func() int { return 0 }
-	up.f.calc = mod.Mul
-	bt.f.e = func() int { return 1 }
-	bt.f.calc = mod.Mul
-
-	up.initAsArray(a)
-	bts := make([]int, n)
-	for i := range bts {
-		bts[i] = 1
-	}
-	bt.initAsArray(bts)
+	st := NewLazySegmentTree(
+		mod.Add,
+		func(f *P, x int) int { return mod.Add(mod.Mul(x, f.mul), f.add) },
+		func(f, g *P) *P { return &P{mod.Mul(g.mul, f.mul), mod.Add(mod.Mul(f.mul, g.add), f.add)} },
+		func() int { return 0 },
+		func() *P { return &P{1, 0} },
+	)
+	st.InitByArray(a)
 
 	for i := 0; i < m; i++ {
 		l, r, x := in.NextInt3()
 		l--
-		// 既存の分母
+		v := r - l
+		st.Update(l, r, &P{mod.Div(v-1, v), mod.Div(x, v)})
 	}
 
 	ans := make([]int, n)
 	for i := 0; i < n; i++ {
-		ans[i] = st.query(i)
+		ans[i] = st.Query(i, i+1)
 	}
 	out.PrintIntsLn(ans)
 }

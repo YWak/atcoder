@@ -38,7 +38,7 @@ func (mod ModInt) Sub(a, b int) int {
 
 // Mulは a*b (mod m)を返します。
 func (mod ModInt) Mul(a, b int) int {
-	return (a * b) % int(mod)
+	return mod.Norm((a * b) % int(mod))
 }
 
 // Powは(x^n) mod m を返します。
