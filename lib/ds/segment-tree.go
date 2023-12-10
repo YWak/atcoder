@@ -4,13 +4,6 @@ import (
 	math "github.com/ywak/atcoder/lib/math"
 )
 
-type SegmentTreeFunctions struct {
-	// 単位元を返します
-	E func() int
-	// 計算結果を返します
-	Calc func(a, b int) int
-}
-
 type SegmentTree struct {
 	// このsegment treeが管理するインデックスの範囲。[0, n)を管理する。
 	n int
@@ -18,35 +11,25 @@ type SegmentTree struct {
 	// segment treeの各ノードの値を保持する配列
 	nodes []int
 
-	// このsegment treeの値を操作する関数群
-	F SegmentTreeFunctions
+	e func() int
+
+	calc func(a, b int) int
 }
 
 // NewSegmentTreeは区間和を扱うSegmentTreeを返します。
 // tested:
 //
 //	https://atcoder.jp/contests/abl/tasks/abl_d
-func NewSegmentTree() *SegmentTree {
-	return &SegmentTree{
-		-1,
-		[]int{},
-		SegmentTreeFunctions{
-			func() int { return 0 },
-			func(a, b int) int { return a + b },
-		},
-	}
+func NewSegmentTree(
+	e func() int,
+	calc func(a, b int) int,
+) *SegmentTree {
+	return &SegmentTree{-1, []int{}, e, calc}
 }
 
 // NewRangeMaxQueryは区間最大値を扱うSegmentTreeを返します。
 func NewRangeMaxQuery() *SegmentTree {
-	return &SegmentTree{
-		-1,
-		[]int{},
-		SegmentTreeFunctions{
-			func() int { return -math.INF18 },
-			func(a, b int) int { return math.Max(a, b) },
-		},
-	}
+	return NewSegmentTree(func() int { return -math.INF18 }, func(a, b int) int { return math.Max(a, b) })
 }
 
 // NewRangeMinQueryは区間最小値を扱うSegmentTreeを返します。
@@ -54,14 +37,7 @@ func NewRangeMaxQuery() *SegmentTree {
 //
 //	https://judge.yosupo.jp/problem/staticrmq
 func NewRangeMinQuery() *SegmentTree {
-	return &SegmentTree{
-		-1,
-		[]int{},
-		SegmentTreeFunctions{
-			func() int { return math.INF18 },
-			func(a, b int) int { return math.Min(a, b) },
-		},
-	}
+	return NewSegmentTree(func() int { return math.INF18 }, func(a, b int) int { return math.Min(a, b) })
 }
 
 // Initは[0, n)のsegment treeを初期化します。
@@ -78,7 +54,7 @@ func (st *SegmentTree) Init(n int) {
 	st.n = x / 2
 	st.nodes = make([]int, x)
 	for i := 0; i < x; i++ {
-		st.nodes[i] = st.F.E()
+		st.nodes[i] = st.e()
 	}
 }
 
@@ -101,7 +77,7 @@ func (st *SegmentTree) InitAsArray(vals []int) {
 		st.nodes[i+st.n] = v
 	}
 	for i := st.n - 1; i > 0; i-- {
-		st.nodes[i] = st.F.Calc(st.nodes[i*2], st.nodes[i*2+1])
+		st.nodes[i] = st.calc(st.nodes[i*2], st.nodes[i*2+1])
 	}
 }
 
@@ -109,7 +85,7 @@ func (st *SegmentTree) InitAsArray(vals []int) {
 // tested:
 //
 //	https://atcoder.jp/contests/abl/tasks/abl_d
-func (st *SegmentTree) Update(i, value int) {
+func (st *SegmentTree) Update(i int, value int) {
 	t := i + st.n
 	st.nodes[t] = value
 
@@ -118,7 +94,7 @@ func (st *SegmentTree) Update(i, value int) {
 		if t == 0 {
 			break
 		}
-		st.nodes[t] = st.F.Calc(st.nodes[t*2], st.nodes[t*2+1])
+		st.nodes[t] = st.calc(st.nodes[t*2], st.nodes[t*2+1])
 	}
 }
 
@@ -127,15 +103,15 @@ func (st *SegmentTree) Update(i, value int) {
 //
 //	https://atcoder.jp/contests/abl/tasks/abl_d
 func (st *SegmentTree) Query(l, r int) int {
-	ret := st.F.E()
+	ret := st.e()
 	for ll, rr := l+st.n, r+st.n; ll < rr; ll, rr = ll/2, rr/2 {
 		if ll%2 == 1 {
-			ret = st.F.Calc(ret, st.nodes[ll])
+			ret = st.calc(ret, st.nodes[ll])
 			ll++
 		}
 		if rr%2 == 1 {
 			rr--
-			ret = st.F.Calc(st.nodes[rr], ret)
+			ret = st.calc(st.nodes[rr], ret)
 		}
 	}
 
