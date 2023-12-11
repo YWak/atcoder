@@ -1,0 +1,162 @@
+//lint:file-ignore U1000 using template
+package main
+
+import (
+	"fmt"
+	"math/bits"
+	"os"
+	"sort"
+	"strings"
+
+	io "github.com/ywak/atcoder/lib/io"
+	"github.com/ywak/atcoder/lib/math"
+)
+
+func calc(in *io.In, out *io.Out) {
+	n, m, p := in.NextInt3()
+	aa := in.NextInts(n)
+	bb := in.NextInts(m)
+
+	sort.Ints(aa)
+	sort.Ints(bb)
+	sb := make([]int, m+1)
+	for i, v := range bb {
+		sb[i+1] = sb[i] + v
+	}
+
+	ans := 0
+	for _, a := range aa {
+		ng, ok := -1, m // a + bb[i] > pとなる最小のi
+		for abs(ok-ng) > 1 {
+			mid := (ok + ng) / 2
+			if bb[mid] > p-a {
+				ok = mid
+			} else {
+				ng = mid
+			}
+		}
+
+		over := (m - ok)
+		under := ok
+		ans += over * p
+		ans += sb[ok] + a*under
+	}
+
+	out.Println(ans)
+}
+
+func main() {
+	in, out := io.InitIo(&io.InitIoProps{
+		DoBuffer: true, // インタラクティブならfalseにすること。
+		ReadLine: false,
+	})
+	defer out.Flush()
+
+	calc(in, out)
+}
+
+var isDebugMode = os.Getenv("AT_DEBUG") == "1"
+
+func debug(args ...interface{}) {
+	if isDebugMode {
+		fmt.Fprintln(os.Stderr, args...)
+	}
+}
+
+// ==================================================
+// 数値操作
+// ==================================================
+
+// INF18 は最大値を表す数
+const INF18 = math.INF18
+
+// INF9 は最大値を表す数
+const INF9 = math.INF9
+
+// N10_6は10^6
+const N10_6 = math.N10_6
+
+// max は aとbのうち大きい方を返します。
+func max(a, b int) int {
+	return math.Max(a, b)
+}
+
+// min は aとbのうち小さい方を返します。
+func min(a, b int) int {
+	return math.Min(a, b)
+}
+
+// chmax は aとbのうち大きい方をaに設定します。
+func chmax(a *int, b int) bool {
+	return math.Chmax(a, b)
+}
+
+// chmin は aとbのうち小さい方をaに設定します。
+func chmin(a *int, b int) bool {
+	return math.Chmin(a, b)
+}
+
+// abs は aの絶対値を返します。
+func abs(a int) int {
+	return math.Abs(a)
+}
+
+// chiはcondがtrueのときok, falseのときngを返します。
+func chi(cond bool, ok, ng int) int {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// chbはcondがtrueのときok, falseのときngを返します。
+func chb(cond bool, ok, ng byte) byte {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// chsはcondがtrueのときok, falseのときngを返します。
+func chs(cond bool, ok, ng string) string {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// ==================================================
+// ビット操作
+// ==================================================
+
+// nthbit はaのn番目のビットを返します。
+func nthbit(aa int, n int) int { return int((aa >> uint(n)) & 1) }
+
+// popcount はaのうち立っているビットを数えて返します。
+func popcount(aa int) int {
+	return bits.OnesCount(uint(aa))
+}
+
+// ==================================================
+// 文字列操作
+// ==================================================
+
+// toLowerCase は sをすべて小文字にした文字列を返します。
+func toLowerCase(s string) string {
+	return strings.ToLower(s)
+}
+
+// toUpperCase は sをすべて大文字にした文字列を返します。
+func toUpperCase(s string) string {
+	return strings.ToUpper(s)
+}
+
+// isLower はbが小文字かどうかを判定します
+func isLower(bb byte) bool {
+	return 'a' <= bb && bb <= 'z'
+}
+
+// isUpper はbが大文字かどうかを判定します
+func isUpper(bb byte) bool {
+	return 'A' <= bb && bb <= 'Z'
+}
