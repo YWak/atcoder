@@ -32,12 +32,9 @@ func calc(in *io.In, out *io.Out) {
 		mod.Chmul(&dp[i][i], pow2[i])
 		mod.Chdiv(&dp[i][i], mod.Sub(pow2[i], 1))
 
-		// j == 1のとき
-		dp[i][1] = mod.Mul(dp[i][i], inv2[1])
-
-		// 1 < j < iのとき
+		// 1 <= j < iのとき
 		s := 0
-		for j := 2; j < i; j++ {
+		for j := 1; j < i; j++ {
 			mod.Chmul(&s, inv2[1])
 			a := mod.Mul(dp[i-1][j-1], inv2[1])
 			mod.Chadd(&s, a)
