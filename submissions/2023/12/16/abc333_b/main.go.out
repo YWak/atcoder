@@ -13,16 +13,33 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	s := in.NextBytes()
-	t := in.NextBytes()
+	s := in.NextString()
+	t := in.NextString()
 
-	d := func(b []byte) int {
-		a1 := min(int(b[0]), int(b[1]))
-		a2 := max(int(b[0]), int(b[1]))
-		return (a1 - a2 + 5) % 5
+	d := map[string]int{
+		"AB": 1,
+		"AC": 2,
+		"AD": 2,
+		"AE": 1,
+		"BC": 1,
+		"BD": 2,
+		"BE": 2,
+		"BA": 1,
+		"CD": 1,
+		"CE": 2,
+		"CA": 2,
+		"CB": 1,
+		"DE": 1,
+		"DA": 2,
+		"DB": 2,
+		"DC": 1,
+		"EA": 1,
+		"EB": 2,
+		"EC": 2,
+		"ED": 1,
 	}
 
-	out.YesNo(d(s) == d(t))
+	out.YesNo(d[s] == d[t])
 }
 
 func main() {
