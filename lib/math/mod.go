@@ -103,6 +103,32 @@ func (mod ModInt) Chdiv(a *int, b int) {
 	*a = mod.Div(*a, b)
 }
 
+// Fracは aをそれっぽい分数で表現します。
+func (mod ModInt) Frac(a int) (int, int) {
+	v1, v2 := int(mod), 0
+	w1, w2 := a, 1
+
+	for w1*w1*2 > int(mod) {
+		q := v1 / w1
+		z1, z2 := v1-q*w1, v2-q*w2
+
+		v1, v2, w1, w2 = w1, w2, z1, z2
+	}
+	if w2 < 0 {
+		w1, w2 = -w1, -w2
+	}
+	return w1, w2
+}
+
+func (mod ModInt) Fracs(a int) string {
+	w1, w2 := mod.Frac(a)
+	if w2 == 1 {
+		return fmt.Sprintf("%d", w1)
+	} else {
+		return fmt.Sprintf("%d/%d", w1, w2)
+	}
+}
+
 type Combination interface {
 	// Factはnの階乗を返します。
 	Fact(n int) int
