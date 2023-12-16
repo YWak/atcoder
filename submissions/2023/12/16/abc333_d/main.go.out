@@ -15,47 +15,35 @@ import (
 func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	g := make([][]int, n)
-	ref := make([]int, n)
 	for i := 0; i < n-1; i++ {
 		u, v := in.NextInt2()
 		u--
 		v--
 		g[u] = append(g[u], v)
 		g[v] = append(g[v], u)
-		ref[u]++
-		ref[v]++
 	}
 
-	ans := make([]int, n)
-	checked := make([]bool, n)
-
-	queue := []int{}
-	for i, r := range ref {
-		if r == 1 {
-			queue = append(queue, i)
-			checked[i] = true
-		}
-	}
-	for len(queue) > 0 {
-		u := queue[0]
-		queue = queue[1:]
-		ans[u]++
-
-		if u == 0 {
-			break
-		}
-		c := ans[u]
-		for _, v := range g[u] {
-			ref[v]--
-			ans[v] += c
-			if ref[v] == 1 && !checked[v] {
-				queue = append(queue, v)
-				checked[v] = true
+	a := make([]int, n)
+	var dfs func(curr, prev int) int
+	dfs = func(curr, prev int) int {
+		c := 1
+		for _, next := range g[curr] {
+			if next != prev {
+				c += dfs(next, curr)
 			}
 		}
+
+		a[curr] = c
+		return c
 	}
 
-	out.Println(ans[0])
+	dfs(0, -1)
+	mx := 0
+	for _, v := range g[0] {
+		chmax(&mx, a[v])
+	}
+
+	out.Println(a[0] - mx)
 }
 
 func main() {
