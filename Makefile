@@ -34,6 +34,9 @@ test: gottani
 	oj test
 	rm -rf a.out
 
+testadd:
+	for i in `seq 100`; do [ ! -e "test/test-$$i.in" ] && touch "test/test-$$i.in" "test/test-$$i.out" && exit; done
+
 submit: gottani
 	cp sandbox/main.go _main.go
 	oj submit _main.go
