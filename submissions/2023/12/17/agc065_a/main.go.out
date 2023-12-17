@@ -7,7 +7,6 @@ import (
 	"math/bits"
 	"math/rand"
 	"os"
-	"sort"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
@@ -68,68 +67,15 @@ func (mp *Treap) Lesser(v int) int {
 	return c.(int)
 }
 
-func solve3(items []*item, k int) int {
-	b := []int{}
-	for _, item := range items {
-		b = append(b, item.arr...)
-	}
-	return eval(b, k)
-}
-
-func solve4(items []*item, k int) int {
-	if len(items) == 1 {
-		return -1
-	}
-
-	sort.Slice(items, func(i, j int) bool {
-		return items[i].Head() < items[j].Head()
-	})
-	heads := []int{items[0].i, items[1].i}
-
-	sort.Slice(items, func(i, j int) bool {
-		return items[i].Tail() > items[j].Tail()
-	})
-	tails := []int{items[0].i, items[1].i}
-
-	ans := 0
-	for _, head := range heads {
-		for _, tail := range tails {
-			if head == tail {
-				continue
-			}
-
-			sort.Slice(items, func(i, j int) bool {
-				ii, ij := items[i], items[j]
-				if ii.i == head || ij.i == tail {
-					return true
-				}
-				if ii.i == tail || ij.i == head {
-					return false
-				}
-				return ii.i < ij.i
-			})
-			b := []int{}
-			for _, item := range items {
-				b = append(b, item.arr...)
-			}
-			chmax(&ans, eval(b, k))
-		}
-	}
-
-	return ans
-}
-
 func solve2(n, k int, a []int) int {
 	mp := NewIntTreap()
-
 	for _, v := range a {
 		mp.Add(v)
 	}
 
+	b := make([]int, n)
 	prev := 0
 
-	p := -1
-	items := make([]*item, n)
 	for i := 0; i < n; i++ {
 		c1 := mp.Lesser(prev)
 		c2 := mp.Greatest()
@@ -138,36 +84,53 @@ func solve2(n, k int, a []int) int {
 			c = c1
 		} else {
 			c = c2
-			p++
-			items[p] = &item{i: p}
 		}
 
-		items[p].arr = append(items[p].arr, c)
+		b[i] = c
 		mp.Sub(c)
 		prev = c
 	}
-	items = items[:p+1]
+	debug(b)
 
-	// そのままやるパターン
-	ans := solve3(items, k)
-
-	// ソートを実施するパターン
-	chmax(&ans, solve4(items, k))
-
-	return ans
+	diff := INF18
+	b = append(b, b[0])
+	ans := 0
+	for i := 0; i < n; i++ {
+		v := (b[i+1] - b[i] + k) % k
+		chmin(&diff, v)
+		ans += v
+	}
+	return ans - diff
 }
 
 func solve(n, k int, a []int) int {
-	b := make([]int, n)
-	for i, v := range a {
+	ans := solve2(n, k, a)
+
+	ex0, ex1 := false, false
+	for _, v := range a {
 		if v == 0 {
-			b[i] = k
-		} else {
-			b[i] = v
+			ex0 = true
+		}
+		if v == k-1 {
+			ex1 = true
 		}
 	}
 
-	return max(solve2(n, k, a), solve2(n, k, b))
+	if ex0 && ex1 {
+		b := make([]int, n)
+		done := false
+		for i, v := range a {
+			if v == 0 && !done {
+				b[i] = k
+				done = true
+			} else {
+				b[i] = v
+			}
+		}
+		chmax(&ans, solve2(n, k, b))
+	}
+
+	return ans
 }
 
 func verify(out *io.Out) {
