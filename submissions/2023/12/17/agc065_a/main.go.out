@@ -7,87 +7,212 @@ import (
 	"math/bits"
 	"math/rand"
 	"os"
+	"sort"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
-func calc(in *io.In, out *io.Out) {
-	n, k := in.NextInt2()
-	a := in.NextInts(n)
+type item struct {
+	i   int
+	arr []int
+}
 
-	m1 := NewIntTreap()
-	m2 := NewRevIntTreap()
-	add := func(v int) {
-		c := m1.Get(v)
-		if c == nil {
-			m1.Put(v, 1)
-			m2.Put(v, 1)
-		} else {
-			m1.Put(v, c.(int)+1)
-			m2.Put(v, c.(int)+1)
-		}
+func (item *item) Head() int {
+	return item.arr[0]
+}
+func (item *item) Tail() int {
+	return item.arr[len(item.arr)-1]
+}
+
+func eval(arr []int, k int) int {
+	ans := 0
+	for i := 0; i < len(arr)-1; i++ {
+		ans += (arr[i+1] - arr[i] + k) % k
 	}
-	sub := func(v int) {
-		c := m1.Get(v).(int)
-		if c == 1 {
-			m1.Remove(v)
-			m2.Remove(v)
-		} else {
-			m1.Put(v, c-1)
-			m2.Put(v, c-1)
-		}
+	return ans
+}
+
+func (t *Treap) Add(v int) {
+	c := t.Get(v)
+	if c == nil {
+		t.Put(v, 1)
+	} else {
+		t.Put(v, c.(int)+1)
 	}
-	greatest := func() int {
-		c, _ := m2.GetKth(1)
-		return c.(int)
+}
+func (mp *Treap) Sub(v int) {
+	c := mp.Get(v).(int)
+	if c == 1 {
+		mp.Remove(v)
+	} else {
+		mp.Put(v, c-1)
+	}
+}
+
+func (mp *Treap) Greatest() int {
+	c, _ := mp.GetKth(mp.root.cnt)
+	return c.(int)
+}
+
+func (mp *Treap) Lesser(v int) int {
+	if v <= 0 {
+		return -1
 	}
 
-	lesser := func(v int) int {
-		if v <= 0 {
-			return -1
-		}
-
-		c := m1.Find(v - 1)
-		if c == nil {
-			return -1
-		}
-		return c.(int)
+	c := mp.Find(v - 1)
+	if c == nil {
+		return -1
 	}
+	return c.(int)
+}
+
+func solve3(items []*item, k int) int {
+	b := []int{}
+	for _, item := range items {
+		b = append(b, item.arr...)
+	}
+	return eval(b, k)
+}
+
+func solve4(items []*item, k int) int {
+	if len(items) == 1 {
+		return -1
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Head() < items[j].Head()
+	})
+	heads := []int{items[0].i, items[1].i}
+
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Tail() > items[j].Tail()
+	})
+	tails := []int{items[0].i, items[1].i}
+
+	ans := 0
+	for _, head := range heads {
+		for _, tail := range tails {
+			if head == tail {
+				continue
+			}
+
+			sort.Slice(items, func(i, j int) bool {
+				ii, ij := items[i], items[j]
+				if ii.i == head || ij.i == tail {
+					return true
+				}
+				if ii.i == tail || ij.i == head {
+					return false
+				}
+				return ii.i < ij.i
+			})
+			b := []int{}
+			for _, item := range items {
+				b = append(b, item.arr...)
+			}
+			chmax(&ans, eval(b, k))
+		}
+	}
+
+	return ans
+}
+
+func solve2(n, k int, a []int) int {
+	mp := NewIntTreap()
 
 	for _, v := range a {
-		add(v)
+		mp.Add(v)
 	}
 
-	b := make([]int, n)
 	prev := 0
 
+	p := -1
+	items := make([]*item, n)
 	for i := 0; i < n; i++ {
-		c1 := lesser(prev)
-		c2 := greatest()
+		c1 := mp.Lesser(prev)
+		c2 := mp.Greatest()
 		var c int
 		if c1 != -1 {
 			c = c1
 		} else {
 			c = c2
+			p++
+			items[p] = &item{i: p}
 		}
 
-		b[i] = c
-		sub(c)
+		items[p].arr = append(items[p].arr, c)
+		mp.Sub(c)
 		prev = c
 	}
+	items = items[:p+1]
 
-	diff := INF18
-	b = append(b, b[0])
-	ans := 0
-	for i := 0; i < n; i++ {
-		v := (b[i+1] - b[i] + k) % k
-		chmin(&diff, v)
-		ans += v
+	// そのままやるパターン
+	ans := solve3(items, k)
+
+	// ソートを実施するパターン
+	chmax(&ans, solve4(items, k))
+
+	return ans
+}
+
+func solve(n, k int, a []int) int {
+	b := make([]int, n)
+	for i, v := range a {
+		if v == 0 {
+			b[i] = k
+		} else {
+			b[i] = v
+		}
 	}
-	ans -= diff
-	out.Println(ans)
+
+	return max(solve2(n, k, a), solve2(n, k, b))
+}
+
+func verify(out *io.Out) {
+	nn := 8
+	for kk := 1; kk <= 120; kk++ {
+		aa := make([]int, nn)
+		for i := range aa {
+			aa[i] = rand.Intn(kk)
+		}
+		actual := solve(nn, kk, aa)
+
+		// verify
+		expected := 0
+		exarray := make([]int, nn)
+		p := math.NewPermutation(nn)
+		b := make([]int, nn)
+		for {
+			for i, v := range aa {
+				b[p.Get(i)] = v
+			}
+			exp := eval(b, kk)
+			if expected < exp {
+				expected = exp
+				exarray = b
+			}
+			if !p.Next() {
+				break
+			}
+		}
+		if expected != actual {
+			fmt.Printf("expected = %d, but was %d\n%v\n", expected, actual, exarray)
+			fmt.Printf("%d %d\n", nn, kk)
+			for i, v := range aa {
+				fmt.Printf("%d%s", v, chs(i < nn-1, " ", "\n"))
+			}
+		}
+	}
+}
+
+func calc(in *io.In, out *io.Out) {
+	// verify(out)
+	n, k := in.NextInt2()
+	a := in.NextInts(n)
+
+	out.Println(solve(n, k, a))
 }
 
 type Treap struct {
