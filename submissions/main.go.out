@@ -18,7 +18,7 @@ func calc(in *io.In, out *io.Out) {
 
 func main() {
 	in, out := io.InitIo(&io.InitIoProps{
-		DoBuffer: true,
+		DoBuffer: true, // インタラクティブならfalseにすること。
 		ReadLine: false,
 	})
 	defer out.Flush()
@@ -58,13 +58,13 @@ func min(a, b int) int {
 }
 
 // chmax は aとbのうち大きい方をaに設定します。
-func chmax(a *int, b int) {
-	math.Chmax(a, b)
+func chmax(a *int, b int) bool {
+	return math.Chmax(a, b)
 }
 
 // chmin は aとbのうち小さい方をaに設定します。
-func chmin(a *int, b int) {
-	math.Chmin(a, b)
+func chmin(a *int, b int) bool {
+	return math.Chmin(a, b)
 }
 
 // abs は aの絶対値を返します。
