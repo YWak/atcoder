@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
@@ -30,33 +31,49 @@ func calc(in *io.In, out *io.Out) {
 	}
 
 	ans := make([]int, n)
-	ans[0] = 0
-
-	var dfs func(curr int, hist map[int]bool, vals map[int]int)
-	dfs = func(curr int, hist map[int]bool, vals map[int]int) {
-		if hist[curr] {
-			return
-		}
-
-		hist[curr] = true
-		vals[A[curr]]++
-		s := len(vals)
-		if ans[curr] < s {
-			ans[curr] = s
-
-			for _, next := range g[curr] {
-				dfs(next, hist, vals)
-			}
-		}
-
-		vals[A[curr]]--
-		if vals[A[curr]] == 0 {
-			delete(vals, A[curr])
-		}
-		delete(hist, curr)
+	type query struct {
+		v   int
+		ans int
 	}
 
-	dfs(0, map[int]bool{}, map[int]int{})
+	pq := ds.NewPriorityQueue(func(a, b interface{}) bool {
+		x, y := a.(*query), b.(*query)
+		c := A[x.v] - A[y.v]
+		if c != 0 {
+			return c < 0
+		}
+		return x.ans < y.ans
+	})
+
+	// xからyに移動して、xまでのスコアがcであるときの次のスコア
+	val := func(x, y, c int) int {
+		if A[x] < A[y] {
+			return c + 1
+		}
+		return c
+	}
+	for _, v := range g[0] {
+		nx := val(0, v, 1)
+		pq.Push(&query{v, nx})
+		ans[v] = nx
+	}
+
+	for pq.HasElements() {
+		q := pq.Pop().(*query)
+		if q.ans < ans[q.v] {
+			continue
+		}
+
+		for _, v := range g[q.v] {
+			nx := val(q.v, v, q.ans)
+			if ans[v] >= nx {
+				continue
+			}
+			pq.Push(&query{v, nx})
+			ans[v] = nx
+		}
+	}
+
 	out.Println(ans[n-1])
 }
 
