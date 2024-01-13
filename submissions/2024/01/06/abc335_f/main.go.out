@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
@@ -16,7 +17,36 @@ const mod = math.Mod998244353
 
 func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
-	a := in.NextInts(n)
+	A := in.NextInts(n)
+
+	const limit = 300
+
+	// dp[i]はマスiが塗られているときの場合の数
+	dp := make([]int, n)
+	dp[0] = 1
+	sum := ds.NewInt2d(limit, limit, 0) // sum[i][j]はiで割ったときにjになるところに足す値
+
+	ans := 0
+	for i, a := range A {
+		// 累積和の値を足しておく
+		for j := 1; j < limit; j++ {
+			mod.Chadd(&dp[i], sum[j][(i+1)%j])
+		}
+
+		if a < limit {
+			// 累積和に追加する
+			mod.Chadd(&sum[a][(i+1)%a], dp[i])
+		} else {
+			// 直接足す
+			for x := i + a; x < n; x += a {
+				mod.Chadd(&dp[x], dp[i])
+			}
+		}
+
+		// ここでやめるパターン
+		mod.Chadd(&ans, dp[i])
+	}
+	out.Println(ans)
 }
 
 func main() {
