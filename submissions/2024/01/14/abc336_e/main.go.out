@@ -13,7 +13,11 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-
+	N := int(1e7)
+	n := in.NextInt()
+	// 10^7まで頑張って調べる
+	upper := make([]int, N)
+	lower := make([]int, N)
 }
 
 func main() {
