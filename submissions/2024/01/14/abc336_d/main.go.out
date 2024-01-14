@@ -16,27 +16,19 @@ func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	a := in.NextInts(n)
 
-	inc := make([]int, n) // inc[i]はi番目の時点で何項の増加列になっているか
-	for i, v := range a {
-		if i > 0 && a[i-1] <= v {
-			inc[i] = inc[i-1] + 1
-		} else {
-			inc[i] = 0
-		}
-	}
-
-	dec := make([]int, n) // dec[i]はi番目以降で何項の減少列になっているか
-	for i := n - 1; i >= 0; i-- {
-		if i < n-1 && a[i] <= a[i+1] {
-			dec[i] = dec[i+1] + 1
-		} else {
-			dec[i] = 0
-		}
-	}
-
 	ans := 0
 	for i := 0; i < n; i++ {
-		chmax(&ans, 1+min(inc[i], dec[i]))
+		k := 1
+		for t := 1; t < a[i]; t++ {
+			l := i - t
+			r := i + t
+
+			if l < 0 || r == n || a[l] < a[i]-t || a[r] < a[i]-t {
+				break
+			}
+			k++
+		}
+		chmax(&ans, k)
 	}
 
 	out.Println(ans)
