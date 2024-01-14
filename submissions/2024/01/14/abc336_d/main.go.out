@@ -16,19 +16,31 @@ func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	a := in.NextInts(n)
 
+	inc := make([]int, n)
+	dec := make([]int, n)
+	arrs := [][]int{inc, dec}
+	for _, arr := range arrs {
+		for i := 0; i < n; i++ {
+			if i == 0 {
+				arr[i] = 1
+			} else if arr[i-1] < a[i] {
+				arr[i] = arr[i-1] + 1
+			} else {
+				arr[i] = min(arr[i-1], a[i])
+			}
+		}
+
+		for i, j := 0, n-1; i < j; i, j = i+1, j-1 {
+			a[i], a[j] = a[j], a[i]
+		}
+	}
+	for i, j := 0, n-1; i < j; i, j = i+1, j-1 {
+		dec[i], dec[j] = dec[j], dec[i]
+	}
+
 	ans := 0
 	for i := 0; i < n; i++ {
-		k := 1
-		for t := 1; t < a[i]; t++ {
-			l := i - t
-			r := i + t
-
-			if l < 0 || r == n || a[l] < a[i]-t || a[r] < a[i]-t {
-				break
-			}
-			k++
-		}
-		chmax(&ans, k)
+		chmax(&ans, min(inc[i], dec[i]))
 	}
 
 	out.Println(ans)
