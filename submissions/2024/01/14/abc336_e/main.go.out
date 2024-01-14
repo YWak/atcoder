@@ -8,16 +8,65 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
-	N := int(1e7)
 	n := in.NextInt()
-	// 10^7まで頑張って調べる
-	upper := make([]int, N)
-	lower := make([]int, N)
+	N := []int{}
+	for _, b := range fmt.Sprint(n) {
+		N = append(N, int(b-'0'))
+	}
+
+	ans := 0
+
+	// 桁和がsであるとき、よい整数はいくつ作れるか？
+	for s := 1; s <= 10*15; s++ {
+		// dp[i][j][k]はi桁目まで決めて、残がjで、ここまでのあまりがkで、nを超える可能性がl(ある/ない)ときの場合の数
+		dp := make([][][][]int, len(N)+1)
+		for i := range dp {
+			dp[i] = ds.NewInt3d(s+1, s, 2, 0)
+		}
+
+		dp[0][s][0][1] = 1
+		for i := 0; i < len(N); i++ {
+			for j := s; j >= 0; j-- {
+				for k := 0; k < s; k++ {
+					for over := 0; over < 2; over++ {
+						v := dp[i][j][k][over]
+						if v == 0 {
+							continue
+						}
+
+						for p := 0; p < 10; p++ {
+							// 超えそうな場合は最大値までしか使えない
+							if over == 1 && p > N[i] {
+								break
+							}
+							// 残が不足している場合は使えない
+							if j < p {
+								break
+							}
+							// この桁にpを設定したときのあまり
+							m := (k + pow(10, len(N)-i-1)*p) % s
+
+							// 設定可能であればそれを設定する
+							// overが継続しそうであればそのまま続行する
+							o := chi(over == 1 && p == N[i], 1, 0)
+							dp[i+1][j-p][m][o] += v
+						}
+					}
+				}
+			}
+		}
+		for over := 0; over < 2; over++ {
+			ans += dp[len(N)][0][0][over]
+		}
+	}
+
+	out.Println(ans)
 }
 
 func main() {
