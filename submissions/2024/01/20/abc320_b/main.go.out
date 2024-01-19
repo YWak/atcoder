@@ -14,18 +14,25 @@ import (
 
 func calc(in *io.In, out *io.Out) {
 	s := in.NextBytes()
+
 	ans := 0
 	for i := 0; i < len(s); i++ {
-		// 奇数長
 		for j := 0; j < len(s); j++ {
-			if i-j >= 0 && i+j < len(s) && s[i-j] == s[i+j] {
+			if 0 <= i-j && i+j < len(s) && s[i-j] == s[i+j] {
 				chmax(&ans, 1+j*2)
+			} else {
+				break
 			}
-			if i-j >= 0 && i+1+j < len(s) && s[i-j] == s[i+1+j] {
+		}
+		for j := 0; j < len(s); j++ {
+			if 0 <= i-j && i+1+j < len(s) && s[i-j] == s[i+1+j] {
 				chmax(&ans, 2+j*2)
+			} else {
+				break
 			}
 		}
 	}
+
 	out.Println(ans)
 }
 
