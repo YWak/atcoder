@@ -16,7 +16,6 @@ import (
 func calc(in *io.In, out *io.Out) {
 	n, d, p := in.NextInt3()
 	f := in.NextInts(n)
-	sort.Slice(f, func(i, j int) bool { return f[i] > f[j] })
 
 	s := 0
 	for _, v := range f {
@@ -24,17 +23,19 @@ func calc(in *io.In, out *io.Out) {
 	}
 
 	ans := s
-	i := 0
-	for t := 1; t < n; t++ {
-		s += p
-		for j := 0; j < d && i < n; j++ {
-			s -= f[i]
-			i++
+
+	// コストの大きい方から周遊パスに置き換える
+	sort.Slice(f, func(i, j int) bool { return f[i] > f[j] })
+	ds := 0
+	ps := 0
+	for _, v := range f {
+		if ds == 0 {
+			ds += d
+			ps += p
 		}
-		chmin(&ans, s)
-		if t*d >= n {
-			break
-		}
+		s -= v
+		ds--
+		chmin(&ans, s+ps)
 	}
 
 	out.Println(ans)
