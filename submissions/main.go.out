@@ -8,12 +8,37 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
+	n, m := in.NextInt2()
+	gx := ds.NewWeightedUnionFind(n)
+	gy := ds.NewWeightedUnionFind(n)
 
+	ok := make([]bool, n)
+	for i := 0; i < n; i++ {
+		ok[i] = true
+	}
+
+	for i := 0; i < m; i++ {
+		a, b, x, y := in.NextInt4()
+		a--
+		b--
+
+		gx.Merge(b, a, x)
+		gy.Merge(b, a, y)
+	}
+
+	for i := 0; i < n; i++ {
+		if gx.IsSame(0, i) && gy.IsSame(0, i) && ok[i] {
+			out.Println(gx.Diff(i, 0), gy.Diff(i, 0))
+		} else {
+			out.Println("undecidable")
+		}
+	}
 }
 
 func main() {
