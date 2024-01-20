@@ -8,67 +8,50 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
-	h, w, k := in.NextInt3()
-	s := make([][]byte, h)
-	for i := 0; i < h; i++ {
-		s[i] = in.NextBytes()
+	n := in.NextInt()
+	m := 2
+	x := 1
+
+	for m < n {
+		m *= 2
+		x++
 	}
 
-	id := func() int { return 0 }
-	fx := func(a, b int) int { return a + b }
-	stji := make([]*ds.SegmentTree, w)
-	stij := make([]*ds.SegmentTree, h)
+	out.Println(x)
+	out.Flush()
 
-	for j := 0; j < w; j++ {
-		stji[j] = ds.NewSegmentTree(id, fx)
-		stji[j].Init(h)
-	}
-	for i := 0; i < h; i++ {
-		stij[i] = ds.NewSegmentTree(id, fx)
-		stij[i].Init(w)
-	}
-	for i := range s {
-		for j, v := range s[i] {
-			c := 0
-			if v == 'x' {
-				c = INF9
-			} else if v == '.' {
-				c = 1
-			}
-			stji[j].Update(i, c)
-			stij[i].Update(j, c)
-		}
-	}
-
-	ans := INF18
-	for i := range s {
-		for j := range s[i] {
-			// ここを左端とする
-			if j+k <= w {
-				chmin(&ans, stij[i].Query(j, j+k))
-			}
-			// ここを右端とする
-			if i+k <= h {
-				chmin(&ans, stji[j].Query(i, i+k))
+	call := make([][]int, x)
+	for i := 1; i <= n; i++ {
+		for j := 0; j < x; j++ {
+			if nthbit(i, j) == 1 {
+				call[j] = append(call[j], i)
 			}
 		}
 	}
 
-	if ans > k {
-		ans = -1
+	for t := 0; t < x; t++ {
+		out.PrintLenAndIntsLn(call[t])
+	}
+	out.Flush()
+
+	ans := 0
+	b := in.NextBytes()
+	for i, v := range b {
+		if v == '1' {
+			ans += (1 << i)
+		}
 	}
 	out.Println(ans)
 }
 
 func main() {
 	in, out := io.InitIo(&io.InitIoProps{
-		DoBuffer: true, // インタラクティブならfalseにすること。
+		DoBuffer: false, // インタラクティブならfalseにすること。
 		ReadLine: false,
 	})
 	defer out.Flush()
