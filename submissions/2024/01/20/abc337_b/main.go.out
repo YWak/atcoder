@@ -6,6 +6,7 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
+	"regexp"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
@@ -14,18 +15,9 @@ import (
 
 func calc(in *io.In, out *io.Out) {
 	s := in.NextString()
-	ok := true
-	t := 'A'
-	for _, b := range s {
-		if b-t == 0 || b-t == 1 {
-			t = b
-		} else {
-			ok = false
-			break
-		}
-	}
 
-	out.YesNo(ok)
+	re := regexp.MustCompile(`^A*B*C*$`)
+	out.YesNo(re.MatchString(s))
 }
 
 func main() {
