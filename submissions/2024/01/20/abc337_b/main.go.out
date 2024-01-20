@@ -6,7 +6,6 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
-	"regexp"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
@@ -14,15 +13,41 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	s := in.NextString()
+	n := in.NextInt()
+	m := 1
+	x := 0
+	for m < n {
+		m *= 2
+		x++
+	}
 
-	re := regexp.MustCompile(`^A*B*C*$`)
-	out.YesNo(re.MatchString(s))
+	out.Println(x)
+	l, r := 0, n+1
+	for abs(l-r) > 1 {
+		mid := (l + r) / 2
+		k := mid - l
+		o := []int{k}
+		for i := l + 1; i <= mid; i++ {
+			o = append(o, i)
+		}
+		out.PrintIntsLn(o)
+
+		// 受信
+		s := in.NextBytes()
+		for i, b := range s {
+			if b == '1' {
+				// 見つかった
+				out.Println(l + 1 + i)
+				return
+			}
+		}
+		l = mid
+	}
 }
 
 func main() {
 	in, out := io.InitIo(&io.InitIoProps{
-		DoBuffer: true, // インタラクティブならfalseにすること。
+		DoBuffer: false, // インタラクティブならfalseにすること。
 		ReadLine: false,
 	})
 	defer out.Flush()
