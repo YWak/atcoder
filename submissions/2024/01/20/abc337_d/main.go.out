@@ -20,29 +20,27 @@ func calc(in *io.In, out *io.Out) {
 		s[i] = in.NextBytes()
 	}
 
-	bo := make([]*ds.SegmentTree, w)
-	ro := make([]*ds.SegmentTree, h)
-	id := func() int {
-		return 0
-	}
+	id := func() int { return 0 }
 	fx := func(a, b int) int { return a + b }
+	stji := make([]*ds.SegmentTree, w)
+	stij := make([]*ds.SegmentTree, h)
 
-	for i := 0; i < w; i++ {
-		bo[i] = ds.NewSegmentTree(id, fx)
-		bo[i].Init(h)
+	for j := 0; j < w; j++ {
+		stji[j] = ds.NewSegmentTree(id, fx)
+		stji[j].Init(h)
 	}
 	for i := 0; i < h; i++ {
-		ro[i] = ds.NewSegmentTree(id, fx)
-		ro[i].Init(w)
+		stij[i] = ds.NewSegmentTree(id, fx)
+		stij[i].Init(w)
 	}
 	for i := 0; i < h; i++ {
 		for j, v := range s[i] {
 			if v == 'x' {
-				bo[j].Update(i, INF18)
-				ro[i].Update(j, INF18)
+				stji[j].Update(i, INF18)
+				stij[i].Update(j, INF18)
 			} else if v == '.' {
-				bo[j].Update(i, 1)
-				ro[i].Update(j, 1)
+				stji[j].Update(i, 1)
+				stij[i].Update(j, 1)
 			}
 		}
 	}
@@ -50,16 +48,12 @@ func calc(in *io.In, out *io.Out) {
 	ans := INF18
 	for i := 0; i < h; i++ {
 		for j := 0; j < w; j++ {
-			if s[i][j] == 'x' {
-				continue
-			}
-
 			// ここを左端とする
 			if j+k <= w {
-				chmin(&ans, ro[i].Query(j, j+k))
+				chmin(&ans, stij[i].Query(j, j+k))
 			}
 			if i+k <= h {
-				chmin(&ans, bo[j].Query(i, i+w))
+				chmin(&ans, stji[j].Query(i, i+k))
 			}
 		}
 	}
