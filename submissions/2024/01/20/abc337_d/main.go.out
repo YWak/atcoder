@@ -33,32 +33,34 @@ func calc(in *io.In, out *io.Out) {
 		stij[i] = ds.NewSegmentTree(id, fx)
 		stij[i].Init(w)
 	}
-	for i := 0; i < h; i++ {
+	for i := range s {
 		for j, v := range s[i] {
+			c := 0
 			if v == 'x' {
-				stji[j].Update(i, INF18)
-				stij[i].Update(j, INF18)
+				c = INF9
 			} else if v == '.' {
-				stji[j].Update(i, 1)
-				stij[i].Update(j, 1)
+				c = 1
 			}
+			stji[j].Update(i, c)
+			stij[i].Update(j, c)
 		}
 	}
 
 	ans := INF18
-	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
+	for i := range s {
+		for j := range s[i] {
 			// ここを左端とする
 			if j+k <= w {
 				chmin(&ans, stij[i].Query(j, j+k))
 			}
+			// ここを右端とする
 			if i+k <= h {
 				chmin(&ans, stji[j].Query(i, i+k))
 			}
 		}
 	}
 
-	if ans == INF18 {
+	if ans > k {
 		ans = -1
 	}
 	out.Println(ans)
