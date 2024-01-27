@@ -16,10 +16,7 @@ import (
 func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	N := n*2 + 1
-	x := make([]int, N)
-	for i := range x {
-		x[i] = INF18
-	}
+	x := make([]int, N*2)
 	for i := 0; i < n; i++ {
 		a, b := in.NextInt2()
 		if a > b {
@@ -29,14 +26,20 @@ func calc(in *io.In, out *io.Out) {
 		}
 	}
 
-	// i < j かつ x[i] > x[j]となるようなi,jが存在するか？
-	st := ds.NewRangeMinQuery()
+	// i < j < x[i] かつ x[i] > x[j]となるようなi,jが存在するか？
+	st := ds.NewRangeMaxQuery()
 	st.InitAsArray(x)
 
-	ok := true
+	ok := false
 	for i := range x {
-		if st.Query(i+1, N) < i {
-			ok = false
+		if x[i] == 0 { // 元が始まらない
+			continue
+		}
+
+		q := st.Query(i+1, x[i])
+		// debug(i, x[i], q)
+		if q > x[i] {
+			ok = true
 			break
 		}
 	}
