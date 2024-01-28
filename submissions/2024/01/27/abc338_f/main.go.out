@@ -13,57 +13,73 @@ import (
 	"github.com/ywak/atcoder/lib/math"
 )
 
-type edge struct{ v, w int }
-type cond struct{ s, u, c int }
-
 func calc(in *io.In, out *io.Out) {
 	n, m := in.NextInt2()
-	g := make([][]*edge, n)
+	ok := ds.NewBool2d(n, n, false)
+	g := ds.NewInt2d(n, n, INF18)
+
 	for i := 0; i < m; i++ {
 		u, v, w := in.NextInt3()
 		u--
 		v--
-		g[u] = append(g[u], &edge{v, w})
+		g[u][v] = w
+		ok[u][v] = true
+	}
+
+	for k := range g {
+		for i := range g {
+			for j := range g {
+				if ok[i][k] && ok[k][j] {
+					chmin(&g[i][j], g[i][k]+g[k][j])
+					ok[i][j] = true
+				}
+			}
+		}
 	}
 
 	// dp[S][u]は既に行ったことがある頂点がSで、現在uにいる場合の最小コスト
 	dp := ds.NewInt2d(1<<n, n, INF18)
-
-	pq := ds.NewPriorityQueue(func(a, b interface{}) bool {
-		aa, bb := a.(*cond), b.(*cond)
-		return aa.c < bb.c
-	})
 	for i := 0; i < n; i++ {
-		pq.Push(&cond{1 << i, i, 0})
 		dp[1<<i][i] = 0
 	}
 
 	ans := INF18
-	for pq.HasElements() {
-		p := pq.Pop().(*cond)
-		if p.s == (1<<n)-1 {
-			chmin(&ans, p.c)
-		} else if ans != INF18 {
-			break
+	found := false
+	done := (1 << n) - 1
+	for p := 1; p < 1<<n; p++ {
+		prev := make([]int, 0, n)
+		next := make([]int, 0, n)
+		for i := 0; i < n; i++ {
+			if nthbit(p, i) == 0 {
+				next = append(next, i)
+			} else {
+				prev = append(prev, i)
+			}
 		}
+		for _, i := range prev {
+			if dp[p][i] == INF18 {
+				continue
+			}
 
-		if dp[p.s][p.u] < p.c {
-			continue
-		}
+			for _, j := range next {
+				if ok[i][j] {
+					nx := p | (1 << j)
+					c := dp[p][i] + g[i][j]
+					chmin(&dp[nx][j], c)
 
-		for _, e := range g[p.u] {
-			nx := p.s | 1<<e.v
-			c := p.c + e.w
-			if dp[nx][e.v] > c {
-				pq.Push(&cond{nx, e.v, c})
-				dp[nx][e.v] = c
+					if nx == done {
+						chmin(&ans, c)
+						found = true
+					}
+				}
 			}
 		}
 	}
-	if ans == INF18 {
-		out.Println("No")
-	} else {
+
+	if found {
 		out.Println(ans)
+	} else {
+		out.Println("No")
 	}
 }
 
