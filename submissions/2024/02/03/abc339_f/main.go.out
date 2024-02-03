@@ -44,9 +44,10 @@ func calc(in *io.In, out *io.Out) {
 	}
 
 	ans := 0
-	diff := 0
 	for i, a := range bn {
-		for j, b := range bn {
+		for j := i; j < len(bn); j++ {
+			b := bn[j]
+
 			// a*bの値を検索する
 			ab := (&big.Int{}).Mul(a, b)
 			mab := int((&big.Int{}).Mod(ab, mod).Int64())
@@ -64,14 +65,14 @@ func calc(in *io.In, out *io.Out) {
 			if ok >= 0 && bn[idx[ok]].Cmp(ab) == 0 {
 				ans += bnc[i] * bnc[j] * bnc[idx[ok]]
 
-				if i == j { // 2回数えられるので、一回分は引くことになる
-					diff += bnc[i] * bnc[j] * bnc[idx[ok]]
+				if i != j {
+					ans += bnc[i] * bnc[j] * bnc[idx[ok]]
 				}
 			}
 		}
 	}
 
-	out.Println(ans - diff/2)
+	out.Println(ans)
 }
 
 func main() {
