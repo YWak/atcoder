@@ -17,40 +17,41 @@ func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	a := in.NextInts(n)
 
-	const B = 3000
+	const B = 4000
 	N := n / B
 
-	sorted := make([][]int, N)
-	sum := make([][]int, N)
-	for b := 0; b < N; b++ {
-		sorted[b] = make([]int, B)
-		for i := 0; i < B; i++ {
-			sorted[b][i] = a[b*B+i]
+	sorted := make([][]int, N+1)
+	sum := make([][]int, N+1)
+	for b := 0; b <= N; b++ {
+		l := B * b
+		sorted[b] = make([]int, l)
+		for i := 0; i < l; i++ {
+			sorted[b][i] = a[i]
 		}
+
 		sort.Ints(sorted[b])
-		sum[b] = make([]int, B+1)
-		for i := 0; i < B; i++ {
+		sum[b] = make([]int, l+1)
+		for i := 0; i < l; i++ {
 			sum[b][i+1] = sum[b][i] + sorted[b][i]
 		}
 	}
 
 	// [0, r)に含まれるx以下の値の合計
 	f := func(r, x int) int {
-		s := 0
-		for b := 0; b < r/B; b++ {
-			ok, ng := -1, B
-			for abs(ok-ng) > 1 {
-				mid := (ok + ng) / 2
-				// debug(r, b, mid, len(sorted), len(sorted[b]))
-				if sorted[b][mid] <= x {
-					ok = mid
-				} else {
-					ng = mid
-				}
+		var s int
+		b := r / B
+		list := sorted[b]
+		ok, ng := -1, len(list)
+		for abs(ok-ng) > 1 {
+			mid := (ok + ng) / 2
+			if list[mid] <= x {
+				ok = mid
+			} else {
+				ng = mid
 			}
-			s += sum[b][ok+1]
 		}
-		for i := r / B * B; i < r; i++ {
+		s = sum[b][ok+1]
+		for i := b * B; i < r; i++ {
 			if a[i] <= x {
 				s += a[i]
 			}
