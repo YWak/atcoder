@@ -48,15 +48,19 @@ func calc(in *io.In, out *io.Out) {
 		to = to[0:0]
 
 		for i := 0; i < n; i++ {
-			if nthbit(p, i) == 1 {
-				from = append(from, i)
-			} else {
+			if nthbit(p, i) == 0 {
 				to = append(to, i)
+			} else if dp[p][i] != INF18 {
+				from = append(from, i)
 			}
 		}
 
 		// 移動
 		for _, x := range from {
+			if dp[p][x] == INF18 {
+				continue
+			}
+
 			for _, y := range to {
 				if canMove[x][y] {
 					chmin(&dp[p|1<<y][y], dp[p][x]+d[x][y])
