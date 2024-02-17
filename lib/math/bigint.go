@@ -69,9 +69,11 @@ func (n *BigInt) GCD(v *BigInt) *BigInt {
 	return g
 }
 
-func (n *BigInt) ExGCD(v *BigInt) (g, a, b *BigInt) {
+// ExGCD は x*a + y*b = gとなるような最大のgと、そのときのa,bの例を返します。
+// x = y = 0のときはg = 0となります。
+func (x *BigInt) ExGCD(y *BigInt) (g, a, b *BigInt) {
 	var _a, _b big.Int
-	_g := new(big.Int).GCD(&_a, &_b, n.raw(), v.raw())
+	_g := new(big.Int).GCD(&_a, &_b, x.raw(), y.raw())
 	g, a, b = ptr(_g), ptr(&_a), ptr(&_b)
 	return
 }
