@@ -41,9 +41,9 @@ type LazySegmentTree[V, F any] struct {
 //
 // )
 func NewLazySegmentTree[V, F any](
-	operate func(a, b V) V,
-	mapping func(f F, x V) V,
-	composition func(f, g F) F,
+	operate func(a, b, ab *V),
+	mapping func(f *F, x *V),
+	composition func(f, g, fg *F),
 	e func() V,
 	id func() F,
 ) *LazySegmentTree[V, F] {
@@ -54,7 +54,7 @@ func NewLazySegmentTree[V, F any](
 	var lazy []F
 
 	update := func(k int) {
-		data[k] = operate(data[k*2+0], data[k*2+1])
+		operate(&data[k*2+0], &data[k*2+1], &data[k])
 	}
 
 	// 初期化
@@ -97,15 +97,15 @@ func NewLazySegmentTree[V, F any](
 		return st
 	}
 
-	applyAll := func(k int, f F) {
-		data[k] = mapping(f, data[k])
+	applyAll := func(k int, f *F) {
+		mapping(f, &data[k])
 		if k < size {
-			lazy[k] = composition(f, lazy[k])
+			composition(f, &lazy[k], &lazy[k])
 		}
 	}
 	push := func(k int) {
-		applyAll(2*k+0, lazy[k])
-		applyAll(2*k+1, lazy[k])
+		applyAll(2*k+0, &lazy[k])
+		applyAll(2*k+1, &lazy[k])
 		lazy[k] = id()
 	}
 	// [l, r)の値を取得する。
@@ -127,18 +127,20 @@ func NewLazySegmentTree[V, F any](
 		sml, smr := e(), e()
 		for l < r {
 			if l%2 == 1 {
-				sml = operate(sml, data[l])
+				operate(&sml, &data[l], &sml)
 				l++
 			}
 			if r%2 == 1 {
 				r--
-				smr = operate(data[r], smr)
+				operate(&data[r], &smr, &smr)
 			}
 			l >>= 1
 			r >>= 1
 		}
 
-		return operate(sml, smr)
+		var ans V
+		operate(&sml, &smr, &ans)
+		return ans
 	}
 
 	// [l, r)の値をfで更新する
@@ -160,12 +162,12 @@ func NewLazySegmentTree[V, F any](
 		ll, rr := l, r
 		for ll < rr {
 			if ll%2 == 1 {
-				applyAll(ll, f)
+				applyAll(ll, &f)
 				ll++
 			}
 			if rr%2 == 1 {
 				rr--
-				applyAll(rr, f)
+				applyAll(rr, &f)
 			}
 			ll >>= 1
 			rr >>= 1
@@ -192,27 +194,34 @@ type info struct {
 func calc(in *io.In, out *io.Out) {
 	n, Q := in.NextInt2()
 	s := in.NextBytes()
-	st := NewLazySegmentTree[*info, int](
-		func(a, b *info) *info {
+	st := NewLazySegmentTree[info, int](
+		func(a, b, ab *info) {
 			if b.head == -1 {
-				return a
+				ab.good = a.good
+				ab.head = a.head
+				ab.tail = a.tail
+			} else {
+				ab.good = a.good && b.good && a.tail != b.head
+				ab.head = a.head
+				ab.tail = b.tail
 			}
-			return &info{a.head, b.tail, a.good && b.good && a.tail != b.head}
 		},
-		func(f int, x *info) *info {
-			x.head = (x.head + f) % 2
-			x.tail = (x.tail + f) % 2
-
-			return x
+		func(f *int, x *info) {
+			x.head = (x.head + *f) % 2
+			x.tail = (x.tail + *f) % 2
 		},
-		func(f, g int) int { return f + g },
-		func() *info { return &info{-1, -1, true} },
+		func(f, g, fg *int) {
+			*fg = *f + *g
+		},
+		func() info { return info{-1, -1, true} },
 		func() int { return 0 },
 	)
-	init := make([]*info, n)
+	init := make([]info, n)
 	for i, v := range s {
 		c := int(v - '0')
-		init[i] = &info{c, c, true}
+		init[i].good = true
+		init[i].head = c
+		init[i].tail = c
 	}
 	st.InitByArray(init)
 

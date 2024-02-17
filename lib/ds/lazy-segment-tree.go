@@ -29,9 +29,9 @@ type LazySegmentTree[V, F any] struct {
 //
 // )
 func NewLazySegmentTree[V, F any](
-	operate func(a, b V) V,
-	mapping func(f F, x V) V,
-	composition func(f, g F) F,
+	operate func(a, b, ab *V),
+	mapping func(f *F, x *V),
+	composition func(f, g, fg *F),
 	e func() V,
 	id func() F,
 ) *LazySegmentTree[V, F] {
@@ -42,7 +42,7 @@ func NewLazySegmentTree[V, F any](
 	var lazy []F
 
 	update := func(k int) {
-		data[k] = operate(data[k*2+0], data[k*2+1])
+		operate(&data[k*2+0], &data[k*2+1], &data[k])
 	}
 
 	// 初期化
@@ -68,6 +68,9 @@ func NewLazySegmentTree[V, F any](
 			log++
 		}
 		data = make([]V, size*2)
+		for i := range data {
+			data[i] = e()
+		}
 		for i := 0; i < n; i++ {
 			data[size+i] = arr[i]
 		}
@@ -82,15 +85,15 @@ func NewLazySegmentTree[V, F any](
 		return st
 	}
 
-	applyAll := func(k int, f F) {
-		data[k] = mapping(f, data[k])
+	applyAll := func(k int, f *F) {
+		mapping(f, &data[k])
 		if k < size {
-			lazy[k] = composition(f, lazy[k])
+			composition(f, &lazy[k], &lazy[k])
 		}
 	}
 	push := func(k int) {
-		applyAll(2*k+0, lazy[k])
-		applyAll(2*k+1, lazy[k])
+		applyAll(2*k+0, &lazy[k])
+		applyAll(2*k+1, &lazy[k])
 		lazy[k] = id()
 	}
 	// [l, r)の値を取得する。
@@ -112,18 +115,20 @@ func NewLazySegmentTree[V, F any](
 		sml, smr := e(), e()
 		for l < r {
 			if l%2 == 1 {
-				sml = operate(sml, data[l])
+				operate(&sml, &data[l], &sml)
 				l++
 			}
 			if r%2 == 1 {
 				r--
-				smr = operate(data[r], smr)
+				operate(&data[r], &smr, &smr)
 			}
 			l >>= 1
 			r >>= 1
 		}
 
-		return operate(sml, smr)
+		var ans V
+		operate(&sml, &smr, &ans)
+		return ans
 	}
 
 	// [l, r)の値をfで更新する
@@ -145,12 +150,12 @@ func NewLazySegmentTree[V, F any](
 		ll, rr := l, r
 		for ll < rr {
 			if ll%2 == 1 {
-				applyAll(ll, f)
+				applyAll(ll, &f)
 				ll++
 			}
 			if rr%2 == 1 {
 				rr--
-				applyAll(rr, f)
+				applyAll(rr, &f)
 			}
 			ll >>= 1
 			rr >>= 1
