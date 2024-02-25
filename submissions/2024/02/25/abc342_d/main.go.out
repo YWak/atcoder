@@ -13,6 +13,18 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
+	primes := []int{}
+	used := make([]bool, 200001)
+	for i := 2; i < len(used); i++ {
+		if used[i] {
+			continue
+		}
+		primes = append(primes, i)
+		for j := i; j < len(used); j += i {
+			used[j] = true
+		}
+	}
+
 	n := in.NextInt()
 	a := in.NextInts(n)
 
@@ -20,27 +32,47 @@ func calc(in *io.In, out *io.Out) {
 
 	// 0について数える
 	zero := 0
-	for i, v := range a {
+	for _, v := range a {
+		ans += zero // これまでの0をかけたら0になる
 		if v == 0 {
-			ans += (n - i - 1) // 以降どれをかけても0になる
 			zero++
 		}
 	}
 
-	c := make([]int, 200001)
+	count := make([]int, 200001)
 	for _, v := range a {
-		c[v]++
+		count[v]++
 	}
 
-	for e := 1; e*e < 200001; e++ {
-		s := e * e
-		for x := 1; x < e; x++ {
-			if s%x == 0 {
-				ans += c[x] * c[s/x]
+	for x := 1; x < len(count); x++ {
+		if count[x] == 0 {
+			continue
+		}
+		px := 1
+		v := x
+		for _, p := range primes {
+			if v < p {
+				break
+			}
+			c := 0
+			for v%p == 0 {
+				v /= p
+				c++
+			}
+			if c%2 == 1 {
+				px *= p
 			}
 		}
-		// 二乗のケースは同じ数を選ぶことがあるので引く
-		ans += c[e] * (c[e] - 1) / 2
+		for e := 1; px*e*e < len(used); e++ {
+			s := px * e * e
+			if s < x {
+				continue
+			} else if s == x {
+				ans += count[x] * (count[x] - 1) / 2
+			} else {
+				ans += count[x] * count[s]
+			}
+		}
 	}
 
 	out.Println(ans)
