@@ -13,17 +13,7 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	primes := []int{}
-	used := make([]bool, 200001)
-	for i := 2; i < len(used); i++ {
-		if used[i] {
-			continue
-		}
-		primes = append(primes, i)
-		for j := i; j < len(used); j += i {
-			used[j] = true
-		}
-	}
+	N := 200001
 
 	n := in.NextInt()
 	a := in.NextInts(n)
@@ -32,47 +22,24 @@ func calc(in *io.In, out *io.Out) {
 
 	// 0について数える
 	zero := 0
-	for _, v := range a {
-		ans += zero // これまでの0をかけたら0になる
-		if v == 0 {
+	cnt := make([]int, N)
+	for i, x := range a {
+		// 0の処理
+		if x == 0 {
+			ans += i // これまでのどの数をかけても0になる
 			zero++
-		}
-	}
-
-	count := make([]int, 200001)
-	for _, v := range a {
-		count[v]++
-	}
-
-	for x := 1; x < len(count); x++ {
-		if count[x] == 0 {
 			continue
+		} else {
+			ans += zero // これまでの0をかけたら0になる
 		}
-		px := 1
-		v := x
-		for _, p := range primes {
-			if v < p {
-				break
-			}
-			c := 0
-			for v%p == 0 {
-				v /= p
-				c++
-			}
-			if c%2 == 1 {
-				px *= p
+
+		for e := 2; e*e <= x; e++ {
+			for x%(e*e) == 0 {
+				x /= (e * e)
 			}
 		}
-		for e := 1; px*e*e < len(used); e++ {
-			s := px * e * e
-			if s < x {
-				continue
-			} else if s == x {
-				ans += count[x] * (count[x] - 1) / 2
-			} else {
-				ans += count[x] * count[s]
-			}
-		}
+		ans += cnt[x] // ここまでの値でxになる値をかけたら平方数になる
+		cnt[x]++
 	}
 
 	out.Println(ans)
