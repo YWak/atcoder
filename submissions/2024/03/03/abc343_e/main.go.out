@@ -64,7 +64,7 @@ func calc(in *io.In, out *io.Out) {
 							v1 := 7*7*7*3 - v2*2 - v3*3
 							if v1 == V1 && v2 == V2 && v3 == V3 {
 								out.YesNo(true)
-								out.Println(a1, a2, a3, 7, 7, 7, c1, c2, c3)
+								out.Println(a1, a2, a3, 0, 0, 0, c1, c2, c3)
 								return
 							}
 						}
