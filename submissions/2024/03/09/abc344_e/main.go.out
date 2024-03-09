@@ -12,50 +12,51 @@ import (
 	"github.com/ywak/atcoder/lib/math"
 )
 
-type node struct {
-	value int
-	prev  *node
-	next  *node
-}
-
 func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 
-	nodes := map[int]*node{}
-
-	root := &node{}
 	a := in.NextInts(n)
-	p := root
-	for _, v := range a {
-		nd := &node{v, p, nil}
-		p.next = nd
-		p = nd
-		nodes[v] = nd
+	prev := map[int]int{}
+	next := map[int]int{}
+
+	for i, v := range a {
+		if i-1 >= 0 {
+			prev[v] = a[i-1]
+		}
+		if i+1 < n {
+			next[v] = a[i+1]
+		}
 	}
+
+	first := a[0]
 
 	Q := in.NextInt()
 	for q := 0; q < Q; q++ {
 		t := in.NextInt()
 		if t == 1 {
 			x, y := in.NextInt2()
-			nd := nodes[x]
-			next := &node{y, nd, nd.next}
-			if nd.next != nil {
-				nd.next.prev = next
-			}
-			nd.next = next
-			nodes[y] = next
+			prev[y] = x
+			next[y] = next[x]
+			prev[next[x]] = y
+			next[x] = y
 		} else {
 			x := in.NextInt()
-			nd := nodes[x]
-			nd.prev.next = nd.next
-			nd.next.prev = nd.prev
-			delete(nodes, x)
+			prevx := prev[x]
+			nextx := next[x]
+
+			next[prevx] = nextx
+			prev[nextx] = prevx
+			delete(prev, x)
+			delete(next, x)
+
+			if x == first {
+				first = nextx
+			}
 		}
 	}
 	ans := []int{}
-	for p := root.next; p != nil; p = p.next {
-		ans = append(ans, p.value)
+	for p := first; p != 0; p = next[p] {
+		ans = append(ans, p)
 	}
 	out.PrintIntsLn(ans)
 }
