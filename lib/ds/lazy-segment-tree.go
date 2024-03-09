@@ -115,12 +115,16 @@ func NewLazySegmentTree[V, F any](
 		sml, smr := e(), e()
 		for l < r {
 			if l%2 == 1 {
-				operate(&sml, &data[l], &sml)
+				next := e()
+				operate(&sml, &data[l], &next)
+				sml = next
 				l++
 			}
 			if r%2 == 1 {
 				r--
-				operate(&data[r], &smr, &smr)
+				next := e()
+				operate(&data[r], &smr, &next)
+				smr = next
 			}
 			l >>= 1
 			r >>= 1
