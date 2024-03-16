@@ -21,73 +21,77 @@ func calc(in *io.In, out *io.Out) {
 		A[i], B[i] = in.NextInt2()
 	}
 
+	state := ds.NewBool2d(h, w, false)
 	// i番目のセルを置くことができるか
-	var dfs func(perm *math.Permutation, k int, state *[][]bool, x, y int) bool
-	dfs = func(perm *math.Permutation, k int, state *[][]bool, x, y int) bool {
-		s := *state
+	var dfs func(perm *math.Permutation, k int) bool
+	dfs = func(perm *math.Permutation, k int) bool {
 		if k == n {
 			// check
 			for i := 0; i < h; i++ {
 				for j := 0; j < w; j++ {
-					if !s[i][j] {
-						debug("check", i, j, "is not filled")
+					if !state[i][j] {
 						return false
 					}
 				}
 			}
 			return true
 		}
+		p := perm.Get(k)
 
-		// 使わない場合
-		debug(k, "not use")
-		if dfs(perm, k+1, state, x, y) {
+		if dfs(perm, k+1) {
 			return true
 		}
 
+		x, y := -1, -1
+		for i := 0; i < h; i++ {
+			for j := 0; j < w; j++ {
+				if !state[i][j] {
+					x, y = i, j
+					i = h
+					break
+				}
+			}
+		}
+
 		// 縦と横を試す
-		a, b := A[perm.Get(k)], B[perm.Get(k)]
-		for t := 0; t < 2; t, a, b = t+1, b, a {
-			if x+a < h && y+b < w {
-				// 埋まっていないか？
-				ok := true
-				for i := 0; i < a && ok; i++ {
-					for j := 0; j < b; j++ {
-						if s[x+i][y+j] {
-							ok = false
-							break
-						}
-					}
-				}
-				if !ok {
-					continue
-				}
-				debug(k, t, "use")
-				// 埋める
-				for i := 0; i < a; i++ {
-					for j := 0; j < b; j++ {
-						s[x+i][y+j] = true
-					}
-				}
+		for t, a, b := 0, A[p], B[p]; t < 2; t, a, b = t+1, b, a {
+			// debug(fmt.Sprintf("%d check. (%d, %d) + (%d, %d) (%d, %d)", p, x, y, a, b, h, w))
+			if x+a > h || y+b > w {
+				continue
+			}
 
-				// 次のステップを探す
-				done := false
-				for i := x; i < h && !done; i++ {
-					for j := 0; j < w && !done; j++ {
-						if !s[i][j] {
-							if dfs(perm, k+1, state, i, j) {
-								return true
-							}
-							done = true
-							break
-						}
+			// 埋まっていないか？
+			ok := true
+			for i := 0; i < a && ok; i++ {
+				for j := 0; j < b; j++ {
+					if state[x+i][y+j] {
+						// debug(fmt.Sprintf("%d (%d, %d) is filled", p, x+i, y+j))
+						ok = false
+						break
 					}
 				}
+			}
+			if !ok {
+				// debug(fmt.Sprintf("%d is not filled", p))
+				continue
+			}
 
-				// 戻す
-				for i := 0; i < a; i++ {
-					for j := 0; j < b; j++ {
-						s[x+i][y+j] = false
-					}
+			// 埋める
+			for i := 0; i < a; i++ {
+				for j := 0; j < b; j++ {
+					state[x+i][y+j] = true
+				}
+			}
+
+			// 次のステップを探す
+			if dfs(perm, k+1) {
+				return true
+			}
+
+			// 戻す
+			for i := 0; i < a; i++ {
+				for j := 0; j < b; j++ {
+					state[x+i][y+j] = false
 				}
 			}
 		}
@@ -95,13 +99,9 @@ func calc(in *io.In, out *io.Out) {
 		return false
 	}
 
-	// 全順序を試す
 	perm := math.NewPermutation(n)
 	for {
-		state := ds.NewBool2d(h, w, false)
-
-		// 縦と横でそれぞれ試す
-		if dfs(perm, 0, &state, 0, 0) {
+		if dfs(perm, 0) {
 			out.YesNo(true)
 			return
 		}
