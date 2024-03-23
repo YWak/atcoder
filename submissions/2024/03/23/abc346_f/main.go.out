@@ -15,78 +15,85 @@ import (
 
 func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
-	s := in.NextBytes()
+	s := in.NextBytesOffset('a')
+	t := in.NextBytesOffset('a')
 
-	// hist[i][j]は文字jがi文字目までに何文字含まれるか。
-	hist := ds.NewInt2d(len(s)+1, 26, 0)
-	last := make([]int, 26)
-	for i := 0; i < len(s); i++ {
-		for j := 0; j < 26; j++ {
-			hist[i+1][j] = hist[i][j]
-		}
-		c := int(s[i] - 'a')
-		hist[i+1][c]++
-		last[c] = i
+	// next[j][c]は文字jを先頭からc個使ったときに、次に参照する位置
+	next := make([][]int, 26)
+	for i := 0; i < 26; i++ {
+		next[i] = append(next[i], -1) // 0個は扱わないのでダミーを入れておく
 	}
 
-	t := []int{}
-	for _, v := range in.NextBytes() {
-		t = append(t, int(v-'a'))
+	// count[j]は文字jがsに含まれている数
+	count := make([]int, 26)
+
+	for i, v := range s {
+		count[v]++
+		next[v] = append(next[v], i+1) // この位置の次の位置から使用可能
+	}
+
+	// countAfter[i][j]はi文字目以降に文字jがあらわれる個数
+	countAfter := ds.NewInt2d(len(s)+1, 26, 0)
+
+	// 逆順に数を数える
+	for i := len(s) - 1; i >= 0; i-- {
+		for j := 0; j < 26; j++ {
+			countAfter[i][j] = countAfter[i+1][j]
+		}
+		countAfter[i][s[i]]++
 	}
 
 	check := func(k int) bool {
-		// 現在参照できる位置. pの位置は使用していない
-		c, p := 0, 0
+		// 現在参照できる位置. colの位置は参照可能.
+		row, col := 0, 0
 
 		// g(t, k)はf(s, n)の部分列であるか？
 		for _, v := range t {
-			all := hist[len(s)][v]
-			if all == 0 {
+			if count[v] == 0 {
 				return false
 			}
 
-			// vがk文字あらわれるのはf(s, n)の何回目のループの何文字目か？
-			req := k
-			rest := all - hist[p][v] // 現在の位置から文字を最後まで使用したとして不足するか？
-			debug(k, v, "bef", c, p, req, rest)
+			requires := k // 必要数
 
-			if rest <= req {
-				// 最後まで使ったことにする
-				req -= rest
-
-				r := req / all
-				req -= r * all
-				c += r
-				if r > 0 {
-					p = 0
-				} else {
-					p = last[v]
-				}
+			// この行だけで残りを扱えるのでそれで終わりにする
+			if countAfter[col][v] >= requires {
+				// 今先頭からいくつ使っているか？
+				pre := count[v] - countAfter[col][v]
+				col = next[v][pre+requires]
+				continue
 			}
 
-			debug(k, v, "mid", c, p, req)
-			if c >= n {
+			// 必要量が残り以上の場合、最後まで使う
+			if countAfter[col][v] > 0 && requires >= countAfter[col][v] {
+				requires -= countAfter[col][v]
+				col = next[v][count[v]]
+			}
+
+			// 文字列をまるごと使える分はまるごと使っておく
+			if requires >= count[v] {
+				r := requires / count[v]
+				requires -= r * count[v]
+				row += r
+				col = next[v][count[v]]
+			}
+
+			// 端数の調整を行う
+			if requires > 0 {
+				if countAfter[col][v] == 0 {
+					row++
+				}
+				col = next[v][requires]
+			}
+
+			// debug(k, v, "aft", c, p)
+
+			// 行が上限を超えていたら不可
+			if row >= n {
 				return false
 			}
-
-			// 今の位置からで足りるならその位置を判定する
-			if req > 0 {
-				ok, ng := len(s), p-1
-				for abs(ok-ng) > 1 {
-					mid := (ok + ng) / 2
-					if hist[mid][v] >= req {
-						ok = mid
-					} else {
-						ng = mid
-					}
-				}
-
-				p = ok
-			}
-			debug(k, v, "aft", c, p, req-hist[p][v])
 		}
 
-		return c < n
+		return true
 	}
 
 	ok, ng := 0, INF18
@@ -112,11 +119,15 @@ func main() {
 	calc(in, out)
 }
 
-var isDebugMode = os.Getenv("AT_DEBUG") == "1"
+var debug func(args ...interface{})
 
-func debug(args ...interface{}) {
-	if isDebugMode {
-		fmt.Fprintln(os.Stderr, args...)
+func init() {
+	if os.Getenv("AT_DEBUG") == "1" {
+		debug = func(args ...interface{}) {
+			fmt.Fprintln(os.Stderr, args...)
+		}
+	} else {
+		debug = func(args ...interface{}) {}
 	}
 }
 

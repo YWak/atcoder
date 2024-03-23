@@ -123,6 +123,16 @@ func (in *In) NextLongIntAsArray() []int {
 	return arr
 }
 
+// NextBytesOffsetは、次の入力を文字列として読み込み、各文字cについて(c-offset)に置き換えた配列を返します。
+func (in *In) NextBytesOffset(offset byte) []int {
+	s := in.NextString()
+	arr := make([]int, len(s))
+	for i, v := range s {
+		arr[i] = int(byte(v) - offset)
+	}
+	return arr
+}
+
 // NextFloat は 次の入力を実数値として読み込み、値を返します。
 func (in *In) NextFloat() float64 {
 	f, _ := strconv.ParseFloat(in.NextString(), 64)
