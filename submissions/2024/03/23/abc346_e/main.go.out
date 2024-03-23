@@ -8,57 +8,51 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
 	h, w, m := in.NextInt3()
-
-	ans := make([]int, 200001)
-	g := map[int]int{}
-	r := map[int]int{}
-
-	ghist := ds.NewLazySegmentTree[int, int](
-		func(a, b, ab *int) { *ab = *a + *b },
-		func(f, x *int) { *x += *f },
-		func(f, g, fg *int) { *fg += *f + *g },
-		func() int { return 0 },
-		func() int { return 0 },
-	)
-	rhist := ds.NewLazySegmentTree[int, int](
-		func(a, b, ab *int) { *ab = *a + *b },
-		func(f, x *int) { *x += *f },
-		func(f, g, fg *int) { *fg += *f + *g },
-		func() int { return 0 },
-		func() int { return 0 },
-	)
-
+	T := make([]int, m)
+	A := make([]int, m)
+	X := make([]int, m)
 	for i := 0; i < m; i++ {
-		t, a, x := in.NextInt3()
+		T[i], A[i], X[i] = in.NextInt3()
+	}
 
-		if t == 1 {
-			// 行を更新する。
-			c, ex := g[a]
-
-			if ex { // 既に塗られているなら
-
+	c := make([]int, 200001)
+	c[0] = h * w
+	g := map[int]bool{}
+	r := map[int]bool{}
+	for i := m - 1; i >= 0; i-- {
+		a, x := A[i], X[i]
+		v := 0
+		if T[i] == 1 {
+			// 塗られていないときだけ行を塗る
+			if !g[a] {
+				v = w - len(r)
+				g[a] = true
+			}
+		} else {
+			if !r[a] {
+				v = h - len(g)
+				r[a] = true
 			}
 		}
+		c[x] += v
+		c[0] -= v
 	}
 
-	l := 0
-	for _, v := range ans {
+	ans := [][]int{}
+	for i, v := range c {
 		if v > 0 {
-			l++
+			ans = append(ans, []int{i, v})
 		}
 	}
-	out.Println(l)
-	for i, v := range ans {
-		if v > 0 {
-			out.Println(i, v)
-		}
+	out.Println(len(ans))
+	for _, v := range ans {
+		out.PrintIntsLn(v)
 	}
 }
 
