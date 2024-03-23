@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
@@ -19,8 +20,20 @@ func calc(in *io.In, out *io.Out) {
 	g := map[int]int{}
 	r := map[int]int{}
 
-	cg := 0
-	cr := 0
+	ghist := ds.NewLazySegmentTree[int, int](
+		func(a, b, ab *int) { *ab = *a + *b },
+		func(f, x *int) { *x += *f },
+		func(f, g, fg *int) { *fg += *f + *g },
+		func() int { return 0 },
+		func() int { return 0 },
+	)
+	rhist := ds.NewLazySegmentTree[int, int](
+		func(a, b, ab *int) { *ab = *a + *b },
+		func(f, x *int) { *x += *f },
+		func(f, g, fg *int) { *fg += *f + *g },
+		func() int { return 0 },
+		func() int { return 0 },
+	)
 
 	for i := 0; i < m; i++ {
 		t, a, x := in.NextInt3()
