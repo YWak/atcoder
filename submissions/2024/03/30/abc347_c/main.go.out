@@ -6,6 +6,7 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
+	"sort"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
@@ -15,24 +16,40 @@ import (
 func calc(in *io.In, out *io.Out) {
 	n, a, b := in.NextInt3()
 	d := in.NextInts(n)
-	m := make([]int, (a+b)*2)
+	cnt := map[int]int{}
 	for _, v := range d {
 		c := v % (a + b)
-		m[c]++
-		m[c+a+b]++
+		cnt[c]++
+		cnt[c+a+b]++
 	}
-	// [i, i+a)の和がnになるような箇所はあるか？
-	s := make([]int, len(m)+1)
-	for i, v := range m {
-		s[i+1] = s[i] + v
+	day := []int{}
+	for i := range cnt {
+		day = append(day, i)
 	}
+	sort.Ints(day)
+	s := make([]int, len(day)+1)
+	for i, p := range day {
+		s[i+1] = s[i] + cnt[p]
+	}
+
 	ans := false
-	for i := 0; i < a+b; i++ {
-		if i+a < len(s) && s[i+a]-s[i] == n {
+	for i := range day {
+		// s[j] - s[i] <= nになるような最大のjを探す
+		j, ng := i, len(day)
+		for abs(j-ng) > 1 {
+			mid := (j + ng) / 2
+			if s[mid]-s[i] <= n {
+				j = mid
+			} else {
+				ng = mid
+			}
+		}
+		if j > 0 && s[j]-s[i] == n && day[j-1]-day[i] < a {
 			ans = true
 			break
 		}
 	}
+
 	out.YesNo(ans)
 }
 
