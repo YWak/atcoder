@@ -1,5 +1,11 @@
 package ds
 
+import (
+	"sort"
+
+	"golang.org/x/exp/constraints"
+)
+
 type Int2d [][]int
 
 func NewInt2d(a, b, value int) [][]int {
@@ -85,4 +91,19 @@ func NewFloat2d(a, b int, value float64) [][]float64 {
 	}
 
 	return arr
+}
+
+// Uniqueは配列から重複要素を削除し、ソートして返します。
+func Unique[V constraints.Ordered](arr []V) []V {
+	m := map[V]bool{}
+	for _, v := range arr {
+		m[v] = true
+	}
+	ret := make([]V, 0, len(m))
+	for v := range m {
+		ret = append(ret, v)
+	}
+	sort.Slice(ret, func(i, j int) bool { return ret[i] < ret[j] })
+
+	return ret
 }
