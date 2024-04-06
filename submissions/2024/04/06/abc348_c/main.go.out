@@ -14,22 +14,21 @@ import (
 
 func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
-	ma := map[int]int{-1: -1}
-	ans := -1
+
+	ma := map[int]int{}
+	// 色ごとに食べる可能性のある美味しさの最小値を保存する
 	for i := 0; i < n; i++ {
 		a, c := in.NextInt2()
-		if v, e := ma[c]; !e {
+		// 色ごとの最小値を設定する. 初回設定か既存の色より美味しさが小さいときに値を更新する
+		if v, ex := ma[c]; !ex || v > a {
 			ma[c] = a
-		} else if v > a {
-			ma[c] = a
-
-		}
-		if ma[ans] < ma[c] {
-			ans = c
 		}
 	}
-
-	out.Println(ma[ans])
+	ans := -INF18
+	for _, v := range ma {
+		chmax(&ans, v)
+	}
+	out.Println(ans)
 }
 
 func main() {
