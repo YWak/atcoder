@@ -8,40 +8,55 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
+
+type node struct {
+	t        int // 0: string 1: child
+	from, to int
+	children []*node
+}
 
 func calc(in *io.In, out *io.Out) {
 	// ネストの深いところから処理する
 	// 処理を記録する
 	s := in.NextBytes()
-	type node struct {
-		typ      int // 0: string, 1: paren
-		children []node
-		rev      bool
-	}
-
-	pat := make([]string, 0)
-	level := make([]int, 0)
-	p := 0
-	buf := []byte{}
-	for _, v := range s {
-		if v == '(' || v == ')' {
-			pat = append(pat, string(buf))
-			level = append(level, p)
-			buf = []byte{}
-
-			if v == '(' {
-				p++
-			} else {
-				p--
-			}
-		} else {
-			buf = append(buf, v)
+	open := []int{}
+	close := []int{}
+	level := []int{}
+	st := []int{}
+	for i, v := range s {
+		if v == '(' {
+			st = append(st, i)
+		} else if v == ')' {
+			open = append(open, st[len(st)-1])
+			close = append(close, i)
+			level = append(level, len(st))
+			st = st[:len(st)-1]
 		}
 	}
+	debug(open)
+	debug(close)
+	debug(level)
+	ops := ds.NewIntPriorityQueue(func(a, b int) bool { return level[a] > level[b] })
+	for i := range level {
+		ops.Push(i)
+	}
+	rev := ds.NewLazySegmentTree[int, int](
+		func(a, b, ab *int) { *ab = (*a + *b) % 2 },
+		func(f, x *int) { *x = (*x + *f) % 2 },
+		func(f, g, fg *int) { *fg = *f + *g },
+		func() int { return 0 },
+		func() int { return 0 },
+	)
+	rev.Init(len(s))
 
+	for ops.HasElements() {
+		t := ops.Pop()
+		rev.Update(open[t]+1, close[t], 1)
+	}
 }
 
 func main() {
