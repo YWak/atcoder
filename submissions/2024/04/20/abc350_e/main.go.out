@@ -20,7 +20,7 @@ func calc(in *io.In, out *io.Out) {
 	dp[0] = 0
 	var dfs func(t int) float64
 	dfs = func(t int) float64 {
-		if t == 0 {
+		if t < 6 {
 			return 0
 		}
 		debug(t)
