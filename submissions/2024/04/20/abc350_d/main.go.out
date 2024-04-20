@@ -28,11 +28,12 @@ func calc(in *io.In, out *io.Out) {
 	}
 	edges := map[int]int{}
 	for i := 0; i < m; i++ {
-		edges[uf.Root(i)]++
+		edges[uf.Root(a[i])]++
 	}
 
 	ans := 0
 	for g, mx := range groups {
+		// 存在する辺の数は最大
 		ans += (mx-1)*mx/2 - edges[g]
 	}
 	out.Println(ans)
