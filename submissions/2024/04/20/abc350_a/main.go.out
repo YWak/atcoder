@@ -6,7 +6,6 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
-	"strconv"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
@@ -15,8 +14,15 @@ import (
 
 func calc(in *io.In, out *io.Out) {
 	s := in.NextString()
-	n, _ := strconv.ParseInt(s[3:], 10, 64)
-	out.YesNo(n < 350 && n != 316)
+	m := map[string]bool{}
+	for i := 1; i < 350; i++ {
+		if i == 316 {
+			continue
+		}
+		m[fmt.Sprintf("ABC%03d", i)] = true
+	}
+
+	out.YesNo(m[s])
 }
 
 func main() {
