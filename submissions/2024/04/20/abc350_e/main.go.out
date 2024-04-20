@@ -20,10 +20,9 @@ func calc(in *io.In, out *io.Out) {
 	dp[0] = 0
 	var dfs func(t int) float64
 	dfs = func(t int) float64 {
-		if t < 6 {
+		if t == 0 {
 			return 0
 		}
-		debug(t)
 		var ans float64
 		if v, ex := dp[t]; ex {
 			ans = v
@@ -34,6 +33,7 @@ func calc(in *io.In, out *io.Out) {
 			}
 			a1 /= 5
 			ans = gomath.Min(dfs(t/a)+x, a1)
+			dp[t] = ans
 		}
 		return ans
 	}
