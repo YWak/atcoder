@@ -17,10 +17,13 @@ func calc(in *io.In, out *io.Out) {
 	n, k := in.NextInt2()
 	p := in.NextInts(n)
 
+	// 指定した区間で最大の添字
 	maxst := ds.NewSegmentTree[int](
 		func() int { return 0 },
 		func(a, b, ab *int) { *ab = max(*a, *b) },
 	)
+
+	// 指定した区間で最小の添字
 	minst := ds.NewSegmentTree[int](
 		func() int { return INF18 },
 		func(a, b, ab *int) { *ab = min(*a, *b) },
@@ -28,16 +31,15 @@ func calc(in *io.In, out *io.Out) {
 	maxst.Init(n + 1)
 	minst.Init(n + 1)
 
+	// 各区間で添字を指定する
 	for i, v := range p {
-		maxst.Update(v, i)
-		minst.Update(v, i)
+		maxst.Update(v, i+1)
+		minst.Update(v, i+1)
 	}
 
 	ans := INF18
-	for l := 1; l <= n; l++ {
-		if l+k > n {
-			break
-		}
+	// [l, r]を採用することにする
+	for l := 1; l+k-1 <= n; l++ {
 		r := l + k
 		mx := maxst.Query(l, r)
 		mn := minst.Query(l, r)
