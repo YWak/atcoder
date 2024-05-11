@@ -19,16 +19,17 @@ func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	a := in.NextInts(n)
 
+	keta := ds.NewInt2d(n+1, 11, 0)
+	for i := n - 1; i >= 0; i-- {
+		for t := range keta[i] {
+			keta[i][t] = keta[i+1][t]
+		}
+		s := fmt.Sprint(a[i])
+		keta[i][len(s)]++
+	}
 	s := make([]int, n+1)
 	for i, v := range a {
 		s[i+1] = mod.Add(s[i], v)
-	}
-	keta := ds.NewInt2d(11, n+1, 0)
-	for i := n - 1; i >= 0; i-- {
-		for t := 0; t < 11; t++ {
-			keta[t][i] = keta[t][i+1]
-		}
-		keta[len(fmt.Sprint(a[i]))][i]++
 	}
 
 	ans := 0
@@ -36,10 +37,12 @@ func calc(in *io.In, out *io.Out) {
 		if i+1 == n {
 			break
 		}
-		mod.Chadd(&ans, s[n]-s[i+1])
-		for t := 0; t < 11; t++ {
+
+		// 後側の合計を足す
+		mod.Chadd(&ans, mod.Sub(s[n], s[i+1]))
+		for t := range keta[i] {
 			vv := mod.Mul(v, mod.Pow(10, t))
-			mod.Chadd(&ans, mod.Mul(vv, keta[t][i+1]))
+			mod.Chadd(&ans, mod.Mul(vv, keta[i+1][t]))
 		}
 	}
 
