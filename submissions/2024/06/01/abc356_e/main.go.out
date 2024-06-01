@@ -35,7 +35,7 @@ func calc(in *io.In, out *io.Out) {
 			continue
 		}
 		// 自分より大きい値について、商ごとに更新を行う
-		for d := 1; d*v < MAX; d++ {
+		for d := 1; d*v <= MAX; d++ {
 			ans += c * d * st.Query(max(v+1, v*d), min(v*(d+1), MAX+1))
 		}
 		// 自分と同じ値の組合せの分だけ足す
