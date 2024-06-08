@@ -9,9 +9,7 @@ const Mod1000000007 = ModInt(1000000007)
 
 // Normはaをmod mの値に変換します
 func (mod ModInt) Norm(a int) int {
-	if a < 0 || a >= int(mod) {
-		a %= int(mod)
-	}
+	a %= int(mod)
 	if a < 0 {
 		a += int(mod)
 	}
