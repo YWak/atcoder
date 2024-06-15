@@ -13,10 +13,14 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	s := in.NextString()
-	t := in.NextString()
-
-	out.YesNo(s == "AtCoder" && t == "Land")
+	n := in.NextInt()
+	a := in.NextInt()
+	t := in.NextInts(n)
+	curr := 0
+	for _, v := range t {
+		curr = max(curr, v) + a
+		out.Println(curr)
+	}
 }
 
 func main() {
