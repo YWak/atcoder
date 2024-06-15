@@ -13,14 +13,29 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	n := in.NextInt()
-	a := in.NextInt()
-	t := in.NextInts(n)
-	curr := 0
-	for _, v := range t {
-		curr = max(curr, v) + a
-		out.Println(curr)
+	n, m := in.NextInt2()
+	s := make([]int, n)
+	for i := 0; i < n; i++ {
+		for j, v := range in.NextBytes() {
+			if v == 'o' {
+				s[i] += 1 << j
+			}
+		}
 	}
+	ans := INF18
+	for p := 1; p < 1<<n; p++ {
+		ok := 0
+		for i := 0; i < n; i++ {
+			if nthbit(p, i) == 1 {
+				ok = ok | s[i]
+			}
+		}
+		if popcount(ok) == m {
+			chmin(&ans, popcount(p))
+		}
+	}
+
+	out.Println(ans)
 }
 
 func main() {
