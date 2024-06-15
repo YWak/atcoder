@@ -6,40 +6,70 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
-	"sort"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
+const mod = math.Mod998244353
+
 func calc(in *io.In, out *io.Out) {
-	n, m := in.NextInt2()
+	K := in.NextInt()
+	C := in.NextInts(26)
 
-	a := in.NextInts(n)
-	b := in.NextInts(m)
-	sort.Ints(a)
-	sort.Ints(b)
+	// dp[i][j]はアルファベットのi文字目まで使って、j文字作る場合の数
+	dp := ds.NewInt2d(27, K+1, 0)
+	dp[0][0] = 1
+
+	fact := make([]int, 1001)
+	ifact := make([]int, 1001)
+	fact[0] = 1
+	for i := 1; i < len(fact); i++ {
+		fact[i] = mod.Mul(fact[i-1], i)
+	}
+	ifact[len(fact)-1] = mod.Inv(fact[len(fact)-1])
+	for i := len(fact) - 1; i > 0; i-- {
+		ifact[i-1] = mod.Mul(ifact[i], i)
+	}
+
+	p := 0
+	for i, c := range C {
+		for j := 0; j <= K; j++ { // これまでにj個使っている
+			// ここの文字を使わないケースは全部ある
+			mod.Chadd(&dp[i+1][j], dp[i][j])
+			for k := 1; j+k <= K && k <= c; k++ { // ここで文字をk個使う
+				// (j+k)個の文字をシャッフルする方法
+				t := fact[j+k]
+				t = mod.Mul(t, ifact[j]) // j文字について並び順が決まっている
+				t = mod.Mul(t, ifact[k]) // k文字について全部同じなので並び順が決まっているとみなしていい
+				t = mod.Mul(t, dp[i][j]) // j文字分の順序がdp[i][j]パターンある
+				// if K < 10 {
+				// 	debug(i, j, k, t)
+				// }
+				// if k == 0 && t != dp[i][j] {
+				// 	panic(fmt.Sprintf("(%d, %d, %d) %d != %d", i, j, k, t, dp[i][j]))
+				// }
+
+				mod.Chadd(&dp[i+1][j+k], t)
+				p++
+			}
+		}
+	}
+
+	// debug(p)
+	// if K < 10 {
+	// 	for i := range dp {
+	// 		debug(dp[i])
+	// 	}
+	// }
 	ans := 0
-	done := 0
-	i := 0
-	for _, v := range b {
-		for i < n && a[i] < v {
-			i++
-		}
-		if i == n {
-			break
-		}
-		ans += a[i]
-		i++
-		done++
+	for j := 1; j <= K; j++ {
+		mod.Chadd(&ans, dp[26][j])
 	}
 
-	if done != m {
-		out.Println(-1)
-	} else {
-		out.Println(ans)
-	}
+	out.Println(ans)
 }
 
 func main() {
