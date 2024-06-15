@@ -15,7 +15,6 @@ import (
 
 func calc(in *io.In, out *io.Out) {
 	n, m, k := in.NextInt3()
-	debug(n, m, k)
 	ok := k >= n && k%2 == n%2
 	if n == 1 {
 		ok = k == 1
@@ -55,7 +54,7 @@ func calc(in *io.In, out *io.Out) {
 
 	dig := func(dir byte, x, y int) {
 		i, j := x*2+1, y*2+1
-		debug(x, y, i, j)
+		// debug(x, y, i, j)
 		switch dir {
 		case 'l':
 			j--
@@ -74,27 +73,76 @@ func calc(in *io.In, out *io.Out) {
 
 	// 行って帰ってを可能な限りやる。ただし奇数なら最後の3行だけ工夫する。
 	for i := 0; i < n; i += 2 {
-		t := min((k-(n-i-2))/2, m)
 		if n%2 == 1 && i == n-3 {
-			if k-t*2 == 1 {
-				// 行って帰って来るで足りるので、次はまっすぐ下がらせる
-				dig('d', i+2, m-1)
-			} else {
-				// 足りない分をクネクネしながら行って戻って来る
-				continue
+			t := divceil(k, 3)
+			x, y := i, m-1
+			// t個左のマスまで行って、Uの動きを繰り返しながら調整する
+			for j := 0; j < t-1; j++ {
+				dig('l', x, y)
+				y--
+				k--
 			}
+			dig('d', x, y)
+			x++
+			k--
+			// debug(x, y, k)
+			for {
+				// このまま右にいったら解決する？
+				if k == m-y+1 {
+					debug("1 turn R", x, y, k)
+					break
+				}
 
+				debug("1 turn D", x, y, k)
+				dig('d', x, y)
+				x++
+				k--
+
+				debug("2 turn R", x, y, k)
+				dig('r', x, y)
+				y++
+				k--
+
+				// このまま左にいったら解決する？
+				if k == m-y {
+					debug("3 turn R", x, y, k)
+					break
+				}
+
+				debug("3 turn U", x, y, k)
+				dig('u', x, y)
+				x--
+				k--
+
+				debug("4, turn R", x, y, k)
+				dig('r', x, y)
+				y++
+				k--
+			}
+			for y < m-1 {
+				dig('r', x, y)
+				y++
+				k--
+			}
+			i = x
+			for i < n {
+				dig('d', i, y)
+				i++
+				k--
+			}
+			break
 		}
 
 		// 左にt進んで下に行き、右にt進むことで最大2*mステップ使える。
 		// 直線で行くと残り n-i ステップかかるので、それまでで可能な限り使う
+		t := min((k-(n-i-2))/2, m)
 		if t == 0 {
-			debug(i, "down 2 steps")
+			// debug(i, "down 2 steps")
 			// まっすぐ下に行く
 			dig('d', i, m-1)
 			k -= 2
 		} else {
-			debug(i, "go left", t, "steps")
+			// debug(i, "go left", t, "steps")
 			for p := 0; p < t-1; p++ {
 				dig('l', i, m-1-p)
 				dig('r', i+1, m-2-p)
