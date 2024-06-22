@@ -12,55 +12,37 @@ import (
 	"github.com/ywak/atcoder/lib/math"
 )
 
-func solve(sx, sy, tx, ty int) int {
-	// 同じタイルなら0とする
-	if sy == ty {
-		if ((sx+sy)%2 == 0 && sx+1 == tx) || (tx+ty)%2 == 0 && tx+1 == ty {
-			return 0
-		}
-	}
-
-	// 移動した正方形の数
-	ans := abs(sy-ty) + abs(sx-tx)
-	// sx -> txに向かうことにする
-	if sx > tx {
-		sx, sy, tx, ty = tx, ty, sx, sy
-	}
-
-	// タイルをわたった数を引く
-	ans -= abs(tx - sx) // 最大でこれだけ省略できる
-	if (sx+sy)%2 == 1 { // sxがタイルの端なら移動できない
-		ans++
-	}
-	if (tx+ty)%2 == 0 { // txがタイルの端なら移動できない
-		ans++
-	}
-	return ans
-}
-
 func calc(in *io.In, out *io.Out) {
 	sx, sy := in.NextInt2()
 	tx, ty := in.NextInt2()
 
-	// 4パターンに言い換える
-	ans := INF18
-	var ds []int
-	if (sx+sy)%2 == 0 {
-		ds = []int{0, +1}
-	} else {
-		ds = []int{-1, 0}
+	isLeft := func(ax, ay int) bool {
+		return (ax+ay)%2 == 0
 	}
-	var dt []int
-	if (tx+ty)%2 == 0 {
-		dt = []int{0, +1}
-	} else {
-		dt = []int{-1, 0}
+	isRight := func(ax, ay int) bool {
+		return !isLeft(ax, ay)
 	}
-	for _, s := range ds {
-		for _, t := range dt {
-			chmin(&ans, solve(sx+s, sy, tx+t, ty))
-		}
+
+	// とりあえず右に向かうようにする
+	if sx > tx {
+		sx, sy, tx, ty = tx, ty, sx, sy
 	}
+	if isLeft(sx, sy) {
+		sx++
+	}
+	if isRight(tx, ty) {
+		tx--
+	}
+
+	// 可能な限り斜めに移動しつつ、上下移動する
+	var ans int
+	k := abs(sy - ty)
+	ans = abs(sy - ty)
+	sx += k
+
+	// 縦が一緒になったので、足りない分を横移動する
+	// 1回の移動で2個進める
+	ans += divceil(max(0, tx-sx), 2)
 
 	out.Println(ans)
 }
