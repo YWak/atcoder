@@ -14,37 +14,30 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	n := in.NextInt()
-	m := in.NextInt()
-
+	n, m := in.NextInt2()
 	order := func(a, b int) bool { return a < b }
-	A := ds.NewPriorityQueue(order)
+	a := ds.NewPriorityQueue(order)
+	b := ds.NewPriorityQueue(order)
 	for _, v := range in.NextInts(n) {
-		A.Push(v)
+		a.Push(v)
 	}
-	B := ds.NewPriorityQueue(order)
 	for _, v := range in.NextInts(m) {
-		B.Push(v)
+		b.Push(v)
 	}
 	ans := 0
-	ok := true
-	for B.HasElements() {
-		for A.HasElements() && A.Peek() < B.Peek() {
-			A.Pop()
+	for b.HasElements() {
+		for a.HasElements() && a.Peek() < b.Peek() {
+			a.Pop()
 		}
-		if A.IsEmpty() {
-			ok = false
+		if a.IsEmpty() {
+			ans = -1
 			break
 		}
-		ans += A.Pop()
-		B.Pop()
+		ans += a.Pop()
+		b.Pop()
 	}
 
-	if ok {
-		out.Println(ans)
-	} else {
-		out.Println(-1)
-	}
+	out.Println(ans)
 }
 
 func main() {
