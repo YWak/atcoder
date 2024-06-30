@@ -2,8 +2,6 @@ package ds
 
 import (
 	"container/heap"
-
-	"golang.org/x/exp/constraints"
 )
 
 // PriorityQueueListは優先度付きキューのリストを表す
@@ -50,14 +48,14 @@ func (list *PriorityQueueList) Push(item interface{}) {
 type PriorityQueue[T any] struct {
 	list PriorityQueueList
 
-	// Addは優先度付きキューに要素を一つ追加します。
-	Add func(value T)
+	// Pushは優先度付きキューに要素を一つ追加します。
+	Push func(value T)
 
-	// Removeは優先度付きキューから要素を一つ取り出します。
-	Remove func() T
+	// Popは優先度付きキューから要素を一つ取り出します。
+	Pop func() T
 
-	// Getは優先度つきキューの先頭要素を返します。
-	Get func() T
+	// Peekは優先度つきキューの先頭要素を返します。
+	Peek func() T
 
 	// IsEmptyは優先度付きキューが空かどうかを判断します。
 	IsEmpty func() bool
@@ -76,13 +74,13 @@ func NewPriorityQueue[T any](prior func(a, b T) bool) *PriorityQueue[T] {
 	}
 	return &PriorityQueue[T]{
 		list: list,
-		Add: func(value T) {
+		Push: func(value T) {
 			heap.Push(&list, value)
 		},
-		Remove: func() T {
+		Pop: func() T {
 			return heap.Pop(&list).(T)
 		},
-		Get: func() T {
+		Peek: func() T {
 			return list.values[0].(T)
 		},
 		IsEmpty: func() bool {
@@ -97,12 +95,12 @@ func NewPriorityQueue[T any](prior func(a, b T) bool) *PriorityQueue[T] {
 	}
 }
 
-// NewAscendingPriorityQueueは順序が決まっている要素について、昇順に扱う優先度付きキューを作成して返します。
-func NewAscendingPriorityQueue[T constraints.Ordered]() *PriorityQueue[T] {
-	return NewPriorityQueue(func(a, b T) bool { return a < b })
-}
+// // NewAscendingPriorityQueueは順序が決まっている要素について、昇順に扱う優先度付きキューを作成して返します。
+// func NewAscendingPriorityQueue[T constraints.Ordered]() *PriorityQueue[T] {
+// 	return NewPriorityQueue(func(a, b T) bool { return a < b })
+// }
 
-// NewDescendingPriorityQueueは順序が決まっている要素について、降順に扱う優先度付きキューを作成して返します。
-func NewDescendingPriorityQueue[T constraints.Ordered]() *PriorityQueue[T] {
-	return NewPriorityQueue(func(a, b T) bool { return a > b })
-}
+// // NewDescendingPriorityQueueは順序が決まっている要素について、降順に扱う優先度付きキューを作成して返します。
+// func NewDescendingPriorityQueue[T constraints.Ordered]() *PriorityQueue[T] {
+// 	return NewPriorityQueue(func(a, b T) bool { return a > b })
+// }

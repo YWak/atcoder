@@ -114,10 +114,10 @@ func (g *Graph) Dijkstra(s int) *DijkstraResult {
 	pq := NewPriorityQueue(func(a, b *Node) bool {
 		return a.cost < b.cost
 	})
-	pq.Add(&Node{s, 0})
+	pq.Push(&Node{s, 0})
 
 	for pq.HasElements() {
-		u := pq.Remove()
+		u := pq.Pop()
 
 		if cost[u.node] < u.cost {
 			// 更新されていたら無視する
@@ -130,7 +130,7 @@ func (g *Graph) Dijkstra(s int) *DijkstraResult {
 			if cost[e.To] > c {
 				cost[e.To] = c
 				prev[e.To] = u.node
-				pq.Add(&Node{e.To, c})
+				pq.Push(&Node{e.To, c})
 			}
 		}
 	}
