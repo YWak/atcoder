@@ -18,16 +18,19 @@ func calc(in *io.In, out *io.Out) {
 	t := in.NextBytes()
 	ans := false
 	for w := 1; w < len(s); w++ {
-		b := []byte{}
-		for c := 1; c <= w; c++ {
-			for i := 0; w*i+c < len(s); i++ {
-				b = append(b, s[w*i+c])
+		for c := 0; c < w; c++ {
+			b := []byte{}
+			for i := 0; i*w+c < len(s); i++ {
+				b = append(b, s[i*w+c])
 			}
-			if bytes.Equal(b, t) {
+			if bytes.Equal(t, b) {
 				ans = true
+				debug(w, c, string(b), string(t))
+				break
 			}
 		}
 	}
+
 	out.YesNo(ans)
 }
 
