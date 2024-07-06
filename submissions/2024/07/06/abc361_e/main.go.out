@@ -14,9 +14,6 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	type node struct {
-		to, c int
-	}
 	n := in.NextInt()
 	g := ds.NewGraph(n)
 	for i := 0; i < n-1; i++ {
@@ -26,10 +23,12 @@ func calc(in *io.In, out *io.Out) {
 		g.AddWeightedEdge(a, b, c)
 	}
 
-	next := []int{} // dfsの行きがけ順に設定する
+	leaf := []int{} // dfsの行きがけ順に見つけた葉を設定する
 	var dfs func(curr, prev int)
 	dfs = func(curr, prev int) {
-		next = append(next, curr)
+		if len(g.List[curr]) == 1 {
+			leaf = append(leaf, curr)
+		}
 		for _, e := range g.List[curr] {
 			if e.To == prev {
 				continue
@@ -37,20 +36,22 @@ func calc(in *io.In, out *io.Out) {
 			dfs(e.To, curr)
 		}
 	}
-	lca := g.Lca(0)
 	dfs(0, -1)
-	// debug("next", next)
-	// nextの分だけループした距離の最小値を探す
+
+	// すべての葉同士の距離で、もっとも遠いものを除いた総距離
+
+	// leaf[0]からぐるっとleaf[0]に戻ったときの距離 - 適当な道
 	s := 0
-	next = append(next, 0)
-	for i := 0; i < n; i++ {
-		s += lca.Distance(next[i], next[i+1])
-		// debug("lca", next[i], next[i+1], lca.Distance(next[i], next[i+1]))
+	k := len(leaf)
+	lca := g.Lca(leaf[0])
+	leaf = append(leaf, leaf[0])
+	for i := 0; i < k; i++ {
+		s += lca.Distance(leaf[i], leaf[i+1])
 	}
 
 	ans := s
-	for i := 0; i < n; i++ {
-		chmin(&ans, s-lca.Distance(next[i], next[i+1]))
+	for i := 0; i < k; i++ {
+		chmin(&ans, s-lca.Distance(leaf[i], leaf[i+1]))
 	}
 	out.Println(ans)
 }
