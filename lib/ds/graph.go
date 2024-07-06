@@ -340,6 +340,10 @@ type Lca struct {
 	x int
 	// depthは要素ごとのルートからの深さ
 	depth []int
+
+	// distは要素ごとのルートからの距離
+	dist []int
+
 	// ancestorsは要素ごとの2^k個上の祖先
 	ancestors [][]int
 }
@@ -353,24 +357,25 @@ func (g *Graph) Lca(root int) *Lca {
 		x++
 	}
 
-	lca := Lca{n, x, make([]int, n), NewInt2d(n, x, 0)}
+	lca := Lca{n, x, make([]int, n), make([]int, n), NewInt2d(n, x, 0)}
 
 	// depthとparentの初期化
 	parent := make([]int, n)
 
-	var dfs func(curr, prev, level int)
-	dfs = func(curr int, prev int, level int) {
+	var dfs func(curr, prev, level, dist int)
+	dfs = func(curr int, prev int, level, dist int) {
 		lca.depth[curr] = level
+		lca.dist[curr] = dist
 		parent[curr] = prev
 
 		for _, e := range g.List[curr] {
 			if e.To == prev {
 				continue
 			}
-			dfs(e.To, curr, level+1)
+			dfs(e.To, curr, level+1, dist+e.Weight)
 		}
 	}
-	dfs(root, -1, 0)
+	dfs(root, -1, 0, 0)
 
 	// 2^k先の親を取得
 	for k := 0; k < lca.x; k++ {
@@ -425,5 +430,5 @@ func (lca *Lca) Of(a, b int) int {
 // Distanceはaとbの距離を返します。
 func (lca *Lca) Distance(a, b int) int {
 	c := lca.Of(a, b)
-	return lca.depth[a] + lca.depth[b] - 2*lca.depth[c]
+	return lca.dist[a] + lca.dist[b] - 2*lca.dist[c]
 }
