@@ -23,7 +23,15 @@ func calc(in *io.In, out *io.Out) {
 		g.AddWeightedEdge(a, b, c)
 	}
 
-	leaf := []int{} // dfsの行きがけ順に見つけた葉を設定する
+	leaf := []int{}
+	// 葉を見つける
+	for i := 0; i < n; i++ {
+		if len(g.List[i]) == 1 {
+			leaf = append(leaf, i)
+		}
+	}
+
+	// dfsの行きがけ順に見つけた葉を設定する
 	var dfs func(curr, prev int)
 	dfs = func(curr, prev int) {
 		if len(g.List[curr]) == 1 {
@@ -39,8 +47,6 @@ func calc(in *io.In, out *io.Out) {
 	dfs(0, -1)
 
 	// すべての葉同士の距離で、もっとも遠いものを除いた総距離
-
-	// leaf[0]からぐるっとleaf[0]に戻ったときの距離 - 適当な道
 	s := 0
 	k := len(leaf)
 	lca := g.Lca(leaf[0])
