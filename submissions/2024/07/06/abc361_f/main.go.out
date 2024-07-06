@@ -13,7 +13,42 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
+	n := in.NextInt()
+	ls := math.NewLinearSieve(math.N10_6)
 
+	// x = a^b (b > 2)については直接調べる
+	m1 := map[int]int{} // x = a^b (b > 2)として見つけた値
+	m2 := map[int]int{} // x = a^b (bは偶数)と表現できるx
+	for a := 2; a <= math.N10_6; a++ {
+		sq := ls.IsNthPower(a, 2)
+
+		i, x := 3, pow(a, 3)
+
+		for {
+			if x > n {
+				break
+			}
+			m1[x]++
+			// x = t^2となるtが存在するなら記録する
+			if sq || i%2 == 0 {
+				m2[x]++
+			}
+
+			// オーバーフロー対策
+			if n/x < a {
+				break
+			}
+			x *= a
+			i++
+		}
+	}
+
+	c := math.Sqrt(n)
+
+	// debug(len(m1), c, len(m2))
+	ans := len(m1) + c - len(m2)
+
+	out.Println(ans)
 }
 
 func main() {
@@ -100,11 +135,6 @@ func gcd(a, b int) int {
 // lcmはaとbの最小公倍数を返します。
 func lcm(a, b int) int {
 	return math.Lcm(a, b)
-}
-
-// sqrtはx^2 <= aとなる最大のaを返します。
-func sqrt(a int) int {
-	return math.Sqrt(a)
 }
 
 // chiはcondがtrueのときok, falseのときngを返します。

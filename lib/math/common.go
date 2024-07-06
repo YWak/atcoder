@@ -1,5 +1,7 @@
 package math
 
+import "math"
+
 // INF18 は最大値を表す数
 const INF18 = int(2e18) + int(2e9)
 
@@ -121,4 +123,17 @@ func Lcm(a, b int) int {
 		aa, bb = bb, aa%bb
 	}
 	return a / aa * b
+}
+
+// Sqrtは x^2 <= a となる最大のxを返します。
+func Sqrt(a int) int {
+	x := int(math.Floor(math.Sqrt(float64(a))))
+	// 端数でズレが発生するので、調整する。最大でも1回程度になる
+	for Pow(x+1, 2) <= a {
+		x++
+	}
+	for Pow(x, 2) > a {
+		x--
+	}
+	return x
 }
