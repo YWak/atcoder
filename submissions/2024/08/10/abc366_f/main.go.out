@@ -1,0 +1,285 @@
+//lint:file-ignore U1000 using template
+package main
+
+import (
+	"fmt"
+	gomath "math"
+	"math/bits"
+	"os"
+	"strings"
+
+	"github.com/ywak/atcoder/lib/ds"
+	io "github.com/ywak/atcoder/lib/io"
+	"github.com/ywak/atcoder/lib/math"
+)
+
+func calc(in *io.In, out *io.Out) {
+	type st struct {
+		x  int
+		f  []uint8
+		e  int
+		sa int
+		sb int
+		// debug string
+	}
+	eval := func(s *st) {
+		if s.e == 0 {
+			s.e = s.x*s.sa + s.sb
+		}
+	}
+	cmp := func(a, b *st) bool {
+		if a.x != b.x {
+			return a.x > b.x
+		}
+
+		eval(a)
+		eval(b)
+		return a.e > b.e
+	}
+
+	N := 50 * 50
+	idx := func(a, b int) int {
+		return (a-1)*50 + (b - 1)
+	}
+	ridx := func(i int) (int, int) {
+		return i/50 + 1, i%50 + 1
+	}
+
+	// ax+bが大きくなるような値をgreedyに選ぶ
+	// aが大きいものを後で使うようにする方がよい
+	// 50を超えたらaができるだけ大きく、その次にbが大きい方がよい
+	n, k := in.NextInt2()
+	first := st{
+		1,
+		make([]uint8, N+1),
+		0,
+		0,
+		0,
+		// "",
+	}
+	for i := 0; i < n; i++ {
+		a, b := in.NextInt2()
+		if first.f[idx(a, b)] < uint8(k) {
+			first.f[idx(a, b)]++
+		}
+		first.sa += a
+		first.sb += b
+	}
+
+	type f struct{ a, b int }
+	last := []*f{}
+	for a := 50; a > 0; a-- {
+		for b := 50; b > 0; b-- {
+			for i := int(first.f[idx(a, b)]); i > 0 && len(last) < k; i-- {
+				last = append(last, &f{a, b})
+			}
+		}
+	}
+
+	// 全パターン試す
+	queue := ds.NewPriorityQueue(cmp)
+	queue.Push(&first)
+	for t := 0; t < k; t++ {
+		next := ds.NewPriorityQueue(cmp)
+		for queue.HasElements() {
+			s := queue.Pop()
+
+			for i, c := range s.f {
+				if c == 0 {
+					continue
+				}
+				a, b := ridx(i)
+				nx := st{
+					x:  s.x*a + b,
+					f:  make([]uint8, N+1),
+					e:  0,
+					sa: s.sa - a,
+					sb: s.sb - b,
+					// debug: s.debug + fmt.Sprintf("(%d, %d)", a, b),
+				}
+				copy(nx.f, s.f)
+				nx.f[i]--
+
+				next.Push(&nx)
+			}
+		}
+		for i := 0; i < 20; i++ {
+			if next.IsEmpty() {
+				break
+			}
+			queue.Push(next.Pop())
+		}
+	}
+
+	out.Println(queue.Peek().x)
+	// debug(queue.Peek().debug)
+}
+
+func main() {
+	in, out := io.InitIo(&io.InitIoProps{
+		DoBuffer: true, // インタラクティブならfalseにすること。
+		ReadLine: false,
+	})
+	defer out.Flush()
+
+	calc(in, out)
+}
+
+var isDebugMode = os.Getenv("AT_DEBUG") == "1"
+
+func debug(args ...interface{}) {
+	if isDebugMode {
+		fmt.Fprintln(os.Stderr, args...)
+	}
+}
+
+// ==================================================
+// 数値操作
+// ==================================================
+
+// INF18 は最大値を表す数
+const INF18 = math.INF18
+
+// INF9 は最大値を表す数
+const INF9 = math.INF9
+
+// N10_6は10^6
+const N10_6 = math.N10_6
+
+// max は aとbのうち大きい方を返します。
+func max(a, b int) int {
+	return math.Max(a, b)
+}
+
+// min は aとbのうち小さい方を返します。
+func min(a, b int) int {
+	return math.Min(a, b)
+}
+
+// chmax は aとbのうち大きい方をaに設定します。
+func chmax(a *int, b int) bool {
+	return math.Chmax(a, b)
+}
+
+// chmin は aとbのうち小さい方をaに設定します。
+func chmin(a *int, b int) bool {
+	return math.Chmin(a, b)
+}
+
+// abs は aの絶対値を返します。
+func abs(a int) int {
+	return math.Abs(a)
+}
+
+// pow は aのb乗を返します。
+func pow(a, b int) int {
+	return math.Pow(a, b)
+}
+
+// divceil は a/b の結果を正の無限大に近づけるように丸めて返します。
+func divceil(a, b int) int {
+	return math.Divceil(a, b)
+}
+
+// divfloor は a/b の結果を負の無限大に近づけるように丸めて返します。
+func divfloor(a, b int) int {
+	return math.Divfloor(a, b)
+}
+
+// powmod は (x^n) mod m を返します。
+func powmod(x, n, m int) int {
+	return math.Powmod(x, n, m)
+}
+
+// gcdはaとbの最大公約数を返します。
+func gcd(a, b int) int {
+	return math.Gcd(a, b)
+}
+
+// lcmはaとbの最小公倍数を返します。
+func lcm(a, b int) int {
+	return math.Lcm(a, b)
+}
+
+// sqrtはx^2 <= aとなる最大のaを返します。
+func sqrt(a int) int {
+	return math.Sqrt(a)
+}
+
+// chiはcondがtrueのときok, falseのときngを返します。
+func chi(cond bool, ok, ng int) int {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// chbはcondがtrueのときok, falseのときngを返します。
+func chb(cond bool, ok, ng byte) byte {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// chsはcondがtrueのときok, falseのときngを返します。
+func chs(cond bool, ok, ng string) string {
+	if cond {
+		return ok
+	}
+	return ng
+}
+
+// extmulはa*bの結果を返します。
+// 2つ目の値が+1ならオーバーフロー、-1ならアンダーフローが発生したことを表します。
+func extmul(a, b int) (int, int) {
+	if a < 0 {
+		a, b = -a, -b
+	}
+	if a == 0 || b == 0 {
+		return 0, 0
+	} else if a > 0 && b > 0 && a > gomath.MaxInt64/b {
+		return 0, +1
+	} else if a > gomath.MinInt64/b {
+		return 0, -1
+	}
+	return a * b, 0
+}
+
+// ==================================================
+// ビット操作
+// ==================================================
+
+// nthbit はaのn番目のビットを返します。
+func nthbit(a int, n int) int { return int((a >> uint(n)) & 1) }
+
+// popcount はaのうち立っているビットを数えて返します。
+func popcount(a int) int {
+	return bits.OnesCount(uint(a))
+}
+
+func xor(a, b bool) bool { return a != b }
+
+// ==================================================
+// 文字列操作
+// ==================================================
+
+// toLowerCase は sをすべて小文字にした文字列を返します。
+func toLowerCase(s string) string {
+	return strings.ToLower(s)
+}
+
+// toUpperCase は sをすべて大文字にした文字列を返します。
+func toUpperCase(s string) string {
+	return strings.ToUpper(s)
+}
+
+// isLower はbが小文字かどうかを判定します
+func isLower(b byte) bool {
+	return 'a' <= b && b <= 'z'
+}
+
+// isUpper はbが大文字かどうかを判定します
+func isUpper(b byte) bool {
+	return 'A' <= b && b <= 'Z'
+}
