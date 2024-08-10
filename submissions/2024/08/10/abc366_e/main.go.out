@@ -6,29 +6,71 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
-	"sort"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
-func calc(in *io.In, out *io.Out) {
-	geta := math.N10_6
+const L = -N10_6 * 2
+const R = N10_6 * 2
+const N = R - L + 1
+const geta = -L
 
-	n, d := in.NextInt2()
-	xs := make([]int, n)
-	ys := make([]int, n)
-	for i := 0; i < n; i++ {
-		xs[i] = in.NextInt() + geta
-		ys[i] = in.NextInt() + geta
+// 各点におけるマンハッタン距離の総和
+func distsum(cnt map[int]int, n int) []int {
+	dist := make([]int, N)
+	// 左側にあるものからは1離れて、右側にあるものには1近づく
+	// 最初はすべて右にある。
+	for x, c := range cnt {
+		dist[L+geta] += abs(L-x) * c
 	}
 
-	sort.Ints(xs)
-	sort.Ints(ys)
+	lc := 0
+	rc := n
+	for t := L + 1; t <= R; t++ {
+		// 次の座標にとって、今の座標は左側に変わる
+		lc += cnt[t-1]
+		rc -= cnt[t-1]
 
-	lx := 0
-	dx := make([]int, math.N10_6*2+1)
+		i := t + geta
+		dist[i] = dist[i-1] + lc - rc
+	}
+
+	return dist
+}
+
+func calc(in *io.In, out *io.Out) {
+	n, d := in.NextInt2()
+	xs := map[int]int{}
+	ys := map[int]int{}
+	for i := 0; i < n; i++ {
+		xs[in.NextInt()]++
+		ys[in.NextInt()]++
+	}
+
+	// x,yごとのマンハッタン距離の総和
+	dx := distsum(xs, n)
+	dy := distsum(ys, n)
+
+	// あるマンハッタン距離以下の座標の数について累積和を作る
+	sx := make([]int, d+2)
+	for _, v := range dx {
+		sx[min(d+1, v)]++
+	}
+	for i := 1; i < len(sx); i++ {
+		sx[i] += sx[i-1]
+	}
+
+	ans := 0
+	// yの値を決めたらy軸方向だけのマンハッタン距離が得られる。
+	// x軸方向について、マンハッタン距離の総和がD以下になるような座標の数を合計する。
+	for _, y := range dy {
+		if x := d - y; x >= 0 {
+			ans += sx[x]
+		}
+	}
+	out.Println(ans)
 }
 
 func main() {
