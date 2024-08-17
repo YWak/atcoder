@@ -13,25 +13,33 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	a,b,c := in.NextInt3()
-	ok := make([]bool, 24)
-	for i := range ok {
-		ok[i] = true
-	}
-	if b < c {
-		for i := b; i < c; i++ {
-			ok[i] = false
-		}
-	} else {
-		for i := b; i < 24; i++ {
-			ok[i] = false
-		}
-		for i := 0; i < c; i++ {
-			ok[i] = false
-		}
+	n, m := in.NextInt2()
+	a := in.NextInts(n)
+	aa := make([]int, 0, n*2)
+	aa = append(aa, a...)
+	aa = append(aa, a...)
+
+	s := make([]int, n*2+1)
+	for i, v := range aa {
+		s[i+1] = s[i] + v
 	}
 
-	out.YesNo(ok[a])
+	ans := 0
+	// iをゴールとするときに、そこまでの歩数 mod Mが一致する数を数える
+	// 事前に1～Nまで歩いたときの総和を追加しておく
+	c := make([]int, m)
+	for i := 1; i <= n; i++ {
+		c[s[i]%m]++
+	}
+
+	for i := n + 1; i <= n*2; i++ {
+		p := s[i] % m
+		c[s[i-n]%m]--
+		ans += c[p]
+		c[p]++
+	}
+
+	out.Println(ans)
 }
 
 func main() {

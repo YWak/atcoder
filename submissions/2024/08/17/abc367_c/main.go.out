@@ -13,25 +13,27 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	a,b,c := in.NextInt3()
-	ok := make([]bool, 24)
-	for i := range ok {
-		ok[i] = true
-	}
-	if b < c {
-		for i := b; i < c; i++ {
-			ok[i] = false
+	n := in.NextInt()
+	k := in.NextInt()
+	r := in.NextInts(n)
+	ans := make([]int, n)
+	var dfs func(i int, s int)
+	dfs = func(i, s int) {
+		// すべて解決している
+		if i == n {
+			if s%k == 0 {
+				out.PrintIntsLn(ans)
+			}
+			return
 		}
-	} else {
-		for i := b; i < 24; i++ {
-			ok[i] = false
-		}
-		for i := 0; i < c; i++ {
-			ok[i] = false
+		for j := 1; j <= r[i]; j++ {
+			ans[i] = j
+			dfs(i+1, s+j)
+			ans[i] = 0
 		}
 	}
 
-	out.YesNo(ok[a])
+	dfs(0, 0)
 }
 
 func main() {
