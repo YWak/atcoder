@@ -17,24 +17,30 @@ func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	h := in.NextInts(n)
 
-	// H[j]より大きいH[i]のうち、最大のiを探す
-	// st.Query(x)は、高さxより大きいH[i]のうち、最大のi
-	st := ds.NewDualSegmentTree(
-		func(x, v *int) { *v = max(*v, *x) },
-		func(f, x *int) { *x = max(*x, *f) },
-		func() int { return -1 },
+	// st1.Query(x, y)は、高さ[x, y)の範囲で最大のiを返す
+	st1 := ds.NewSegmentTree(
 		func() int { return 0 },
+		func(a, b, ab *int) { *ab = max(*a, *b) },
 	).Init(n + 1)
+	// st2.Query(x, y)は、H[x, y]の範囲で適用可能なjの数を返す
+	imos := make([]int, n+1)
 	for i, x := range h {
-		st.Update(0, x, i)
+		k := st1.Query(x, n+1)
+		// debug(i, x, k)
+		imos[k]++
+		imos[n]--
+		st1.Update(x, i)
 	}
 
-	s := make([]int, n)
-	mx := 0
-	for i, x := range h {
-		s[i] = mx
-		chmax(&mx, x)
+	ans := make([]int, n)
+	s := 0
+	for i := range h {
+		s += imos[i]
+		s--
+		ans[i] = s
 	}
+
+	out.PrintIntsLn(ans)
 }
 
 func main() {
