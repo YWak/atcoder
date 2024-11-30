@@ -14,10 +14,26 @@ import (
 
 func calc(in *io.In, out *io.Out) {
 	n, m := in.NextInt2()
-	a := in.NextInts(n)
+	ls := make([][]int, 220000)
+	for i, a := range in.NextInts(n) {
+		ls[a] = append(ls[a], i+1)
+	}
+
+	who := make([]int, 220000)
+	now := INF18
+	for a, l := range ls {
+		for _, v := range l {
+			chmin(&now, v)
+		}
+		if now == INF18 {
+			who[a] = -1
+		} else {
+			who[a] = now
+		}
+	}
 
 	for _, b := range in.NextInts(m) {
-		// b以上の値をもち、最小のiをもつ人
+		out.Println(who[b])
 	}
 }
 
