@@ -13,13 +13,28 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	c := 0
-	for i, v := range in.NextInts(5) {
-		if i+1 == v {
-			c++
+	a := in.NextInts(5)
+
+	b := []int{1, 2, 3, 4, 5}
+	for i := 0; i < 4; i++ {
+		b[i], b[i+1] = b[i+1], b[i]
+
+		ok := true
+		// debug(a, b)
+		for j := 0; j < 5; j++ {
+			if a[j] != b[j] {
+				ok = false
+			}
 		}
+		if ok {
+			out.YesNo(true)
+			return
+		}
+
+		b[i], b[i+1] = b[i+1], b[i]
 	}
-	out.YesNo(c == 3)
+
+	out.YesNo(false)
 }
 
 func main() {
