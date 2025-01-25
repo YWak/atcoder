@@ -16,35 +16,32 @@ func calc(in *io.In, out *io.Out) {
 	n := in.NextInt()
 	a := in.NextInts(n)
 
+	// 作った和
 	b := make([]int, 1<<n)
 	for s := 0; s < 1<<n; s++ {
 		for i, v := range a {
 			if nthbit(s, i) == 1 {
-				b[i] += v
+				b[s] += v
 			}
 		}
 	}
 
-	memo := make([]map[int]int, 1<<n)
-	for i := range memo {
-		memo[i] = map[int]int{0: 1}
-	}
+	memo := make([][]int, 1<<n)
+	memo[0] = []int{0}
 
 	for s := 0; s < 1<<n; s++ {
-		for t := s - 1; t >= 0; t-- {
-			t &= s // tはsの部分集合
-			for v := range memo[s-t] {
-				memo[s][v^b[t]] = 1
+		m := map[int]int{}
+		for t := s; t > 0; t = (t - 1) & s {
+			for _, v := range memo[s-t] {
+				m[v^b[t]] = 1
 			}
-
-			if t == 0 {
-				break
-			}
+		}
+		for v := range m {
+			memo[s] = append(memo[s], v)
 		}
 	}
 
-	debug(memo[1<<n-1])
-	out.Println(len(memo[1<<n-1]) - 1)
+	out.Println(len(memo[1<<n-1]))
 }
 
 func main() {
