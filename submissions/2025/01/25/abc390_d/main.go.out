@@ -32,10 +32,9 @@ func calc(in *io.In, out *io.Out) {
 
 	for s := 0; s < 1<<n; s++ {
 		for t := s - 1; t >= 0; t-- {
-			t &= s
-			u := (^t) & s
-			for _, v := range memo[s] {
-				memo[u][v^b[t]] = 1
+			t &= s // tはsの部分集合
+			for v := range memo[s-t] {
+				memo[s][v^b[t]] = 1
 			}
 
 			if t == 0 {
@@ -44,7 +43,8 @@ func calc(in *io.In, out *io.Out) {
 		}
 	}
 
-	out.Println(len(memo[1<<n-1]))
+	debug(memo[1<<n-1])
+	out.Println(len(memo[1<<n-1]) - 1)
 }
 
 func main() {
