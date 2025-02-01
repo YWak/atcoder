@@ -6,6 +6,7 @@ import (
 	gomath "math"
 	"math/bits"
 	"os"
+	"sort"
 	"strings"
 
 	io "github.com/ywak/atcoder/lib/io"
@@ -17,22 +18,50 @@ func calc(in *io.In, out *io.Out) {
 	w := in.NextInt()
 
 	type block struct{ x, y, i int }
-	bs := []block{}
+	bs := []*block{}
 	for i := 0; i < n; i++ {
 		x, y := in.NextInt2()
-		bs = append(bs, block{x, y, i + 1})
+		bs = append(bs, &block{x, y, i + 1})
 	}
 
+	// 各ブロックの削除時刻
+	deleted := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		deleted[i] = INF18
+	}
+
+	sort.Slice(bs, func(i, j int) bool { return bs[i].y < bs[j].y })
+	bucket := make([][]*block, w+1)
+	for _, b := range bs {
+		bucket[b.x] = append(bucket[b.x], b)
+	}
+
+	curr := 0
+	for {
+		del := true
+		maxtime := 0
+		for i := 1; i <= w; i++ {
+			if len(bucket[i]) == 0 {
+				del = false
+			} else {
+				chmax(&maxtime, bucket[i][0].y-curr)
+			}
+		}
+
+		if !del {
+			break
+		}
+		for i := 1; i <= w; i++ {
+			deleted[bucket[i][0].i] = curr + maxtime
+			bucket[i] = bucket[i][1:]
+		}
+		curr = maxtime
+	}
 	Q := in.NextInt()
-	type query struct{ t, a, i int }
-	qs := []query{}
-	for i := 0; i < n; i++ {
+	for q := 0; q < Q; q++ {
 		t, a := in.NextInt2()
-		qs = append(qs, query{t, a, i + 1})
+		out.YesNo(deleted[a] > t)
 	}
-
-	ans := make([]bool, Q)
-
 }
 
 func main() {
