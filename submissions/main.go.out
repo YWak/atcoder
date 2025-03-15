@@ -13,25 +13,26 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	a,b,c := in.NextInt3()
-	ok := make([]bool, 24)
-	for i := range ok {
-		ok[i] = true
+	s := in.NextBytes()
+	ans := 0
+	cc := byte('o')
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c == cc {
+			ans++
+			if cc == 'i' {
+				cc = 'o'
+			} else {
+				cc = 'i'
+			}
+		} else {
+			cc = c
+		}
 	}
-	if b < c {
-		for i := b; i < c; i++ {
-			ok[i] = false
-		}
-	} else {
-		for i := b; i < 24; i++ {
-			ok[i] = false
-		}
-		for i := 0; i < c; i++ {
-			ok[i] = false
-		}
+	if cc == 'i' {
+		ans++
 	}
-
-	out.YesNo(ok[a])
+	out.Println(ans)
 }
 
 func main() {
