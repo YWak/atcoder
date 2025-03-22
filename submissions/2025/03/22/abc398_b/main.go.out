@@ -23,12 +23,14 @@ func calc(in *io.In, out *io.Out) {
 		if v >= 3 {
 			ok3 = true
 			c[i] = 0
+			break
 		}
 	}
 	for i, v := range c {
 		if v >= 2 {
 			ok2 = true
 			c[i] = 0
+			break
 		}
 	}
 	out.YesNo(ok3 && ok2)
