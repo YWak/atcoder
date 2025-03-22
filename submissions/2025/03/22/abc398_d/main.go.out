@@ -8,59 +8,119 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
-	_, r, c := in.NextInt3()
-	s := in.NextBytes()
-	smoke := map[int]map[int]bool{}
-	put := func(x, y int) {
-		m := smoke[x]
-		if m == nil {
-			m = map[int]bool{}
-			smoke[x] = m
-		}
-		m[y] = true
+	edge := func(x, y int) int {
+		return min(x, y)*1000 + max(x, y)
 	}
-	get := func(x, y int) bool {
-		m := smoke[x]
-		if m == nil {
-			return false
-		}
-		return m[y]
+	redge := func(e int) (int, int) {
+		return e / 1000, e % 1000
 	}
 
-	put(0, 0)
+	edges := map[int]bool{}
 
-	// 原点が逆向きにズレていく。(r, c)も逆向きにずれていく
-	or, oc := 0, 0
-	ans := []byte{}
-	for _, v := range s {
-		switch v {
-		case 'N':
-			or++
-		case 'W':
-			oc++
-		case 'S':
-			or--
-		case 'E':
-			oc--
-		}
-		put(or, oc)
-		if get(r+or, c+oc) {
-			ans = append(ans, '1')
-		} else {
-			ans = append(ans, '0')
+	n := in.NextInt()
+	g := make([][]int, n+1)
+	for i := 0; i < n-1; i++ {
+		u, v := in.NextInt2()
+		g[u] = append(g[u], v)
+		g[v] = append(g[v], u)
+
+		edges[edge(u, v)] = true
+	}
+
+	// 遇閉路になる辺をすべて列挙して、数を数えればよさそう.
+	// 候補は、頂点同士の距離が奇数の辺である
+	dist := ds.NewInt2d(n+1, n+1, -2)
+	var dfs func(start, curr, prev, d int)
+	dfs = func(start, curr, prev, d int) {
+		dist[start][curr] = d
+
+		for _, next := range g[curr] {
+			if next == prev {
+				continue
+			}
+
+			dfs(start, next, curr, d+1)
 		}
 	}
-	out.Println(string(ans))
+	for i := 1; i <= n; i++ {
+		dfs(i, i, -1, 0)
+	}
+
+	cands := map[int]bool{}
+	for x := 1; x <= n; x++ {
+		for y := 1; y <= n; y++ {
+			if dist[x][y]%2 == 0 {
+				// 距離が偶数なら接続できない
+				continue
+			}
+			e := edge(x, y)
+			if _, ex := edges[e]; ex {
+				// 既存の辺は使用できない
+				continue
+			}
+			cands[e] = true
+		}
+	}
+	get := func() int {
+		for k := range cands {
+			return k
+		}
+		return -1
+	}
+
+	var player int
+	if len(cands)%2 == 1 {
+		out.Println("First")
+		player = 0
+	} else {
+		out.Println("Second")
+		player = 1
+	}
+
+	for {
+		switch player {
+		case 0:
+			if len(cands) == 0 {
+				out.Println(-1, -1)
+				return
+			}
+
+			e := get()
+			if e == -1 {
+				out.Println(-1, -1)
+				return
+			}
+
+			out.Println(redge(e))
+			delete(cands, e)
+		case 1:
+			x, y := in.NextInt2()
+			if x == -1 && y == -1 {
+				return
+			}
+
+			e := edge(x, y)
+			if _, ex := cands[e]; !ex {
+				out.Println(-1, -1)
+				return
+			}
+
+			delete(cands, e)
+		}
+		// 入れ替え
+		player = 1 - player
+	}
 }
 
 func main() {
 	in, out := io.InitIo(&io.InitIoProps{
-		DoBuffer: true, // インタラクティブならfalseにすること。
+		DoBuffer: false, // インタラクティブならfalseにすること。
 		ReadLine: false,
 	})
 	defer out.Flush()
