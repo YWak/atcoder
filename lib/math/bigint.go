@@ -60,6 +60,14 @@ func (n *BigInt) Modn(v int) *BigInt {
 	return n.Mod(NewBigInt(v))
 }
 
+func (n *BigInt) Pow(v *BigInt) *BigInt {
+	return ptr(new(big.Int).Exp(n.raw(), v.raw(), nil))
+}
+
+func (n *BigInt) Pown(v int) *BigInt {
+	return n.Pow(NewBigInt(v))
+}
+
 func (n *BigInt) PowMod(v *BigInt, m *BigInt) *BigInt {
 	return ptr(new(big.Int).Exp(n.raw(), v.raw(), m.raw()))
 }
