@@ -8,29 +8,88 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
 
 func calc(in *io.In, out *io.Out) {
-	s := in.NextBytes()
-	ans := 0
-	cc := byte('o')
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if c == cc {
-			ans++
-			if cc == 'i' {
-				cc = 'o'
-			} else {
-				cc = 'i'
+	n := in.NextInt()
+	c := in.NextInts(n)
+	x := []int{0}
+
+	for _, t := range in.NextInts(n) {
+		x = append(x, t)
+	}
+
+	// s,tが同色として、区間 [s, t]をはじめに塗ることにしたとき,
+	// [s+1,t-1]に塗るコストが最小になるような塗り方が得られれば、最小コストがわかる
+
+	memo := ds.NewInt2d(n*2+1, n*2+1, -1)
+	norm := func(t int) int { return t % n }
+	for i := range memo {
+		for j := range memo {
+			if i == j {
+				memo[i][j] = 1 + x[c[norm(i)]]
 			}
-		} else {
-			cc = c
 		}
 	}
-	if cc == 'i' {
-		ans++
+
+	// 区間 [s, t]を塗るのに必要な最小コスト
+	var dfs func(s, t int) int
+	dfs = func(s, t int) int {
+		if memo[s][t] == -1 {
+			// sを塗り、その先を塗る
+			ans := INF18
+			if s+1 <= t {
+				chmin(&ans, 1+x[norm(s)]+dfs(s+1, t))
+			}
+
+			// sの色と同じ色になるところまで進め、それ以降の塗り方を決める
+			sum := 0   // 同じ色が見つかったとき、その間の区間の最小コストを合計したもの
+			prev := -1 // 直前に見つけた同じ色の位置
+			for i := s; i <= t; i++ {
+				if c[norm(s)] == c[norm(i)] {
+					if prev != -1 {
+						sum += dfs(prev+1, i-1)
+					}
+					b := i - s + 1
+					x := b + x[c[norm(s)]] // ここまでの区間を塗った分
+					x += sum               // ここまでの区間の異色分を塗った分
+					x += dfs(i+1, t)       // ここからの区間を塗った分
+					chmin(&ans, x)
+					prev = i
+				}
+			}
+
+			memo[s][t] = ans
+		}
+
+		return memo[s][t]
+	}
+
+	ans := INF18
+	for i := 0; i <= n; i++ {
+		chmin(&ans, dfs(i, i+n-1))
+	}
+
+	k := -1
+	for _, l := range memo {
+		for i, v := range l {
+			if v == INF18 {
+				l[i] = -2
+			}
+
+			chmax(&k, len(fmt.Sprint(l[i])))
+		}
+	}
+	for _, l := range memo {
+		ss := make([]string, len(l))
+		for i, v := range l {
+			f := fmt.Sprintf("%%%dd", k)
+			ss[i] = fmt.Sprintf(f, v)
+		}
+		debug(ss)
 	}
 	out.Println(ans)
 }
