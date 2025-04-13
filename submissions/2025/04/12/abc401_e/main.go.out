@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ywak/atcoder/lib/ds"
 	io "github.com/ywak/atcoder/lib/io"
 	"github.com/ywak/atcoder/lib/math"
 )
@@ -33,31 +32,48 @@ func calc(in *io.In, out *io.Out) {
 	// 1からkまでで、切断候補のノード
 	del := map[int]bool{}
 
-	// 1からkまでで、接続候補のノード
-	con := map[int]bool{}
+	// union-findを実装するが、rootは最小の頂点とする
+	roots := make([]int, n+1)
+	size := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		roots[i] = i
+		size[i] = 1
+	}
+	var root func(x int) int
+	root = func(x int) int {
+		if roots[x] != x {
+			roots[x] = root(roots[x])
+		}
+		return roots[x]
+	}
+	same := func(x, y int) bool {
+		rx, ry := root(x), root(y)
+		return rx == ry
+	}
+	unite := func(x, y int) {
+		rx, ry := root(x), root(y)
+		if rx != ry {
+			r := min(rx, ry)
+			roots[rx] = r
+			roots[ry] = r
+			size[r] = size[rx] + size[ry]
+		}
+	}
 
-	uf := ds.NewUnionFind(n + 1)
 	for i := 1; i <= n; i++ {
 		// iをi未満のノードと接続する
 		delete(del, i)
 		for _, j := range g[i] {
-			uf.Unite(i, j)
+			unite(i, j)
 		}
+
+		// iを超えるノードについては削除対象に入る
 		for _, j := range r[i] {
 			del[j] = true
 		}
 
-		// このノード未満の接続状況を改善する
-		for _, j := range g[i] {
-			if uf.Same(1, j) {
-				delete(con, uf.Root(j))
-			} else {
-				con[uf.Root(j)] = true
-			}
-		}
-
 		// このノードが1と接続されているか？
-		if uf.Same(1, i) && len(con) == 0 {
+		if same(1, i) && size[1] == i {
 			out.Println(len(del))
 		} else {
 			out.Println(-1)
