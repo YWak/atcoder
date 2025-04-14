@@ -104,6 +104,18 @@ func Powmod(x, n, m int) int {
 	return ans
 }
 
+// Sqrtnは x*x <= n となる最大の整数xを返します。
+func Sqrtn(n int) int {
+	if n == 0 {
+		return 0
+	}
+	x := int(math.Sqrt(float64(n)))
+	for x*x > n {
+		x--
+	}
+	return x
+}
+
 func Gcd(a, b int) int {
 	if b > a {
 		a, b = b, a
