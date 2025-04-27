@@ -106,16 +106,12 @@ func (t *Trie) String() string {
 		if node == nil {
 			return
 		}
-		suffix := ""
-		if node.end > 0 {
-			suffix = "*"
-		}
-		strs = append(strs, fmt.Sprintf("\"%s\"%s", prefix, suffix))
+		strs = append(strs, fmt.Sprintf("\"%s\": %d", prefix, node.end))
 		for c, next := range node.next {
 			dfs(next, fmt.Sprintf("%s%c", prefix, c))
 		}
 	}
 	dfs(t.root, "")
 
-	return strings.Join(strs, ", ")
+	return "{" + strings.Join(strs, ", ") + "}"
 }
