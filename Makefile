@@ -28,6 +28,7 @@ gottani:
 	mkdir -p sandbox
 	cp -f go.mod go.sum sandbox
 	gottani > sandbox/main.go
+	cp -f sandbox/main.go _main.go
 
 test: gottani
 	go build -o ./a.out sandbox/main.go
@@ -38,7 +39,6 @@ testadd:
 	for i in `seq 100`; do [ ! -e "test/test-$$i.in" ] && touch "test/test-$$i.in" "test/test-$$i.out" && exit; done
 
 submit: gottani
-	cp sandbox/main.go _main.go
 	oj submit _main.go
 	rm -f _main.go
 
