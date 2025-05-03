@@ -13,32 +13,32 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	n, m := in.NextInt2()
+	n := in.NextInt()
+	m := in.NextInt()
 	g := make([][]int, n)
 	for i := 0; i < m; i++ {
-		a, b := in.NextInt2()
-		a--
-		b--
+		a := in.NextInt() - 1
+		b := in.NextInt() - 1
 		g[a] = append(g[a], b)
 		g[b] = append(g[b], a)
 	}
 
-	ans := true
-	ans = ans && n == m       // 辺の数が頂点の数と同じでなければサイクルではない
-	visited := map[int]bool{} // 全頂点を辿れる必要がある
+	visited := map[int]bool{}
 	curr := 0
 	prev := -1
 	for i := 0; i < n; i++ {
 		visited[curr] = true
 		for _, next := range g[curr] {
-			if next != prev {
-				curr, prev = next, curr
-				break
+			if next == prev {
+				continue
 			}
+			// debug(curr, "->", next)
+			curr, prev = next, curr
+			break
 		}
 	}
-
-	out.YesNo(ans)
+	// debug(curr, visited, len(visited), n, m)
+	out.YesNo(curr == 0 && len(visited) == n && n == m)
 }
 
 func main() {
