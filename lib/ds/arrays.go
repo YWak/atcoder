@@ -107,3 +107,10 @@ func Unique[V constraints.Ordered](arr []V) []V {
 
 	return ret
 }
+
+func Rotate[V any](arr [][]V) [][]V {
+	ret := make([][]V, len(arr[0]))
+	for i, l := range arr {
+		for j
+	}
+}
