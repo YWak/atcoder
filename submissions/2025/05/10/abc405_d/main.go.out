@@ -21,60 +21,78 @@ func calc(in *io.In, out *io.Out) {
 	}
 
 	cost := ds.NewInt2d(h, w, INF18)
-	ans := make([][]byte, h)
-	for i := 0; i < h; i++ {
-		ans[i] = make([]byte, w)
-	}
 
 	type node struct {
 		x, y int
-		cost int
 	}
 
-	pq := ds.NewPriorityQueue(func(a, b *node) bool {
-		return a.cost < b.cost
-	})
+	queue := make([]*node, 0)
 
 	for i := 0; i < h; i++ {
 		for j := 0; j < w; j++ {
 			if s[i][j] == 'E' {
 				cost[i][j] = 0
-				pq.Push(&node{i, j, 0})
+				queue = append(queue, &node{i, j})
 			}
-			ans[i][j] = s[i][j]
 		}
 	}
 
 	dx := []int{+0, +1, -0, -1}
 	dy := []int{+1, +0, -1, -0}
-	d := []byte{'<', '^', '>', 'V'}
-	for pq.HasElements() {
-		n := pq.Pop()
-		if cost[n.x][n.y] < n.cost {
-			continue
-		}
+	dir := []byte{'>', 'v', '<', '^'}
+
+	isOut := func(x, y int) bool {
+		return x < 0 || h <= x || y < 0 || w <= y || s[x][y] == '#'
+	}
+
+	for len(queue) > 0 {
+		n := queue[0]
+		queue = queue[1:]
 		for i := 0; i < 4; i++ {
 			nx := n.x + dx[i]
 			ny := n.y + dy[i]
-			if nx < 0 || h <= nx || ny < 0 || w <= ny {
+			if isOut(nx, ny) {
 				continue
 			}
-			if s[nx][ny] == '#' {
-				continue
-			}
-			c := n.cost + 1
+			c := cost[n.x][n.y] + 1
 			if cost[nx][ny] <= c {
 				continue
 			}
 			cost[nx][ny] = c
-			pq.Push(&node{nx, ny, cost[nx][ny]})
-			ans[nx][ny] = d[i]
+			queue = append(queue, &node{nx, ny})
+		}
+	}
+
+	ans := make([][]byte, h)
+	for i := 0; i < h; i++ {
+		ans[i] = make([]byte, w)
+		for j := 0; j < w; j++ {
+			ans[i][j] = s[i][j]
+
+			if s[i][j] == '.' {
+				// 4方向で判断
+				for t := 0; t < 4; t++ {
+					nx := i + dx[t]
+					ny := j + dy[t]
+					if isOut(nx, ny) {
+						continue
+					}
+					if cost[nx][ny] < cost[i][j] {
+						if cost[nx][ny] != cost[i][j]-1 {
+							panic("invalid")
+						}
+						ans[i][j] = dir[t]
+						break
+					}
+				}
+			}
 		}
 	}
 
 	for _, v := range ans {
 		out.Println(string(v))
 	}
+
 }
 
 func main() {
