@@ -108,9 +108,14 @@ func Unique[V constraints.Ordered](arr []V) []V {
 	return ret
 }
 
+// arrを90度回転させた配列を返します。
 func Rotate[V any](arr [][]V) [][]V {
 	ret := make([][]V, len(arr[0]))
-	for i, l := range arr {
-		for j
+	for i := range arr {
+		for j, v := range arr[i] {
+			ret[j][len(arr)-1-i] = v
+		}
 	}
+
+	return ret
 }
