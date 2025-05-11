@@ -3,7 +3,7 @@ HISTORY_FILE := download-history.jsonl
 
 OJ_HISTORY := $(HISTORY_DIR)/$(HISTORY_FILE)
 
-.PHONY: clean gottani init test submit save restore
+.PHONY: clean gottani init test submit save restore testlib
 
 init:
 	cp .vscode/template.go main.go
@@ -52,6 +52,7 @@ save:
 	cp -f $(OJ_HISTORY) $(target)/
 	git add .
 	EDITOR="code --wait" git commit
+
 restore:
 	[ -z "$(dir)" ] && echo 'no dir' && exit 1 || true
 	[ -f main.go ] && echo 'main.go exists. do make save' && exit 1 || true
@@ -64,3 +65,6 @@ restore:
 	fi
 	cp -f $(dir)/main.go.out ./main.go
 	code ./main.go
+
+testlib:
+	go test ./lib/*
