@@ -131,6 +131,8 @@ type Combination interface {
 	// Factはnの階乗を返します。
 	Fact(n int) int
 
+	IFact(n int) int
+
 	// Permはn個のモノからr個取り出して並べる順列の個数を返します。
 	Perm(n, k int) int
 
@@ -165,6 +167,10 @@ func (com *factCombination) init(n int) {
 
 func (com *factCombination) Fact(n int) int {
 	return com.fact[n]
+}
+
+func (com *factCombination) IFact(n int) int {
+	return com.ifact[n]
 }
 
 func (com *factCombination) Perm(n, r int) int {
