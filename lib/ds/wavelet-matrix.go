@@ -100,14 +100,7 @@ func (wm *WaveletMatrix) Select(value, rank int) int {
 		if bit == 1 {
 			index -= wm.beginOne[wm.bitsize-i-1]
 		}
-		index = wm.begin[value] + rank
-		for j := 0; j < wm.bitsize; j++ {
-			bit := (value >> i) & 1
-			if bit == 1 {
-				index -= wm.beginOne[wm.bitsize-1-i]
-			}
-			index = wm.bits[wm.bitsize-1-i].Select(bit, index)
-		}
+		index = wm.bits[wm.bitsize-i-1].Select(bit, index)
 	}
 
 	return index
