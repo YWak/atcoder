@@ -1,7 +1,9 @@
 package ds
 
 import (
+	"fmt"
 	"math/bits"
+	"os"
 
 	"github.com/ywak/atcoder/lib/math"
 )
@@ -106,9 +108,10 @@ func (wm *WaveletMatrix) Select(value, rank int) int {
 	return index
 }
 
-func (wm *WaveletMatrix) RangeFreq(left, right int, mimVal, maxVal int) int {
+func (wm *WaveletMatrix) RangeFreq(left, right int, minVal, maxVal int) int {
 	_, maxi, _ := wm.rankAll(maxVal, left, right)
-	_, mini, _ := wm.rankAll(mimVal, left, right)
+	_, mini, _ := wm.rankAll(minVal, left, right)
+	fmt.Fprintf(os.Stderr, "RangeFreq(%d, %d, %d, %d) = %d - %d\n", left, right, minVal, maxVal, maxi, mini)
 	return maxi - mini
 }
 
@@ -117,7 +120,7 @@ func (wm *WaveletMatrix) rankAll(value, left, right int) (int, int, int) {
 	if left >= right {
 		return 0, 0, 0
 	}
-	if value >= wm.maxElem || right == 0 {
+	if value > wm.maxElem || right == 0 {
 		return 0, num, 0
 	}
 	less, more := 0, 0

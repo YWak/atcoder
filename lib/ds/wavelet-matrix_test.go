@@ -52,3 +52,39 @@ func TestWaveletMatrix_Select(t *testing.T) {
 		})
 	}
 }
+
+func TestWaveletMatrix_RangeFreq(t *testing.T) {
+	size := 100
+	p := 1 << 3
+	for q := 0; q < 1; q++ {
+		arr := make([]int, size)
+		for i := range arr {
+			arr[i] = rand.Intn(p)
+		}
+		t.Log(arr)
+		wm := ds.NewWaveletMatrix(arr)
+
+		// window size 5で全パターン試す
+		for r := 5; r < size; r++ {
+			l := r - 5
+
+			for x := 0; x < p; x++ {
+				for y := x; y < p; y++ {
+					t.Run(fmt.Sprintf("%d RangeFreq(%d, %d, %d, %d)", q, l, r, x, y), func(t *testing.T) {
+						actual := wm.RangeFreq(l, r, x, y)
+						expected := 0
+						for i := l; i < r; i++ {
+							v := arr[i]
+							if x <= v && v < y {
+								expected++
+							}
+						}
+						if actual != expected {
+							t.Errorf("RangeFreq(%d, %d, %d, %d) = %d, want %d", l, r, x, y, actual, expected)
+						}
+					})
+				}
+			}
+		}
+	}
+}
