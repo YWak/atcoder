@@ -9,8 +9,8 @@ import (
 )
 
 func TestSuccinctIndexableDictionary(t *testing.T) {
-	size := 100
-	for q := 0; q < 100; q++ {
+	size := 100000
+	for q := 0; q < 10; q++ {
 		s := ds.NewSuccinctIndexableDictionary(size)
 		arr := make([]int, size)
 		for i := 0; i < size; i++ {

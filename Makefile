@@ -67,4 +67,4 @@ restore:
 	code ./main.go
 
 testlib:
-	go test ./lib/*
+	go test ./lib/* -count=1

@@ -19,13 +19,13 @@ type SuccinctIndexableDictionary struct {
 }
 
 func NewSuccinctIndexableDictionary(size int) *SuccinctIndexableDictionary {
-	s := (size+64-1)/64 + 1
+	s := math.Divceil(size, 64) + 1
 
 	return &SuccinctIndexableDictionary{
 		size:  size,
 		bits:  make([]uint64, s),
-		large: make([]uint64, s/LEVEL_L+1),
-		small: make([]uint16, s/LEVEL_S+1),
+		large: make([]uint64, math.Divceil(size, LEVEL_L)+1),
+		small: make([]uint16, math.Divceil(size, LEVEL_S)+1),
 	}
 }
 
