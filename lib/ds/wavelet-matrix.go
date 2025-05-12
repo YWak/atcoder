@@ -112,6 +112,10 @@ func (wm *WaveletMatrix) RangeFreq(left, right int, minVal, maxVal int) int {
 	return maxi - mini
 }
 
+func (wm *WaveletMatrix) RankAll(left, right, value int) (int, int, int) {
+	return wm.rankAll(value, left, right)
+}
+
 func (wm *WaveletMatrix) rankAll(value, left, right int) (int, int, int) {
 	num := right - left
 	if left >= right {
