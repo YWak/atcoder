@@ -1,6 +1,7 @@
 package ds
 
 import (
+	"fmt"
 	"math/bits"
 
 	"github.com/ywak/atcoder/lib/math"
@@ -66,6 +67,9 @@ func (s *SuccinctIndexableDictionary) Build() {
 
 // Rankは[0, i)に含まれるbitの数を返す。
 func (s *SuccinctIndexableDictionary) Rank(bit, i int) int {
+	if i < 0 {
+		panic(fmt.Sprintf("index must not be negative. %d", i))
+	}
 	if bit == 1 {
 		return s.rank1(i)
 	} else {
