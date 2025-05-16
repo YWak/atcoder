@@ -15,7 +15,7 @@ require (
 	github.com/ktateish/gottani v0.0.0-20221217075832-2d0281a91dc6 // indirect
 	github.com/liyue201/gostl v1.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/exp v0.0.0-20230519143937-03e91628a987 // indirect
+	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
 	golang.org/x/image v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/tools v0.9.1 // indirect

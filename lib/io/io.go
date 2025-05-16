@@ -66,9 +66,18 @@ func InitIo(props *InitIoProps) (*In, *Out) {
 }
 
 // NextBytes は 次の入力をbyteの配列として読み込んで返します。
-// 遅いから極力使わない。
 func (in *In) NextBytes() []byte {
 	return []byte(in.NextString())
+}
+
+// NextByteは次の1文字の入力を読み込み、byteとして返します。
+func (in *In) NextByte() byte {
+	s := in.NextString()
+	if len(s) != 1 {
+		panic("NextByte: length is not 1")
+	}
+
+	return s[0]
 }
 
 // NextInt は 次の入力を数値として読み込んで返します。

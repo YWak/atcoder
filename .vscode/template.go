@@ -34,6 +34,12 @@ func debug(args ...interface{}) {
 	}
 }
 
+func debugf(format string, args ...interface{}) {
+	if isDebugMode {
+		fmt.Fprintf(os.Stderr, format+"\n", args...)
+	}
+}
+
 // ==================================================
 // 数値操作
 // ==================================================
