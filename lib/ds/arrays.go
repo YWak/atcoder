@@ -119,3 +119,25 @@ func Rotate[V any](arr [][]V) [][]V {
 
 	return ret
 }
+
+// ForEachは配列の各要素に対してoperatorを適用します。
+// operatorがfalseを返した場合、処理を終了します。
+func ForEach[V any](arr []V, operator func(v V, i int) bool) {
+	for i, v := range arr {
+		next := operator(v, i)
+		if !next {
+			break
+		}
+	}
+}
+
+// ForEachReverseは配列の各要素に対して逆順にoperatorを適用します。
+// operatorがfalseを返した場合、処理を終了します。
+func ForEachReverse[V any](arr []V, operator func(v V, i int) bool) {
+	for i := len(arr) - 1; i >= 0; i-- {
+		next := operator(arr[i], i)
+		if !next {
+			break
+		}
+	}
+}
