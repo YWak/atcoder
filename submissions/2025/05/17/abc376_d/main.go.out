@@ -21,33 +21,31 @@ func calc(in *io.In, out *io.Out) {
 		b--
 		g[a] = append(g[a], b)
 	}
-
-	var dfs func(curr, prev int, hist map[int]bool) int
-	dfs = func(curr, prev int, hist map[int]bool) int {
-		if hist[curr] {
-			if curr == 0 {
-				// debug(len(hist), hist)
-				return len(hist)
-			} else {
-				return INF18
-			}
-		}
-
-		hist[curr] = true
-
-		ans := INF18
-		for _, next := range g[curr] {
-			if next == prev {
-				continue
-			}
-			chmin(&ans, dfs(next, curr, hist))
-		}
-
-		delete(hist, curr)
-		return ans
+	dist := make([]int, n)
+	for i := 1; i < n; i++ {
+		dist[i] = INF18
 	}
 
-	ans := dfs(0, -1, map[int]bool{})
+	ans := INF18
+	queue := []int{0}
+	for len(queue) > 0 {
+		curr := queue[0]
+		queue = queue[1:]
+		for _, next := range g[curr] {
+			c := dist[curr] + 1
+			if next == 0 {
+				chmin(&ans, c)
+				queue = []int{}
+				break
+			}
+			if dist[next] <= c {
+				continue
+			}
+			dist[next] = c
+			queue = append(queue, next)
+		}
+	}
+
 	if ans == INF18 {
 		ans = -1
 	}
