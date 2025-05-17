@@ -33,12 +33,12 @@ func TestSuccinctIndexableDictionary(t *testing.T) {
 			cnt := [2]int{}
 
 			for i := 0; i < size; i++ {
-				r0 := s.Rank(0, i)
+				r0 := s.Rank(i, 0)
 				if r0 != cnt[0] {
 					t.Errorf("Rank(0, %d) = %d, want %d", i, r0, cnt[0])
 				}
 
-				r1 := s.Rank(1, i)
+				r1 := s.Rank(i, 1)
 				if r1 != cnt[1] {
 					t.Errorf("Rank(1, %d) = %d, want %d", i, r1, cnt[1])
 				}

@@ -66,7 +66,7 @@ func (s *SuccinctIndexableDictionary) Build() {
 }
 
 // Rankは[0, i)に含まれるbitの数を返す。
-func (s *SuccinctIndexableDictionary) Rank(bit, i int) int {
+func (s *SuccinctIndexableDictionary) Rank(i int, bit uint) int {
 	if i < 0 {
 		panic(fmt.Sprintf("index must not be negative. %d", i))
 	}
@@ -101,7 +101,7 @@ func (s *SuccinctIndexableDictionary) Select(bit, rank int) int {
 	ng, ok := 0, s.size+1
 	for math.Abs(ok-ng) > 1 {
 		mid := (ok + ng) / 2
-		if s.Rank(bit, mid) >= rank {
+		if s.Rank(mid, uint(mid)) >= rank {
 			ok = mid
 		} else {
 			ng = mid

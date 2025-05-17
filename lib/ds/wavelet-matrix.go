@@ -74,18 +74,18 @@ func (wm *WaveletMatrix) Get(index int) int {
 		return -1
 	}
 
-	value := 0
+	value := uint(0)
 	for i := 0; i < wm.bitsize; i++ {
-		bit := wm.bits[i].Get(index)
-		value = (value << 1) | bit
+		bit := uint(wm.bits[i].Get(index))
+		value = uint(value<<1) | bit
 
-		index = wm.bits[i].Rank(bit, index)
+		index = wm.bits[i].Rank(index, bit)
 		if bit == 1 {
 			index += wm.beginOne[i]
 		}
 	}
 
-	return value
+	return int(value)
 }
 
 // Selectはi番目のcの位置+1を返す。rankは1-origin。
@@ -106,14 +106,82 @@ func (wm *WaveletMatrix) Select(value, rank int) int {
 	return index
 }
 
+// Rankはwm[0:index)の中にvalueがいくつあるかを返します。
+func (wm *WaveletMatrix) Rank(index, value int) int {
+	if value >= wm.maxElem {
+		return 0
+	}
+	if _, ex := wm.begin[value]; !ex {
+		return 0
+	}
+
+	for i := 0; i < wm.bitsize; i++ {
+		bit := uint(value>>(wm.bitsize-1-i)) & 1
+		index = wm.bits[i].Rank(index, bit)
+		if bit == 1 {
+			index += wm.beginOne[i]
+		}
+	}
+
+	return index - wm.begin[value]
+}
+
+// QuantileRangeは、[left, right)の範囲に含まれるk(0-origin)番目の値を返します。
+func (wm *WaveletMatrix) QuantileRange(left, right, k int) int {
+	if right > wm.n || left >= right || k >= (right-left) {
+		return -1
+	}
+
+	val := 0
+	for i := 0; i < wm.bitsize; i++ {
+		size_of_zero_left := wm.bits[i].Rank(left, 0)
+		size_of_zero_right := wm.bits[i].Rank(right, 0)
+		size_of_zero := size_of_zero_right - size_of_zero_left
+		var bit uint
+		if k < size_of_zero {
+			bit = 0
+		} else {
+			bit = 1
+		}
+
+		if bit == 1 {
+			k -= size_of_zero
+			left = wm.beginOne[i] + size_of_zero_left - size_of_zero_left
+			right = wm.beginOne[i] + size_of_zero_right - size_of_zero_right
+		} else {
+			left = size_of_zero_left
+			right = size_of_zero_left + size_of_zero
+		}
+	}
+	l := 0
+	for i := 0; i < wm.bitsize; i++ {
+		bit := uint(val>>(wm.bitsize-1-i)) & 1
+		left = wm.bits[i].Rank(left, bit)
+		if bit == 1 {
+			left += wm.beginOne[i]
+		}
+	}
+
+	return wm.Select(val, left+k-l+1) - 1
+}
+
+// RangeFreqは、[left, right)の範囲に含まれる[minVal, maxVal)の個数を返します。
 func (wm *WaveletMatrix) RangeFreq(left, right int, minVal, maxVal int) int {
 	_, maxi, _ := wm.rankAll(maxVal, left, right)
 	_, mini, _ := wm.rankAll(minVal, left, right)
 	return maxi - mini
 }
 
-func (wm *WaveletMatrix) RankAll(left, right, value int) (int, int, int) {
-	return wm.rankAll(value, left, right)
+// FreqLessThanは、[left, right)の範囲に含まれるminValより小さい値の個数を返します。
+func (wm *WaveletMatrix) FreqLessThan(left, right int, minVal int) int {
+	idx, _, _ := wm.rankAll(minVal, left, right)
+	return idx
+}
+
+// FreqGreaterThanは、[left, right)の範囲に含まれるmaxValより大きい値の個数を返します。
+func (wm *WaveletMatrix) FreqGreaterThan(left, right int, maxVal int) int {
+	_, _, idx := wm.rankAll(maxVal, left, right)
+	return idx
 }
 
 func (wm *WaveletMatrix) rankAll(value, left, right int) (int, int, int) {
@@ -127,8 +195,8 @@ func (wm *WaveletMatrix) rankAll(value, left, right int) (int, int, int) {
 	less, more := 0, 0
 	for i := 0; i < wm.bitsize && left < right; i++ {
 		bit := (value >> (wm.bitsize - 1 - i)) & 1
-		rank0left := wm.bits[i].Rank(0, left)
-		rank0right := wm.bits[i].Rank(0, right)
+		rank0left := wm.bits[i].Rank(left, 0)
+		rank0right := wm.bits[i].Rank(right, 0)
 		rank1left := left - rank0left
 		rank1right := right - rank0right
 
