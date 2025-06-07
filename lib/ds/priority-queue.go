@@ -1,53 +1,7 @@
 package ds
 
-import (
-	"container/heap"
-)
-
-// PriorityQueueListは優先度付きキューのリストを表す
-// この型はPriorityQueueとheapが要求するメソッド名が重複しないようにするための
-type PriorityQueueList struct {
-	values []interface{}
-	prior  func(a, b interface{}) bool
-}
-
-// PriorityQueueListは heap.Interfaceを満たす.
-var _ heap.Interface = &PriorityQueueList{}
-
-// Less は要素を比較し、優先度が低いかどうかを判断します
-func (list PriorityQueueList) Less(i, j int) bool {
-	return list.prior(list.values[i], list.values[j])
-}
-
-// Len は要素の数を返します。
-func (list PriorityQueueList) Len() int {
-	return len(list.values)
-}
-
-// Swap は要素を交換します。
-func (list PriorityQueueList) Swap(i, j int) {
-	list.values[i], list.values[j] = list.values[j], list.values[i]
-}
-
-// Pop は要素を取り出して返します。
-func (list *PriorityQueueList) Pop() interface{} {
-	old := list.values
-	n := len(old)
-	item := old[n-1]
-	values := old[:n-1]
-	list.values = values
-	return item
-}
-
-// Push は要素を追加します。
-func (list *PriorityQueueList) Push(item interface{}) {
-	list.values = append(list.values, item)
-}
-
 // PriorityQueue は優先度付きキューを表す
 type PriorityQueue[T any] struct {
-	list PriorityQueueList
-
 	// Pushは優先度付きキューに要素を一つ追加します。
 	Push func(value T)
 
@@ -69,28 +23,66 @@ type PriorityQueue[T any] struct {
 
 // NewPriorityQueueはpriorで優先度が決まる空の優先度付きキューを返します。
 func NewPriorityQueue[T any](prior func(a, b T) bool) *PriorityQueue[T] {
-	list := PriorityQueueList{
-		prior: func(a, b interface{}) bool { return prior(a.(T), b.(T)) },
-	}
+	list := []T{}
+
 	return &PriorityQueue[T]{
-		list: list,
 		Push: func(value T) {
-			heap.Push(&list, value)
+			list = append(list, value)
+			for leaf := len(list) - 1; leaf > 0; /* nop */ {
+				// 親と比べて小さければ値を入れ替えて、処理を継続する
+				parent := (leaf - 1) / 2
+				if prior(list[parent], list[leaf]) {
+					break
+				}
+				list[leaf], list[parent] = list[parent], list[leaf]
+				leaf = parent
+			}
 		},
 		Pop: func() T {
-			return heap.Pop(&list).(T)
+			val := list[0]
+			last := len(list) - 1
+			list[0] = list[last]
+			list = list[:last]
+
+			var next int
+			for parent := 0; parent < len(list); parent = next {
+				left := parent*2 + 1
+				right := parent*2 + 2
+
+				// 子が存在しないので終了
+				if left >= len(list) {
+					break
+				}
+
+				// どちらが大きいか？
+				if right >= len(list) || prior(list[left], list[right]) {
+					// 左を採用する
+					next = left
+				} else {
+					// 右を採用する
+					next = right
+				}
+
+				// 現在の値が子より優先度が高いなら終了
+				if prior(list[parent], list[next]) {
+					break
+				}
+				list[parent], list[next] = list[next], list[parent]
+			}
+
+			return val
 		},
 		Peek: func() T {
-			return list.values[0].(T)
+			return list[0]
 		},
 		IsEmpty: func() bool {
-			return list.Len() == 0
+			return len(list) == 0
 		},
 		HasElements: func() bool {
-			return list.Len() > 0
+			return len(list) > 0
 		},
 		Count: func() int {
-			return list.Len()
+			return len(list)
 		},
 	}
 }
