@@ -31,7 +31,7 @@ func NewSuccinctIndexableDictionary(size int) *SuccinctIndexableDictionary {
 }
 
 // Setはi番目のビットをbitにします。
-func (s *SuccinctIndexableDictionary) Set(i int, bit int) {
+func (s *SuccinctIndexableDictionary) Set(i int, bit uint) {
 	pos, offset := s.index(i)
 
 	if bit == 1 {
@@ -41,9 +41,9 @@ func (s *SuccinctIndexableDictionary) Set(i int, bit int) {
 	}
 }
 
-func (s *SuccinctIndexableDictionary) Get(i int) int {
+func (s *SuccinctIndexableDictionary) Get(i int) uint {
 	pos, offset := s.index(i)
-	return int(s.bits[pos]>>offset) & 1
+	return uint(s.bits[pos]>>offset) & 1
 }
 
 func (s *SuccinctIndexableDictionary) index(i int) (int, int) {
@@ -95,13 +95,13 @@ func (s *SuccinctIndexableDictionary) rank1(i int) int {
 }
 
 // rank番目のbitの位置 + 1を返す。rankは1-origin。
-func (s *SuccinctIndexableDictionary) Select(bit, rank int) int {
+func (s *SuccinctIndexableDictionary) Select(bit uint, rank int) int {
 	// 暫定対応でrankを使って二分探索する
 	// s.Rank(bit, ok+1) == rankとなるような最小のokを求める
 	ng, ok := 0, s.size+1
 	for math.Abs(ok-ng) > 1 {
 		mid := (ok + ng) / 2
-		if s.Rank(mid, uint(mid)) >= rank {
+		if s.Rank(mid, bit) >= rank {
 			ok = mid
 		} else {
 			ng = mid

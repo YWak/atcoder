@@ -96,7 +96,7 @@ func (wm *WaveletMatrix) Select(value, rank int) int {
 
 	index := wm.begin[value] + rank
 	for i := 0; i < wm.bitsize; i++ {
-		bit := (value >> i) & 1
+		bit := uint(value>>i) & 1
 		if bit == 1 {
 			index -= wm.beginOne[wm.bitsize-i-1]
 		}
