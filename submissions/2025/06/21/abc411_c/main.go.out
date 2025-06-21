@@ -20,56 +20,55 @@ type pair struct {
 
 func calc(in *io.In, out *io.Out) {
 	n, Q := in.NextInt2()
-	a := in.NextInts(Q)
 	b := make([]int, n+1)
 
 	// 黒の区間を表す
 	m := rbt.NewWith(func(a, b any) int {
 		aa, bb := a.(*pair), b.(*pair)
-		if aa.l != bb.l {
-			return aa.l - bb.l
-		}
-		return aa.r - bb.r
+		return aa.l - bb.l
 	})
 
-	for _, v := range a {
-		if b[v] == 0 {
+	for _, a := range in.NextInts(Q) {
+		// debug("current corror", b[a])
+		if b[a] == 0 {
 			// 黒を追加する
 			// 一個前と一個後を取得し、必要ならマージする
-			r := &pair{v, v + 1}
+			r := &pair{a, a}
 			if node, ex := m.Floor(r); ex {
 				lower := node.Key.(*pair)
-				// debug(i, v, "lower:", lower)
-				if lower.r >= r.l {
+				// debug(i, a, "lower:", lower)
+				if lower.r+1 >= r.l {
 					r.l = lower.l
 					m.Remove(lower)
 				}
 			}
 			if node, ex := m.Ceiling(r); ex {
 				upper := node.Key.(*pair)
-				// debug(i, v, "upper:", upper)
-				if upper.l <= r.r {
+				// debug(i, a, "upper:", upper)
+				if upper.l <= r.r+1 {
 					r.r = upper.r
 					m.Remove(upper)
 				}
 			}
 			m.Put(r, nil)
-			b[v] = 1
+			b[a] = 1
 		} else {
 			// 白にする
 			// 含まれる区間を取得し、あれば分割して保存する
-			if node, ex := m.Floor(&pair{v, v + 1}); ex {
+			if node, ex := m.Floor(&pair{a, a}); ex {
 				r := node.Key.(*pair)
 				m.Remove(r)
-				// debug(i, v, "r:", r)
-				if r.l < v {
-					m.Put(&pair{r.l, v}, nil) // 左側を保存
+				// debug(i, a, "r:", r)
+				if r.l < a {
+					// debug("save left", r.l, a-1)
+					m.Put(&pair{r.l, a - 1}, nil) // 左側を保存
 				}
-				if v+1 < r.r {
-					m.Put(&pair{v + 1, r.r}, nil) // 右側を保存
+				if a < r.r {
+					// debug("save right", a+1, r.r)
+					m.Put(&pair{a + 1, r.r}, nil) // 右側を保存
 				}
 			}
-			b[v] = 0
+			b[a] = 0
 		}
 		out.Println(m.Size())
 		// debug(m.String())
