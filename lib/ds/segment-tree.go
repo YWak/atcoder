@@ -26,6 +26,9 @@ type SegmentTree[V any] struct {
 	//
 	//	https://atcoder.jp/contests/abl/tasks/abl_d
 	Query func(l, r int) V
+
+	// Getはi(0-based)番目の値を返します。
+	Get func(i int) V
 }
 
 // NewSegmentTreeは区間和を扱うSegmentTreeを返します。
@@ -90,6 +93,9 @@ func NewSegmentTree[V any](
 		}
 
 		return ret
+	}
+	st.Get = func(i int) V {
+		return nodes[i+size]
 	}
 
 	st.Init = init
