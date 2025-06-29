@@ -14,40 +14,50 @@ import (
 )
 
 func calc(in *io.In, out *io.Out) {
-	t := in.NextInt()
-	for i := 0; i < t; i++ {
+	T := in.NextInt()
+	for t := 0; t < T; t++ {
 		n := in.NextInt()
 		s := in.NextInts(n)
-		item := []int{s[0]}
+		first := s[0]
 		last := s[n-1]
 		s = s[1 : n-1]
 		sort.Ints(s)
 
-		// item[l] *2 >= s[0]となるように提出していく
-		ok := false
-		for len(s) >= 0 {
-			p := item[len(item)-1] * 2
-			if p >= last {
-				item = append(item, last)
-				ok = true
+		items := []int{first}
+		check := func(a, b int) bool { return a*2 >= b }
+		for _, v := range s {
+			top := items[len(items)-1]
+			if check(top, last) {
 				break
 			}
-			if len(s) == 0 {
-				break
-			}
-			for len(s) > 1 && s[1] <= p {
-				s = s[1:]
-			}
-			if len(s) > 0 {
-				item = append(item, s[0])
-				s = s[1:]
+
+			if len(items) == 1 {
+				if !check(first, v) {
+					break
+				}
+				items = append(items, v)
+			} else {
+				prev := items[len(items)-2]
+				if check(prev, v) {
+					items[len(items)-1] = v
+				} else if check(top, v) {
+					items = append(items, v)
+				} else {
+					break
+				}
 			}
 		}
-
-		if !ok {
-			out.Println(-1)
+		items = append(items, last)
+		ok := true
+		for i := 0; i < len(items)-1; i++ {
+			if items[i]*2 < items[i+1] {
+				ok = false
+			}
+		}
+		if ok {
+			out.Println(len(items))
 		} else {
-			out.Println(len(item))
+			out.Println(-1)
 		}
 	}
 }
