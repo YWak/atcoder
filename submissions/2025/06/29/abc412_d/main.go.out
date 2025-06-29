@@ -32,7 +32,7 @@ func calc(in *io.In, out *io.Out) {
 			cost[s] = 0
 			continue
 		}
-		if popcount(s) == 1 {
+		if popcount(s) <= 2 {
 			continue
 		}
 		o := []int{}
